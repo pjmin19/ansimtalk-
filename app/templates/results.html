@@ -44,13 +44,6 @@
                     <div class="raw-data-box">
                         <pre>{{ result.deepfake_analysis | tojson(indent=2) }}</pre>
                     </div>
-                    
-                    {% if result.extracted_text %}
-                        <h3>추출된 텍스트:</h3>
-                        <div class="extracted-text-box">
-                            <pre>{{ result.extracted_text }}</pre>
-                        </div>
-                    {% endif %}
                 {% endif %}
             </div>
         {% elif result.analysis_type == 'cyberbullying' %}
