@@ -334,8 +334,6 @@ def _fallback_deepfake_analysis(file_path, file_extension):
 
 def extract_text_from_image(image_path):
     try:
-        # Google Cloud Vision API 자격 증명 파일 사용 제거
-        # 대신 간단한 이미지 분석만 수행
         print(f"이미지 텍스트 추출 시작: {image_path}")
         
         # 이미지 파일 존재 확인
@@ -343,7 +341,7 @@ def extract_text_from_image(image_path):
             print(f"이미지 파일이 존재하지 않음: {image_path}")
             return ""
         
-        # 기본적인 이미지 정보만 추출
+        # 기본적인 이미지 정보 추출
         with Image.open(image_path) as img:
             width, height = img.size
             format_type = img.format
@@ -351,9 +349,28 @@ def extract_text_from_image(image_path):
             
             print(f"이미지 정보: {width}x{height}, {format_type}, {mode}")
             
-            # Google Cloud Vision API 대신 기본 메시지 반환
-            # 실제 OCR 기능은 나중에 구현
-            return f"[이미지에서 텍스트를 추출할 수 없습니다. 이미지 크기: {width}x{height}, 형식: {format_type}]"
+            # pytesseract를 사용한 OCR 시도
+            try:
+                # 이미지를 RGB로 변환 (pytesseract는 RGB 필요)
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                # OCR 수행
+                extracted_text = pytesseract.image_to_string(img, lang='kor+eng')
+                
+                # 텍스트 정리
+                extracted_text = extracted_text.strip()
+                
+                if extracted_text:
+                    print(f"OCR 성공: {len(extracted_text)} 문자 추출")
+                    return extracted_text
+                else:
+                    print("OCR 결과: 텍스트가 발견되지 않음")
+                    return f"[이미지에서 텍스트를 찾을 수 없습니다. 이미지 크기: {width}x{height}, 형식: {format_type}]"
+                    
+            except Exception as ocr_error:
+                print(f"OCR 오류: {ocr_error}")
+                return f"[OCR 처리 중 오류 발생: {ocr_error}. 이미지 크기: {width}x{height}, 형식: {format_type}]"
             
     except Exception as e:
         print(f"이미지 텍스트 추출 오류: {e}")
