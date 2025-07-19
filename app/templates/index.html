@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>안심톡 - AI 기반 디지털 안전망</title>
     <meta name="description" content="AI로 딥페이크와 사이버폭력을 분석하고 디지털 증거를 안전하게 증거화하는 서비스">
     <meta name="keywords" content="딥페이크, 사이버폭력, AI분석, 디지털증거, 안전망, 증거화">
@@ -11,6 +11,10 @@
     <meta property="og:description" content="AI로 딥페이크와 사이버폭력을 분석하고 디지털 증거를 안전하게 증거화하는 서비스">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.url }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#3498db">
     <link rel="canonical" href="{{ request.url }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
