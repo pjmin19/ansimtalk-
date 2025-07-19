@@ -7,5 +7,4 @@ google-cloud-vision
 openai
 requests
 fpdf
-pytesseract
 google-generativeai

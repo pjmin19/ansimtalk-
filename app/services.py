@@ -347,58 +347,44 @@ def extract_text_from_image(image_path):
             print(f"이미지 파일이 존재하지 않음: {image_path}")
             return ""
         
-        # Google Cloud Vision API 사용 시도
+        # Google Cloud Vision API 사용
         try:
-            credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-            if os.path.exists(credentials_path):
-                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-                client = vision.ImageAnnotatorClient()
-                with open(image_path, "rb") as image_file:
-                    content = image_file.read()
-                image = vision.Image(content=content)
-                response = client.text_detection(image=image)
-                texts = response.text_annotations
-                if not texts:
-                    print("Google Vision API 결과: 텍스트가 발견되지 않음")
-                    return "[이미지에서 텍스트를 찾을 수 없습니다.]"
-                extracted_text = texts[0].description.strip()
-                print(f"Google Vision API 성공: {len(extracted_text)} 문자 추출")
-                return extracted_text
+            # Railway 환경에서 환경 변수로 설정된 서비스 계정 키 사용
+            import json
+            from google.oauth2 import service_account
+            
+            # 환경 변수에서 서비스 계정 키 JSON 가져오기
+            service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+            if service_account_info:
+                # JSON 문자열을 파싱하여 서비스 계정 정보 생성
+                service_account_dict = json.loads(service_account_info)
+                credentials = service_account.Credentials.from_service_account_info(service_account_dict)
+                client = vision.ImageAnnotatorClient(credentials=credentials)
             else:
-                raise Exception("Google Cloud 인증 파일이 없습니다")
+                # 기존 방식 (로컬 파일)
+                credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+                if os.path.exists(credentials_path):
+                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+                    client = vision.ImageAnnotatorClient()
+                else:
+                    print("Google Cloud 인증 정보가 설정되지 않았습니다")
+                    return "[Google Cloud 인증 정보가 설정되지 않았습니다. 관리자에게 문의하세요.]"
+            
+            with open(image_path, "rb") as image_file:
+                content = image_file.read()
+            image = vision.Image(content=content)
+            response = client.text_detection(image=image)
+            texts = response.text_annotations
+            if not texts:
+                print("Google Vision API 결과: 텍스트가 발견되지 않음")
+                return "[이미지에서 텍스트를 찾을 수 없습니다.]"
+            extracted_text = texts[0].description.strip()
+            print(f"Google Vision API 성공: {len(extracted_text)} 문자 추출")
+            return extracted_text
                 
         except Exception as vision_error:
             print(f"Google Vision API 오류: {vision_error}")
-            
-            # 대체 방법: pytesseract 사용
-            try:
-                with Image.open(image_path) as img:
-                    width, height = img.size
-                    format_type = img.format
-                    mode = img.mode
-                    
-                    print(f"이미지 정보: {width}x{height}, {format_type}, {mode}")
-                    
-                    # 이미지를 RGB로 변환 (pytesseract는 RGB 필요)
-                    if img.mode != 'RGB':
-                        img = img.convert('RGB')
-                    
-                    # OCR 수행
-                    extracted_text = pytesseract.image_to_string(img, lang='kor+eng')
-                    
-                    # 텍스트 정리
-                    extracted_text = extracted_text.strip()
-                    
-                    if extracted_text:
-                        print(f"Tesseract OCR 성공: {len(extracted_text)} 문자 추출")
-                        return extracted_text
-                    else:
-                        print("Tesseract OCR 결과: 텍스트가 발견되지 않음")
-                        return f"[이미지에서 텍스트를 찾을 수 없습니다. 이미지 크기: {width}x{height}, 형식: {format_type}]"
-                        
-            except Exception as ocr_error:
-                print(f"Tesseract OCR 오류: {ocr_error}")
-                return f"[OCR 처리 중 오류 발생: {ocr_error}. 이미지 크기: {width}x{height}, 형식: {format_type}]"
+            return f"[Google Cloud Vision API 오류: {vision_error}]"
             
     except Exception as e:
         print(f"이미지 텍스트 추출 오류: {e}")
