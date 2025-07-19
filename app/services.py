@@ -194,7 +194,7 @@ def analyze_image_with_sightengine(file_path):
     url = 'https://api.sightengine.com/1.0/check.json'
     
     try:
-        # 파일을 바이너리 모드로 열고 내용 확인
+        # 파일을 메모리에 로드
         with open(abs_file_path, 'rb') as f:
             file_content = f.read()
             print(f"파일 내용 크기: {len(file_content)} bytes")
@@ -202,44 +202,42 @@ def analyze_image_with_sightengine(file_path):
             if len(file_content) == 0:
                 print("오류: 파일 내용이 비어있습니다.")
                 return {'error': 'File content is empty'}
-            
-            # 파일을 다시 처음으로 되돌리기
-            f.seek(0)
-            
-            # 파일명에서 특수문자 제거
-            safe_filename = os.path.basename(abs_file_path)
-            safe_filename = ''.join(c for c in safe_filename if c.isalnum() or c in '.-_')
-            
-            files = {'media': (safe_filename, f, mime_type)}
-            params = {
-                'models': 'deepfake,offensive,nudity,wad',
-                'api_user': api_user,
-                'api_secret': api_secret
-            }
-            
-            print(f"API 요청 시작: {url}")
-            print(f"파일명: {safe_filename}")
-            print(f"파일 타입: {mime_type}")
-            
-            response = requests.post(url, files=files, data=params, timeout=60)
-            
-            print(f"API 응답 상태 코드: {response.status_code}")
-            print(f"API 응답 헤더: {dict(response.headers)}")
-            
-            if response.status_code != 200:
-                print(f"API 오류 응답: {response.text}")
-                return {'error': f'API Error: {response.status_code} - {response.text}'}
-            
-            result = response.json()
-            print(f"Sightengine API 응답: {result}")
-            
-            # 응답에 오류가 있는지 확인
-            if 'error' in result:
-                print(f"Sightengine API 오류: {result['error']}")
-                return {'error': f'Sightengine API error: {result["error"]}'}
-            
-            return result
-            
+        
+        # 파일명에서 특수문자 제거
+        safe_filename = os.path.basename(abs_file_path)
+        safe_filename = ''.join(c for c in safe_filename if c.isalnum() or c in '.-_')
+        
+        # 메모리에서 직접 파일 업로드
+        files = {'media': (safe_filename, file_content, mime_type)}
+        params = {
+            'models': 'deepfake,offensive,nudity,wad',
+            'api_user': api_user,
+            'api_secret': api_secret
+        }
+        
+        print(f"API 요청 시작: {url}")
+        print(f"파일명: {safe_filename}")
+        print(f"파일 타입: {mime_type}")
+        
+        response = requests.post(url, files=files, data=params, timeout=60)
+        
+        print(f"API 응답 상태 코드: {response.status_code}")
+        print(f"API 응답 헤더: {dict(response.headers)}")
+        
+        if response.status_code != 200:
+            print(f"API 오류 응답: {response.text}")
+            return {'error': f'API Error: {response.status_code} - {response.text}'}
+        
+        result = response.json()
+        print(f"Sightengine API 응답: {result}")
+        
+        # 응답에 오류가 있는지 확인
+        if 'error' in result:
+            print(f"Sightengine API 오류: {result['error']}")
+            return {'error': f'Sightengine API error: {result["error"]}'}
+        
+        return result
+        
     except FileNotFoundError as e:
         print(f"파일을 찾을 수 없음: {e}")
         return {'error': f'File was not found: {abs_file_path}'}
