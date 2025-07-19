@@ -126,14 +126,20 @@ def analyze_file(file_path, analysis_type, file_extension):
     elif analysis_type == 'cyberbullying':
         if file_extension in {'png', 'jpg', 'jpeg'}:
             extracted_text = extract_text_from_image(file_path)
-            if extracted_text.strip():
+            if extracted_text.strip() and not extracted_text.startswith('['):
+                # 텍스트 추출 성공
                 gemini_result = analyze_text_with_gemini(extracted_text)
                 result['extracted_text'] = extracted_text
                 result['cyberbullying_analysis'] = gemini_result.get('table', '')
                 result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
                 result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
             else:
-                result['error'] = '이미지에서 텍스트를 추출할 수 없습니다.'
+                # 텍스트 추출 실패 시 대체 분석 제공
+                result['extracted_text'] = extracted_text if extracted_text else "[이미지에서 텍스트를 추출할 수 없습니다.]"
+                fallback_result = _fallback_cyberbullying_analysis("이미지에서 텍스트를 추출할 수 없어 기본 분석을 제공합니다.")
+                result['cyberbullying_analysis'] = fallback_result.get('table', '')
+                result['cyberbullying_analysis_summary'] = fallback_result.get('summary', '')
+                result['cyberbullying_risk_line'] = extract_risk_line(fallback_result.get('summary', ''))
         elif file_extension == 'txt':
             with open(file_path, 'r', encoding='utf-8') as f:
                 text = f.read()
@@ -341,35 +347,57 @@ def extract_text_from_image(image_path):
             print(f"이미지 파일이 존재하지 않음: {image_path}")
             return ""
         
-        # 기본적인 이미지 정보 추출
-        with Image.open(image_path) as img:
-            width, height = img.size
-            format_type = img.format
-            mode = img.mode
+        # Google Cloud Vision API 사용 시도
+        try:
+            credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+            if os.path.exists(credentials_path):
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+                client = vision.ImageAnnotatorClient()
+                with open(image_path, "rb") as image_file:
+                    content = image_file.read()
+                image = vision.Image(content=content)
+                response = client.text_detection(image=image)
+                texts = response.text_annotations
+                if not texts:
+                    print("Google Vision API 결과: 텍스트가 발견되지 않음")
+                    return "[이미지에서 텍스트를 찾을 수 없습니다.]"
+                extracted_text = texts[0].description.strip()
+                print(f"Google Vision API 성공: {len(extracted_text)} 문자 추출")
+                return extracted_text
+            else:
+                raise Exception("Google Cloud 인증 파일이 없습니다")
+                
+        except Exception as vision_error:
+            print(f"Google Vision API 오류: {vision_error}")
             
-            print(f"이미지 정보: {width}x{height}, {format_type}, {mode}")
-            
-            # pytesseract를 사용한 OCR 시도
+            # 대체 방법: pytesseract 사용
             try:
-                # 이미지를 RGB로 변환 (pytesseract는 RGB 필요)
-                if img.mode != 'RGB':
-                    img = img.convert('RGB')
-                
-                # OCR 수행
-                extracted_text = pytesseract.image_to_string(img, lang='kor+eng')
-                
-                # 텍스트 정리
-                extracted_text = extracted_text.strip()
-                
-                if extracted_text:
-                    print(f"OCR 성공: {len(extracted_text)} 문자 추출")
-                    return extracted_text
-                else:
-                    print("OCR 결과: 텍스트가 발견되지 않음")
-                    return f"[이미지에서 텍스트를 찾을 수 없습니다. 이미지 크기: {width}x{height}, 형식: {format_type}]"
+                with Image.open(image_path) as img:
+                    width, height = img.size
+                    format_type = img.format
+                    mode = img.mode
                     
+                    print(f"이미지 정보: {width}x{height}, {format_type}, {mode}")
+                    
+                    # 이미지를 RGB로 변환 (pytesseract는 RGB 필요)
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    
+                    # OCR 수행
+                    extracted_text = pytesseract.image_to_string(img, lang='kor+eng')
+                    
+                    # 텍스트 정리
+                    extracted_text = extracted_text.strip()
+                    
+                    if extracted_text:
+                        print(f"Tesseract OCR 성공: {len(extracted_text)} 문자 추출")
+                        return extracted_text
+                    else:
+                        print("Tesseract OCR 결과: 텍스트가 발견되지 않음")
+                        return f"[이미지에서 텍스트를 찾을 수 없습니다. 이미지 크기: {width}x{height}, 형식: {format_type}]"
+                        
             except Exception as ocr_error:
-                print(f"OCR 오류: {ocr_error}")
+                print(f"Tesseract OCR 오류: {ocr_error}")
                 return f"[OCR 처리 중 오류 발생: {ocr_error}. 이미지 크기: {width}x{height}, 형식: {format_type}]"
             
     except Exception as e:
