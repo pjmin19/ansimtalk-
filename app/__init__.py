@@ -1,19 +1,23 @@
 from flask import Flask
+from .routes import bp
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('config')
-    app.config['UPLOAD_FOLDER'] = app.config.get('UPLOAD_FOLDER')
     
-    from . import routes
-    app.register_blueprint(routes.bp)
+    # 로그 레벨을 DEBUG로 설정
+    app.logger.setLevel('DEBUG')
     
-    # pipe_table_to_html 필터 등록
-    try:
-        from .services import pipe_table_to_html
-        app.jinja_env.filters['pipe_table_to_html'] = pipe_table_to_html
-        print("=== pipe_table_to_html 필터 등록 완료 ===")
-    except Exception as e:
-        print(f"=== pipe_table_to_html 필터 등록 실패: {e} ===")
+    # 시크릿 키 설정
+    app.config['SECRET_KEY'] = 'ansimtalk-secret-key-2024'
+    
+    # 환경 변수에서 API 키들 가져오기
+    app.config['SIGHTENGINE_API_USER'] = '1052068557'
+    app.config['SIGHTENGINE_API_SECRET'] = 'JbRcN79c6iunXBHG29WRzyQyFHRoYnQa'
+    app.config['GOOGLE_GEMINI_API_KEY'] = 'AIzaSyAZ__v5f-3pYxDfMi--rdCyphpcqsxxrLo'
+    app.config['GOOGLE_CLOUD_VISION_API_KEY'] = 'your-vision-api-key-here'
+    app.config['GOOGLE_APPLICATION_CREDENTIALS'] = 'path/to/your/credentials.json'
+    
+    # 블루프린트 등록
+    app.register_blueprint(bp)
     
     return app
