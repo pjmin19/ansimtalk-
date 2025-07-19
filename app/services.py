@@ -207,9 +207,9 @@ def analyze_image_with_sightengine(file_path):
         safe_filename = os.path.basename(abs_file_path)
         safe_filename = ''.join(c for c in safe_filename if c.isalnum() or c in '.-_')
         
-        # 메모리에서 직접 파일 업로드
+        # API 요청 데이터 준비
         files = {'media': (safe_filename, file_content, mime_type)}
-        params = {
+        data = {
             'models': 'deepfake,offensive,nudity,wad',
             'api_user': api_user,
             'api_secret': api_secret
@@ -218,18 +218,32 @@ def analyze_image_with_sightengine(file_path):
         print(f"API 요청 시작: {url}")
         print(f"파일명: {safe_filename}")
         print(f"파일 타입: {mime_type}")
+        print(f"API User: {api_user}")
+        print(f"API Secret: {api_secret[:10]}...")
         
-        response = requests.post(url, files=files, data=params, timeout=60)
+        # 세션을 사용하여 더 안정적인 요청
+        session = requests.Session()
+        session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        })
+        
+        response = session.post(url, files=files, data=data, timeout=120)
         
         print(f"API 응답 상태 코드: {response.status_code}")
         print(f"API 응답 헤더: {dict(response.headers)}")
+        print(f"API 응답 내용: {response.text[:500]}...")  # 처음 500자만 출력
         
         if response.status_code != 200:
             print(f"API 오류 응답: {response.text}")
             return {'error': f'API Error: {response.status_code} - {response.text}'}
         
-        result = response.json()
-        print(f"Sightengine API 응답: {result}")
+        try:
+            result = response.json()
+            print(f"Sightengine API 응답: {result}")
+        except json.JSONDecodeError as e:
+            print(f"JSON 파싱 오류: {e}")
+            print(f"응답 내용: {response.text}")
+            return {'error': f'Invalid JSON response: {response.text}'}
         
         # 응답에 오류가 있는지 확인
         if 'error' in result:
