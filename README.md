@@ -163,7 +163,3 @@ def analyze_cyberbullying(file_path):
 
 - **API 키 발급**: [Google Cloud Console](https://console.cloud.google.com/), [Sightengine](https://sightengine.com/)
 - **문의/이슈**: GitHub Issues 활용
-
----
-
-이 문서만 보고도 실제 구현자가 100% 재현할 수 있도록, 전체 구조/코드/설정/UI/보안/확장/테스트/운영까지 모든 세부사항을 담았습니다.
