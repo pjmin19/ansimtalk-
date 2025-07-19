@@ -6,3 +6,4 @@ pillow
 google-cloud-vision
 openai
 requests
+fpdf
