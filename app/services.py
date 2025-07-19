@@ -155,16 +155,24 @@ def analyze_image_with_sightengine(file_path):
         print(f"오류: 파일이 존재하지 않습니다: {file_path}")
         return {'error': f'File was not found: {file_path}'}
     
+    # 절대 경로로 변환
+    abs_file_path = os.path.abspath(file_path)
+    print(f"절대 경로: {abs_file_path}")
+    
     # 파일 크기 확인
-    file_size = os.path.getsize(file_path)
-    print(f"파일 크기: {file_size} bytes")
+    try:
+        file_size = os.path.getsize(abs_file_path)
+        print(f"파일 크기: {file_size} bytes")
+    except OSError as e:
+        print(f"파일 크기 확인 오류: {e}")
+        return {'error': f'Cannot access file: {e}'}
     
     if file_size == 0:
         print("오류: 파일 크기가 0입니다.")
         return {'error': 'File is empty'}
     
     # 파일 확장자에 따른 MIME 타입 결정
-    file_extension = os.path.splitext(file_path)[1].lower()
+    file_extension = os.path.splitext(abs_file_path)[1].lower()
     mime_type_map = {
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
@@ -187,7 +195,7 @@ def analyze_image_with_sightengine(file_path):
     
     try:
         # 파일을 바이너리 모드로 열고 내용 확인
-        with open(file_path, 'rb') as f:
+        with open(abs_file_path, 'rb') as f:
             file_content = f.read()
             print(f"파일 내용 크기: {len(file_content)} bytes")
             
@@ -198,7 +206,11 @@ def analyze_image_with_sightengine(file_path):
             # 파일을 다시 처음으로 되돌리기
             f.seek(0)
             
-            files = {'media': (os.path.basename(file_path), f, mime_type)}
+            # 파일명에서 특수문자 제거
+            safe_filename = os.path.basename(abs_file_path)
+            safe_filename = ''.join(c for c in safe_filename if c.isalnum() or c in '.-_')
+            
+            files = {'media': (safe_filename, f, mime_type)}
             params = {
                 'models': 'deepfake,offensive,nudity,wad',
                 'api_user': api_user,
@@ -206,7 +218,7 @@ def analyze_image_with_sightengine(file_path):
             }
             
             print(f"API 요청 시작: {url}")
-            print(f"파일명: {os.path.basename(file_path)}")
+            print(f"파일명: {safe_filename}")
             print(f"파일 타입: {mime_type}")
             
             response = requests.post(url, files=files, data=params, timeout=60)
@@ -230,10 +242,13 @@ def analyze_image_with_sightengine(file_path):
             
     except FileNotFoundError as e:
         print(f"파일을 찾을 수 없음: {e}")
-        return {'error': f'File was not found: {file_path}'}
+        return {'error': f'File was not found: {abs_file_path}'}
     except PermissionError as e:
         print(f"파일 접근 권한 오류: {e}")
-        return {'error': f'Permission denied: {file_path}'}
+        return {'error': f'Permission denied: {abs_file_path}'}
+    except OSError as e:
+        print(f"파일 시스템 오류: {e}")
+        return {'error': f'File system error: {e}'}
     except requests.exceptions.Timeout as e:
         print(f"API 요청 타임아웃: {e}")
         return {'error': f'API request timeout: {e}'}
@@ -242,6 +257,8 @@ def analyze_image_with_sightengine(file_path):
         return {'error': f'API request error: {e}'}
     except Exception as e:
         print(f"Sightengine API 오류: {e}")
+        import traceback
+        print(f"상세 오류 정보: {traceback.format_exc()}")
         return {'error': str(e)}
 
 def extract_text_from_image(image_path):

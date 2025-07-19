@@ -84,8 +84,12 @@ def _handle_file_upload_and_analysis(analysis_type):
         print(f"고유 파일명: {unique_filename}")
         print(f"파일 확장자: {file_extension}")
         
-        # 업로드 폴더 생성
-        upload_folder = os.path.join(current_app.root_path, '..', 'tmp')
+        # 현재 작업 디렉토리 확인
+        current_dir = os.getcwd()
+        print(f"현재 작업 디렉토리: {current_dir}")
+        
+        # 업로드 폴더를 현재 디렉토리 내에 생성
+        upload_folder = os.path.join(current_dir, 'tmp')
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
             print(f"업로드 폴더 생성: {upload_folder}")
@@ -142,6 +146,14 @@ def _handle_file_upload_and_analysis(analysis_type):
         # 분석 결과 생성
         try:
             print(f"분석 시작: {analysis_type}")
+            print(f"분석할 파일 경로: {file_path}")
+            
+            # 파일이 실제로 존재하는지 다시 한번 확인
+            if not os.path.exists(file_path):
+                print(f"분석 전 파일 존재 확인 실패: {file_path}")
+                flash('분석할 파일을 찾을 수 없습니다.')
+                return redirect(url_for('main.index'))
+            
             analysis_result = analyze_file(file_path, analysis_type, file_extension)
             print(f"분석 완료: {analysis_result}")
             
@@ -176,6 +188,8 @@ def _handle_file_upload_and_analysis(analysis_type):
             
         except Exception as e:
             print(f"분석 중 오류 발생: {e}")
+            import traceback
+            print(f"상세 오류 정보: {traceback.format_exc()}")
             flash(f'{analysis_type} 분석 중 오류: {e}')
             if os.path.exists(file_path):
                 os.remove(file_path)
@@ -187,6 +201,8 @@ def _handle_file_upload_and_analysis(analysis_type):
         
     except Exception as e:
         print(f"파일 처리 중 예상치 못한 오류: {e}")
+        import traceback
+        print(f"상세 오류 정보: {traceback.format_exc()}")
         flash(f'파일 처리 중 오류: {e}')
         return redirect(url_for('main.index'))
 
