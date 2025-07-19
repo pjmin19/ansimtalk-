@@ -6,17 +6,10 @@ import os
 from PIL import Image
 import hashlib
 from datetime import datetime
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.lib.units import inch
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from weasyprint import HTML
 from flask import render_template
 from google.cloud import vision
-import google.generativeai as genai
+from google import genai
 import re
 import uuid
 
@@ -155,187 +148,29 @@ def analyze_file(file_path, analysis_type, file_extension):
     return result
 
 def analyze_image_with_sightengine(file_path):
-    # 파일 존재 여부 확인
-    if not os.path.exists(file_path):
-        print(f"오류: 파일이 존재하지 않습니다: {file_path}")
-        return {'error': f'File was not found: {file_path}'}
-    
-    # 절대 경로로 변환
-    abs_file_path = os.path.abspath(file_path)
-    print(f"절대 경로: {abs_file_path}")
-    
-    # 파일 크기 확인
-    try:
-        file_size = os.path.getsize(abs_file_path)
-        print(f"파일 크기: {file_size} bytes")
-    except OSError as e:
-        print(f"파일 크기 확인 오류: {e}")
-        return {'error': f'Cannot access file: {e}'}
-    
-    if file_size == 0:
-        print("오류: 파일 크기가 0입니다.")
-        return {'error': 'File is empty'}
-    
-    # 파일 확장자에 따른 MIME 타입 결정
-    file_extension = os.path.splitext(abs_file_path)[1].lower()
-    mime_type_map = {
-        '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg',
-        '.png': 'image/png'
-    }
-    mime_type = mime_type_map.get(file_extension, 'image/jpeg')
-    print(f"파일 확장자: {file_extension}, MIME 타입: {mime_type}")
-    
-    # API 키 확인
-    api_user = current_app.config.get('SIGHTENGINE_API_USER')
-    api_secret = current_app.config.get('SIGHTENGINE_API_SECRET')
-    
-    if not api_user or not api_secret:
-        print("오류: Sightengine API 키가 설정되지 않았습니다.")
-        return {'error': 'Sightengine API keys not configured'}
-    
-    print(f"API User: {api_user[:10]}...")  # 보안을 위해 일부만 출력
-    
+    api_user = current_app.config['SIGHTENGINE_API_USER']
+    api_secret = current_app.config['SIGHTENGINE_API_SECRET']
     url = 'https://api.sightengine.com/1.0/check.json'
-    
+    files = {'media': open(file_path, 'rb')}
+    params = {
+        'models': 'deepfake,offensive,nudity,wad',
+        'api_user': api_user,
+        'api_secret': api_secret
+    }
     try:
-        # 파일을 메모리에 로드
-        with open(abs_file_path, 'rb') as f:
-            file_content = f.read()
-            print(f"파일 내용 크기: {len(file_content)} bytes")
-            
-            if len(file_content) == 0:
-                print("오류: 파일 내용이 비어있습니다.")
-                return {'error': 'File content is empty'}
+        response = requests.post(url, files=files, data=params)
+        response.raise_for_status()
+        result = response.json()
         
-        # 파일명에서 특수문자 제거
-        safe_filename = os.path.basename(abs_file_path)
-        safe_filename = ''.join(c for c in safe_filename if c.isalnum() or c in '.-_')
-        
-        # API 요청 데이터 준비
-        files = {'media': (safe_filename, file_content, mime_type)}
-        data = {
-            'models': 'deepfake,offensive,nudity,wad',
-            'api_user': api_user,
-            'api_secret': api_secret
-        }
-        
-        print(f"API 요청 시작: {url}")
-        print(f"파일명: {safe_filename}")
-        print(f"파일 타입: {mime_type}")
-        print(f"API User: {api_user}")
-        print(f"API Secret: {api_secret[:10]}...")
-        
-        # 세션을 사용하여 더 안정적인 요청
-        session = requests.Session()
-        session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        })
-        
-        response = session.post(url, files=files, data=data, timeout=120)
-        
-        print(f"API 응답 상태 코드: {response.status_code}")
-        print(f"API 응답 헤더: {dict(response.headers)}")
-        print(f"API 응답 내용: {response.text[:500]}...")  # 처음 500자만 출력
-        
-        if response.status_code != 200:
-            print(f"API 오류 응답: {response.text}")
-            # API 실패 시 대체 분석 제공
-            return _fallback_deepfake_analysis(abs_file_path, file_extension)
-        
-        try:
-            result = response.json()
-            print(f"Sightengine API 응답: {result}")
-        except json.JSONDecodeError as e:
-            print(f"JSON 파싱 오류: {e}")
-            print(f"응답 내용: {response.text}")
-            # JSON 파싱 실패 시 대체 분석 제공
-            return _fallback_deepfake_analysis(abs_file_path, file_extension)
-        
-        # 응답에 오류가 있는지 확인
-        if 'error' in result:
-            print(f"Sightengine API 오류: {result['error']}")
-            # API 오류 시 대체 분석 제공
-            return _fallback_deepfake_analysis(abs_file_path, file_extension)
+        # 디버깅을 위한 로그 출력
+        print(f"Sightengine API 응답: {result}")
         
         return result
-        
-    except FileNotFoundError as e:
-        print(f"파일을 찾을 수 없음: {e}")
-        return {'error': f'File was not found: {abs_file_path}'}
-    except PermissionError as e:
-        print(f"파일 접근 권한 오류: {e}")
-        return {'error': f'Permission denied: {abs_file_path}'}
-    except OSError as e:
-        print(f"파일 시스템 오류: {e}")
-        return {'error': f'File system error: {e}'}
-    except requests.exceptions.Timeout as e:
-        print(f"API 요청 타임아웃: {e}")
-        # 타임아웃 시 대체 분석 제공
-        return _fallback_deepfake_analysis(abs_file_path, file_extension)
-    except requests.exceptions.RequestException as e:
-        print(f"API 요청 오류: {e}")
-        # 요청 오류 시 대체 분석 제공
-        return _fallback_deepfake_analysis(abs_file_path, file_extension)
     except Exception as e:
         print(f"Sightengine API 오류: {e}")
-        import traceback
-        print(f"상세 오류 정보: {traceback.format_exc()}")
-        # 기타 오류 시 대체 분석 제공
-        return _fallback_deepfake_analysis(abs_file_path, file_extension)
-
-def _fallback_deepfake_analysis(file_path, file_extension):
-    """Sightengine API 실패 시 대체 분석"""
-    print(f"대체 딥페이크 분석 시작: {file_path}")
-    
-    try:
-        # 기본적인 이미지 분석
-        with Image.open(file_path) as img:
-            width, height = img.size
-            format_type = img.format
-            mode = img.mode
-            
-            print(f"이미지 정보: {width}x{height}, {format_type}, {mode}")
-            
-            # 간단한 딥페이크 의심 지표 계산
-            # 실제로는 더 복잡한 알고리즘이 필요하지만, 임시로 기본 분석 제공
-            analysis_result = {
-                'type': {
-                    'deepfake': 0.1,  # 낮은 확률로 설정
-                    'real': 0.9
-                },
-                'offensive': {
-                    'prob': 0.05,
-                    'raw': 0.05
-                },
-                'nudity': {
-                    'raw': 0.02
-                },
-                'wad': {
-                    'weapons': 0.01,
-                    'alcohol': 0.01,
-                    'drugs': 0.01
-                },
-                'fallback_analysis': True,
-                'image_info': {
-                    'width': width,
-                    'height': height,
-                    'format': format_type,
-                    'mode': mode
-                },
-                'note': 'Sightengine API 실패로 인한 기본 분석 결과입니다. 더 정확한 분석을 위해 다시 시도해주세요.'
-            }
-            
-            print(f"대체 분석 완료: {analysis_result}")
-            return analysis_result
-            
-    except Exception as e:
-        print(f"대체 분석 중 오류: {e}")
-        return {
-            'error': f'Fallback analysis failed: {e}',
-            'fallback_analysis': True,
-            'note': 'Sightengine API와 대체 분석 모두 실패했습니다.'
-        }
+        return {'error': str(e)}
+    finally:
+        files['media'].close()
 
 def extract_text_from_image(image_path):
     try:
@@ -545,51 +380,42 @@ def _fallback_cyberbullying_analysis(text_content):
             analysis_lines.append(f"| {sentence} | {risk_type} | - | - | {risk_level} | {explanation} |")
         
         # HTML 테이블 생성
-        html_table = """
-        <table class="analysis-table">
-        <thead>
-        <tr>
-        <th>문장</th>
-        <th>유형</th>
-        <th>피해자</th>
-        <th>가해자</th>
-        <th>위험도</th>
-        <th>해설</th>
-        </tr>
-        </thead>
-        <tbody>
-        """
-        
+        html_table = '<table class="analysis-table"><thead><tr><th>문장</th><th>유형</th><th>피해자</th><th>가해자</th><th>위험도</th><th>해설</th></tr></thead><tbody>'
         for line in analysis_lines:
-            html_table += f"<tr>{line}</tr>"
+            cells = [cell.strip() for cell in line.split('|')[1:-1]]
+            html_table += '<tr>'
+            for cell in cells:
+                html_table += f'<td>{cell}</td>'
+            html_table += '</tr>'
+        html_table += '</tbody></table>'
         
-        html_table += """
-        </tbody>
-        </table>
-        """
-        
-        # 전체 위험도 판단
+        # 요약 생성
         if risk_count == 0:
-            overall_risk = "없음"
+            risk_summary = "없음"
+            mood_summary = "키워드 기반 분석 결과, 0개의 위험 요소가 발견되었습니다."
+            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
         elif risk_count <= 2:
-            overall_risk = "약간 있음"
-        elif risk_count <= 5:
-            overall_risk = "있음"
+            risk_summary = "약간 있음"
+            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다."
+            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
         else:
-            overall_risk = "심각"
+            risk_summary = "있음"
+            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다."
+            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
         
         summary = f"""
-전체 대화 사이버폭력 위험도: {overall_risk}
+전체 대화 사이버폭력 위험도: {risk_summary}
 
-대화 전체 분위기 요약: 키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다.
+대화 전체 분위기 요약: {mood_summary}
 
-잠재적 위험/주의사항: AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요.
-        """
+잠재적 위험/주의사항: {warning}
+"""
         
-        return {"table": html_table, "summary": summary.strip()}
+        return {"table": html_table, "summary": summary}
         
     except Exception as e:
-        return {"table": '', "summary": f'대체 분석 오류: {e}'}
+        print(f"대체 분석 오류: {e}")
+        return {"table": "", "summary": f"분석 중 오류가 발생했습니다: {e}"}
 
 def extract_risk_line(summary):
     """Gemini 분석 결과에서 위험도 라인을 추출"""
@@ -690,60 +516,13 @@ def safe_multi_cell(pdf, text, line_height=7, max_width=None):
     return len(lines)
 
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
-    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - ReportLab 기반"""
+    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - HTML 기반"""
     try:
-        # ReportLab로 PDF 생성
-        doc = SimpleDocTemplate(pdf_path, pagesize=A4)
-        story = []
+        # HTML 템플릿 생성
+        html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
         
-        # 스타일 설정
-        styles = getSampleStyleSheet()
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=16,
-            spaceAfter=30,
-            alignment=1  # 중앙 정렬
-        )
-        
-        # 제목
-        story.append(Paragraph("안심톡 디지털 증거 분석 보고서", title_style))
-        story.append(Spacer(1, 20))
-        
-        # 파일 정보
-        file_info = analysis_result.get('file_info', {})
-        story.append(Paragraph("파일 정보", styles['Heading2']))
-        story.append(Paragraph(f"파일명: {file_info.get('filename', 'N/A')}", styles['Normal']))
-        story.append(Paragraph(f"파일 크기: {file_info.get('size_bytes', 'N/A')} bytes", styles['Normal']))
-        story.append(Paragraph(f"SHA-256: {file_info.get('sha256', 'N/A')}", styles['Normal']))
-        story.append(Spacer(1, 20))
-        
-        # 분석 결과
-        story.append(Paragraph("분석 결과", styles['Heading2']))
-        if analysis_type == 'deepfake' and 'deepfake_analysis' in analysis_result:
-            deepfake_analysis = analysis_result['deepfake_analysis']
-            if 'error' not in deepfake_analysis:
-                if deepfake_analysis.get('type', {}).get('deepfake'):
-                    prob = deepfake_analysis['type']['deepfake']
-                    story.append(Paragraph(f"딥페이크일 확률: {prob:.1%}", styles['Normal']))
-                else:
-                    story.append(Paragraph("딥페이크일 확률: N/A%", styles['Normal']))
-            else:
-                story.append(Paragraph(f"딥페이크 분석 오류: {str(deepfake_analysis['error'])[:100]}", styles['Normal']))
-        
-        elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
-            risk_line = analysis_result['cyberbullying_risk_line']
-            story.append(Paragraph(f"전체 대화 사이버폭력 위험도: {risk_line}", styles['Normal']))
-        
-        story.append(Spacer(1, 20))
-        
-        # 분석 시간
-        story.append(Paragraph("분석 시간", styles['Heading2']))
-        story.append(Paragraph(f"분석 타임스탬프: {analysis_result.get('analysis_timestamp', 'N/A')}", styles['Normal']))
-        story.append(Paragraph(f"분석 유형: {analysis_type or 'N/A'}", styles['Normal']))
-        
-        # PDF 생성
-        doc.build(story)
+        # WeasyPrint로 PDF 생성
+        HTML(string=html_content).write_pdf(pdf_path)
         return pdf_path
         
     except Exception as e:
@@ -858,279 +637,4 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                     for file in os.listdir(tmp_dir):
                         if file.endswith(('.jpg', '.jpeg', '.png')) and original_file['filename'] in file:
                             original_image_path = os.path.abspath(os.path.join(tmp_dir, file))
-                            break
-    
-    html_template = f"""
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-      <meta charset="utf-8">
-      <title>안심톡 디지털 증거 분석 보고서</title>
-      <style>
-        @font-face {{
-          font-family: 'NanumGothic';
-          src: url('static/fonts/NanumGothic.ttf') format('truetype');
-          font-weight: normal;
-          font-style: normal;
-        }}
-        
-        body {{ 
-          font-family: 'NanumGothic', 'Malgun Gothic', 'Arial', sans-serif; 
-          margin: 40px; 
-          line-height: 1.6;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-        }}
-        
-        h1, h2, h3 {{ 
-          color: #1976d2; 
-          page-break-after: avoid;
-          page-break-inside: avoid;
-        }}
-        
-        .code-block {{ 
-          font-family: 'Consolas', 'Monaco', monospace; 
-          background: #eee; 
-          padding: 8px; 
-          border-radius: 4px; 
-          word-break: break-all;
-          font-size: 11px;
-        }}
-        
-        .highlight {{ 
-          color: #fff; 
-          background: #1976d2; 
-          padding: 4px 8px; 
-          border-radius: 4px; 
-        }}
-        
-        table {{ 
-          border-collapse: collapse; 
-          width: 100%; 
-          margin: 10px 0; 
-          font-size: 11px;
-          page-break-inside: avoid;
-        }}
-        
-        th, td {{ 
-          border: 1px solid #bbb; 
-          padding: 6px 8px; 
-          word-wrap: break-word;
-          max-width: 200px;
-        }}
-        
-        th {{ 
-          background: #f5f5f5; 
-          font-weight: bold;
-        }}
-        
-        img.evidence {{ 
-          max-width: 400px; 
-          max-height: 500px;
-          margin: 10px 0; 
-          page-break-inside: avoid;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }}
-        
-        .section {{ 
-          margin-bottom: 30px; 
-          page-break-inside: avoid; 
-        }}
-        
-        ul {{ 
-          margin: 0 0 0 20px; 
-          page-break-inside: avoid;
-        }}
-        
-        li {{
-          margin-bottom: 5px;
-          word-wrap: break-word;
-        }}
-        
-        .box {{ 
-          background: #f0f4ff; 
-          border-radius: 8px; 
-          padding: 12px; 
-          margin: 10px 0; 
-          page-break-inside: avoid;
-          word-wrap: break-word;
-        }}
-        
-        .emph {{ 
-          font-weight: bold; 
-          color: #d32f2f; 
-        }}
-        
-        pre {{
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          font-size: 10px;
-          max-width: 100%;
-          overflow-x: auto;
-        }}
-        
-        /* 긴 텍스트 처리 */
-        .long-text {{
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-          max-width: 100%;
-          line-height: 1.4;
-          word-spacing: 0.1em;
-          text-align: justify;
-        }}
-        
-        /* 분석 결과 텍스트 가독성 개선 */
-        .analysis-text {{
-          line-height: 1.4;
-          word-spacing: 0.1em;
-          text-align: justify;
-          font-size: 0.95em;
-          margin-top: 10px;
-        }}
-        
-        /* WeasyPrint footer for every page */
-        @page {{
-          size: A4;
-          margin: 40px 40px 50px 40px;
-          @bottom-center {{
-            content: element(report-footer);
-          }}
-        }}
-        
-        #report-footer {{
-          position: running(report-footer);
-          font-size: 10px;
-          color: #888;
-          text-align: right;
-          width: 100%;
-        }}
-        
-        /* 표 내용이 길 때 처리 */
-        .md-table {{
-          font-size: 10px;
-        }}
-        
-        .md-table th,
-        .md-table td {{
-          max-width: 150px;
-          word-wrap: break-word;
-          vertical-align: top;
-        }}
-      </style>
-    </head>
-    <body>
-      <div id="report-footer">
-        보고서ID: {report_id} | 생성일시: {created_at} | 플랫폼: {software_info['platform']} | 배포일: {software_info['release_date']}
-      </div>
-      <h1>안심톡 디지털 증거 분석 보고서</h1>
-      <div class="section">
-        <h2>1. 기본 정보</h2>
-        <ul>
-          <li><b>보고서 ID:</b> {report_id}</li>
-          <li><b>생성일시:</b> {created_at}</li>
-          <li><b>플랫폼 버전:</b> {software_info['platform']}</li>
-          <li><b>배포일:</b> {software_info['release_date']}</li>
-          <li><b>마지막 업데이트:</b> {software_info['last_updated']}</li>
-        </ul>
-      </div>
-      <div class="section">
-        <h2>2. 분석에 사용된 AI 모델 전체 목록</h2>
-        <table>
-          <tr><th>분석 Task</th><th>모델명</th><th>버전</th><th>정확도</th></tr>
-          {''.join([f'<tr><td>{m["task"]}</td><td>{m["model"]}</td><td>{m["version"]}</td><td>{m["정확도"]}</td></tr>' for m in ai_models])}
-        </table>
-      </div>
-      <div class="section">
-        <h2>3. 분석 결과 요약</h2>
-        <div class="box" style="font-size: 1.1em;">
-          {f'<span style="color:#1976d2; font-weight:bold;">AI 딥페이크 분석 요약</span><br><span>딥페이크일 확률: <b>{analysis_text}</b></span>' if analysis_type == 'deepfake' else f'<span style="color:#1976d2; font-weight:bold;">사이버폭력 분석 결과 요약</span><br><span style="color:#d32f2f; font-weight:bold; font-size:1.0em; line-height:1.4; word-spacing:0.1em;">{analysis_text or "분석 결과 없음"}</span>' if analysis_type == 'cyberbullying' else f'<div class="long-text">{analysis_text or "분석 결과 요약이 제공되지 않았습니다."}</div>'}
-        </div>
-      </div>
-      <div class="section">
-        <h2>4. 증거 파일 정보</h2>
-        <ul>
-          <li><b>파일명:</b> <span class="long-text">{str(original_file.get('filename', 'N/A'))}</span></li>
-          <li><b>파일 유형:</b> {analysis_result.get('analysis_type', 'N/A')}</li>
-          <li><b>파일 크기:</b> {original_file.get('size_bytes', 'N/A')} Bytes</li>
-          <li><b>업로드 일시:</b> {analysis_result.get('analysis_timestamp', 'N/A')}</li>
-          <li><b>업로더 ID:</b> <span class="code-block">{analysis_result.get('uploader_id', 'ANSIMTALK_USER_' + datetime.now().strftime('%Y%m%d') + '_' + str(uuid.uuid4().hex[:8].upper()))}</span></li>
-          <li><b>업로드 IP:</b> {analysis_result.get('uploader_ip', '127.0.0.1')}</li>
-          <li><b>원본 해시값 (SHA-256):</b> <span class="code-block">{str(analysis_result.get('sha256', 'N/A'))}</span></li>
-        </ul>
-        <h3>원본 파일 메타데이터</h3>
-        <ul>
-          <li><b>파일 형식:</b> <span class="long-text">{original_file.get('type', 'N/A')}</span></li>
-          <li><b>분석 타입:</b> <span class="long-text">{analysis_result.get('analysis_type', 'N/A')}</span></li>
-          <li><b>분석 타임스탬프:</b> <span class="long-text">{analysis_result.get('analysis_timestamp', 'N/A')}</span></li>
-          <li><b>파일 크기 (바이트):</b> <span class="long-text">{analysis_result.get('file_size_bytes', original_file.get('size_bytes', 'N/A'))} bytes</span></li>
-          <li><b>파일 크기 (MB):</b> <span class="long-text">{analysis_result.get('file_size_mb', 'N/A')} MB</span></li>
-          <li><b>이미지 해상도:</b> <span class="long-text">{analysis_result.get('image_resolution', 'N/A')}</span></li>
-          <li><b>이미지 너비:</b> <span class="long-text">{analysis_result.get('image_width', 'N/A')} pixels</span></li>
-          <li><b>이미지 높이:</b> <span class="long-text">{analysis_result.get('image_height', 'N/A')} pixels</span></li>
-        </ul>
-      </div>
-      <div class="section">
-        <h2>5. 연계 보관성(Chain of Custody)</h2>
-        <table>
-          <tr>
-            <th>단계</th>
-            <th>시각</th>
-            <th>서버/AI 정보</th>
-          </tr>
-          {''.join([f'<tr><td>{log["step"]}</td><td>{log["timestamp"]}</td><td class="long-text">{log["server"]}{" (" + log["ai_model"] + " " + log["version"] + ")" if log["ai_model"] else ""}</td></tr>' for log in analysis_log])}
-        </table>
-      </div>
-      <div class="section">
-        <h2>6. AI 분석 결과</h2>
-        {f'''
-        <div class="box">
-          <b>딥페이크 분석 결과 (Sightengine Deepfake Detector):</b><br>
-          <div style="white-space:pre-line; background:#f0f0ff; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">
-            {analysis_text or '분석 결과 없음'}
-          </div>
-          <div style="margin-top:10px; font-size:11px; color:#555;">
-            <b>원본 분석 데이터:</b><br>
-            <pre style="background:#f8f8f8; border-radius:6px; padding:0.5em;">{json.dumps(analysis_result.get('deepfake_analysis', {}), indent=2, ensure_ascii=False)}</pre>
-          </div>
-        </div>
-        ''' if analysis_type == 'deepfake' else f'''
-        <div class="box">
-          <b>추출 텍스트(OCR):</b><br>
-          <div style="white-space:pre-line; background:#f8f8f8; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">{analysis_result.get('extracted_text', '없음')}</div>
-        </div>
-        <div class="box">
-          <b>사이버폭력 분석 결과(Gemini):</b><br>
-          <div style="white-space:pre-line; line-height:1.4; font-size: 11px; word-spacing:0.1em; text-align:justify;" class="long-text">
-            전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', '분석 중')}
-          </div>
-        </div>
-        ''' if analysis_type == 'cyberbullying' else '''
-        <div class="box">
-          <b>분석 결과:</b><br>
-          <div style="white-space:pre-line; background:#f8f8f8; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">
-            분석 결과가 제공되지 않았습니다.
-          </div>
-        </div>
-        '''}
-      </div>
-      <div class="section">
-        <h2>7. 원본 증거 이미지</h2>
-        {f'<img class="evidence" src="file:///{original_image_path.replace(os.sep, "/")}" alt="원본 증거 이미지"/>' if original_image_path and os.path.exists(original_image_path) else f'<p>원본 이미지를 찾을 수 없습니다. (경로: {original_image_path if original_image_path else "없음"})</p>'}
-        <div style="color:#1976d2; font-size:12px; margin-top:10px;">
-          * 위 이미지는 분석 대상 원본 증거물입니다.
-        </div>
-      </div>
-      <div class="section">
-        <h2>8. 무결성 및 법적 검증</h2>
-        <ul>
-          <li><b>원본(이미지) 해시값:</b> <span class="code-block">{str(analysis_result.get('sha256', 'N/A'))}</span></li>
-          <br>
-          <li><b>법적 책임 선언:</b> <span class="long-text">{legal_disclaimer}</span></li>
-        </ul>
-      </div>
-    </body>
-    </html>
-    """
-    
-    return html_template
+                            break 
