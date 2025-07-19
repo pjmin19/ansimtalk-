@@ -1,62 +1,75 @@
-# 🛡️ 안심톡(AnsimTalk) - AI 기반 디지털 증거 분석 및 보호 플랫폼
+# 안심톡 - AI 기반 디지털 안전망
 
----
+AI 기술을 활용하여 딥페이크와 사이버폭력을 분석하고 디지털 증거를 안전하게 증거화하는 웹 서비스입니다.
 
-## 📋 프로젝트 개요
+## 🚀 라이브 데모
 
-안심톡(AnsimTalk)은 사이버폭력, 딥페이크 등 디지털 범죄 피해자가 직접 증거(이미지, 텍스트)를 업로드하여 AI로 분석하고, 법적 효력을 갖춘 PDF 증거보고서를 생성·저장할 수 있는 웹 기반 플랫폼입니다.
+**Railway 배포**: https://ansimtalk-production-xxxx.up.railway.app
 
-### 🎯 주요 기능
-- 딥페이크 분석: Sightengine API를 활용한 이미지 진위 여부 분석
-- 사이버폭력 분석: Google Gemini AI를 활용한 텍스트 유해성 분석
-- PDF 증거보고서 생성: 법적 효력을 갖춘 상세 분석 보고서
-- 상담/신고 안내: 기관별 연락처 및 신고 방법 안내
+> Railway에서 도메인을 생성하고 환경 변수를 설정하면 서비스가 활성화됩니다.
 
----
+## 📋 주요 기능
+
+### 딥페이크 분석
+- 이미지 파일(PNG, JPG, JPEG) 분석
+- AI 기반 딥페이크 탐지
+- 상세한 분석 리포트 생성
+- PDF 증거 자료 다운로드
+
+### 사이버폭력 분석
+- 텍스트 파일(TXT) 및 이미지 파일 분석
+- 사이버폭력 내용 탐지
+- 위험도 평가 및 대응 방안 제시
+- 법적 증거 자료 생성
+
+## 🛠 기술 스택
+
+### 백엔드
+- **Python 3.12**
+- **Flask** - 웹 프레임워크
+- **Gunicorn** - WSGI 서버
+- **Google Gemini API** - AI 분석
+- **Google Cloud Vision API** - 이미지 분석
+- **ReportLab** - PDF 생성
+
+### 프론트엔드
+- **HTML5/CSS3** - 반응형 웹 디자인
+- **JavaScript** - 동적 인터페이스
+- **NanumGothic 폰트** - 한글 최적화
+
+### 배포
+- **Railway** - 클라우드 플랫폼
+- **Docker** - 컨테이너화
+- **GitHub** - 버전 관리
 
 ## 📁 프로젝트 구조
 
 ```
 ansimtalk/
-├── app/                      # Flask 앱 모듈
-│   ├── __init__.py          # Flask 앱 초기화 및 설정
-│   ├── routes.py            # 웹 라우팅 및 요청 처리
-│   ├── services.py          # AI 분석 및 PDF 생성 서비스
-│   ├── static/              # 정적 파일
+├── app/
+│   ├── __init__.py          # Flask 앱 팩토리
+│   ├── routes.py            # 라우트 정의
+│   ├── services.py          # 비즈니스 로직
+│   ├── static/
 │   │   ├── css/
-│   │   │   └── style.css    # 메인 스타일시트
-│   │   ├── fonts/           # NanumGothic 한글 폰트
-│   │   └── uploads/         # 업로드된 임시 파일
+│   │   │   └── style.css    # 스타일시트
+│   │   ├── fonts/           # 폰트 파일
+│   │   └── uploads/         # 업로드 파일
 │   └── templates/           # HTML 템플릿
-│       ├── index.html       # 메인 페이지
-│       ├── results.html     # 분석 결과 페이지
-│       ├── deepfake_help.html # 딥페이크 상담 안내
-│       ├── cyberbullying_help.html # 사이버폭력 상담 안내
-│       ├── evidence_report.html # PDF 증거보고서 템플릿
-│       └── evidence.html    # 증거 페이지
-├── no/                      # 민감한 파일들 (Git 제외)
-│   ├── .env                # 환경 변수 파일
-│   ├── google-credentials.json # Google API 인증 파일
-│   └── 기타_민감_파일들
 ├── config.py               # 환경 변수 설정
-├── requirements.txt        # Python 의존성 목록
-├── Procfile               # Railway 배포 설정
-├── run.py                 # Flask 앱 실행 파일
-├── .gitignore             # Git 제외 파일 목록
-├── README.md              # 프로젝트 설명서
-├── 완전구현가이드.md       # 상세 구현 가이드
-├── 작품설계_최종보고서.md   # 설계 보고서
-└── 작품원리_설명서.md       # 작동 원리 설명
+├── run.py                  # 애플리케이션 시작점
+├── requirements.txt        # Python 의존성
+├── Dockerfile             # Docker 설정
+├── railway.toml           # Railway 설정
+└── README.md              # 프로젝트 문서
 ```
 
----
-
-## 🚀 설치 및 실행
+## 🚀 로컬 개발 환경 설정
 
 ### 1. 저장소 클론
 ```bash
-git clone [your-repository-url]
-cd ansimtalk
+git clone https://github.com/pjmin19/ansimtalk-.git
+cd ansimtalk-
 ```
 
 ### 2. 가상환경 생성 및 활성화
@@ -74,125 +87,97 @@ pip install -r requirements.txt
 ```
 
 ### 4. 환경 변수 설정
-`.env` 파일을 생성하고 다음 내용을 입력:
+`.env` 파일 생성:
 ```env
 SECRET_KEY=your-secret-key-here
-SIGHTENGINE_API_USER=1052068557
-SIGHTENGINE_API_SECRET=JbRcN79c6iunXBHG29WRzyQyFHRoYnQa
-GOOGLE_GEMINI_API_KEY=your-gemini-api-key-here
+GOOGLE_GEMINI_API_KEY=your-gemini-api-key
+GOOGLE_CLOUD_VISION_API_KEY=your-vision-api-key
 ```
 
-### 5. 앱 실행
+### 5. 애플리케이션 실행
 ```bash
 python run.py
 ```
 
-### 6. 브라우저에서 접속
+브라우저에서 `http://localhost:5000` 접속
+
+## 🌐 Railway 배포
+
+### 1. Railway 계정 생성
+[Railway](https://railway.app)에서 GitHub 계정으로 로그인
+
+### 2. 프로젝트 연결
+- GitHub 저장소 선택
+- 자동 배포 활성화
+
+### 3. 환경 변수 설정
+Railway 대시보드 > Settings > Variables에서:
 ```
-http://127.0.0.1:5000
-```
-
----
-
-## 🔧 주요 파일 설명
-
-### `app/__init__.py`
-Flask 앱 초기화 및 설정
-- 앱 생성 및 설정 로드
-- 블루프린트 등록
-- 업로드 폴더 설정
-
-### `app/routes.py`
-웹 라우팅 및 요청 처리
-- `/`: 메인 페이지
-- `/analyze_deepfake`: 딥페이크 분석
-- `/analyze_cyberbullying`: 사이버폭력 분석
-- `/results`: 분석 결과 페이지
-- `/download_pdf`: PDF 다운로드
-- `/deepfake_help`, `/cyberbullying_help`: 상담 안내
-- `/reset`: 세션 초기화
-
-### `app/services.py`
-AI 분석 및 PDF 생성 서비스
-- `analyze_deepfake()`: Sightengine API 딥페이크 분석
-- `analyze_cyberbullying()`: Gemini AI 사이버폭력 분석
-- `extract_text_from_image()`: Google Vision OCR
-- `generate_pdf_report()`: PDF 증거보고서 생성
-
-### `config.py`
-환경 변수 설정
-- API 키 및 보안 설정
-- 파일 업로드 설정
-- 앱 기본 설정
-
----
-
-## 🌐 배포 (Railway)
-
-### 1. Railway 프로젝트 생성
-- Railway.app에서 새 프로젝트 생성
-- GitHub 저장소 연결
-
-### 2. 환경 변수 설정
-Railway Variables 탭에서 다음 변수 설정:
-```json
-{
-  "SECRET_KEY": "ansimtalk-secret-key-2024",
-  "SIGHTENGINE_API_USER": "1052068557",
-  "SIGHTENGINE_API_SECRET": "JbRcN79c6iunXBHG29WRzyQyFHRoYnQa",
-  "GOOGLE_GEMINI_API_KEY": "your-actual-gemini-api-key"
-}
+SECRET_KEY=your-secret-key-here
+GOOGLE_GEMINI_API_KEY=your-gemini-api-key
+GOOGLE_CLOUD_VISION_API_KEY=your-vision-api-key
 ```
 
-### 3. 배포 확인
-- Deployments 탭에서 배포 상태 확인
-- 성공 시 제공되는 URL로 접속
+### 4. 도메인 설정
+- Settings > Domains에서 "Generate Domain" 클릭
+- 제공된 URL로 서비스 접근
+
+## 🔧 API 키 설정
+
+### Google Gemini API
+1. [Google AI Studio](https://makersuite.google.com/app/apikey) 접속
+2. API 키 생성
+3. 환경 변수에 설정
+
+### Google Cloud Vision API
+1. [Google Cloud Console](https://console.cloud.google.com/) 접속
+2. Vision API 활성화
+3. 서비스 계정 키 생성
+4. 환경 변수에 설정
+
+## 📊 사용 방법
+
+### 딥페이크 분석
+1. 메인 페이지에서 "딥페이크 분석" 섹션 선택
+2. 이미지 파일 업로드 (PNG, JPG, JPEG)
+3. "분석 시작" 버튼 클릭
+4. 분석 결과 확인 및 PDF 다운로드
+
+### 사이버폭력 분석
+1. "사이버폭력 분석" 섹션 선택
+2. 텍스트 또는 이미지 파일 업로드
+3. "분석 시작" 버튼 클릭
+4. 분석 결과 및 대응 방안 확인
+
+## 🔒 보안 및 개인정보
+
+- 업로드된 파일은 임시 저장 후 자동 삭제
+- 분석 결과는 세션 기반으로 관리
+- 모든 통신은 HTTPS 암호화
+- 개인정보 수집하지 않음
+
+## 🤝 기여하기
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+
+## 👥 개발팀
+
+- **윤여준팀장** - 프로젝트 관리
+- **김태양** - 백엔드 개발
+- **김태영** - 프론트엔드 개발
+
+## 📞 문의
+
+프로젝트 관련 문의사항은 GitHub Issues를 통해 연락주세요.
 
 ---
 
-## 🔒 보안 및 프라이버시
-
-- 임시 파일 자동 삭제: 분석 완료 후 서버에서 즉시 삭제
-- 세션 관리: 사용자별 독립적인 세션 관리
-- API 키 보안: 환경 변수로 민감 정보 분리
-- HTTPS 권장: 실제 서비스 배포 시 필수
-
----
-
-## 🛠️ 기술 스택
-
-- Backend: Python Flask
-- AI/ML: Google Gemini AI, Sightengine API, Google Vision OCR
-- PDF 생성: WeasyPrint
-- 배포: Railway
-- 버전 관리: Git/GitHub
-
----
-
-## 📞 상담/신고 기관
-
-### 딥페이크 관련
-- 경찰청 사이버수사과: 182
-- 한국정보통신기술협회: 02-580-0123
-- 디지털성범죄피해자지원센터: 1366
-
-### 사이버폭력 관련
-- 경찰청 사이버수사과: 182
-- 청소년사이버상담센터: 1388
-- 한국청소년상담복지개발원: 1388
-
----
-
-## 📝 라이선스
-
-이 프로젝트는 교육 및 연구 목적으로 개발되었습니다.
-
----
-
-## 🤝 기여
-
-버그 리포트나 기능 제안은 GitHub Issues를 통해 해주세요.
-
----
-
-안심톡으로 더 안전한 디지털 세상을 만들어가겠습니다. 🛡️
+**안심톡** - AI로 더 안전한 디지털 세상을 만들어갑니다.
