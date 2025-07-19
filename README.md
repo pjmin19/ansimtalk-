@@ -4,13 +4,13 @@
 
 ## 📋 프로젝트 개요
 
-**안심톡(AnsimTalk)**은 사이버폭력, 딥페이크 등 디지털 범죄 피해자가 직접 증거(이미지, 텍스트)를 업로드하여 AI로 분석하고, 법적 효력을 갖춘 PDF 증거보고서를 생성·저장할 수 있는 웹 기반 플랫폼입니다.
+안심톡(AnsimTalk)은 사이버폭력, 딥페이크 등 디지털 범죄 피해자가 직접 증거(이미지, 텍스트)를 업로드하여 AI로 분석하고, 법적 효력을 갖춘 PDF 증거보고서를 생성·저장할 수 있는 웹 기반 플랫폼입니다.
 
 ### 🎯 주요 기능
-- **딥페이크 분석**: Sightengine API를 활용한 이미지 진위 여부 분석
-- **사이버폭력 분석**: Google Gemini AI를 활용한 텍스트 유해성 분석
-- **PDF 증거보고서 생성**: 법적 효력을 갖춘 상세 분석 보고서
-- **상담/신고 안내**: 기관별 연락처 및 신고 방법 안내
+- 딥페이크 분석: Sightengine API를 활용한 이미지 진위 여부 분석
+- 사이버폭력 분석: Google Gemini AI를 활용한 텍스트 유해성 분석
+- PDF 증거보고서 생성: 법적 효력을 갖춘 상세 분석 보고서
+- 상담/신고 안내: 기관별 연락처 및 신고 방법 안내
 
 ---
 
@@ -18,39 +18,35 @@
 
 ```
 ansimtalk/
-├── ansimtalk-/              # 실제 프로젝트 폴더 (Git 저장소)
-│   ├── app/
-│   │   ├── __init__.py      # Flask 앱 초기화 및 설정
-│   │   ├── routes.py        # 웹 라우팅 및 요청 처리
-│   │   ├── services.py      # AI 분석 및 PDF 생성 서비스
-│   │   ├── static/
-│   │   │   ├── css/
-│   │   │   │   └── style.css # 메인 스타일시트
-│   │   │   ├── fonts/       # NanumGothic 한글 폰트
-│   │   │   └── uploads/     # 업로드된 임시 파일
-│   │   └── templates/
-│   │       ├── index.html   # 메인 페이지
-│   │       ├── results.html # 분석 결과 페이지
-│   │       ├── deepfake_help.html # 딥페이크 상담 안내
-│   │       ├── cyberbullying_help.html # 사이버폭력 상담 안내
-│   │       ├── evidence_report.html # PDF 증거보고서 템플릿
-│   │       └── evidence.html # 증거 페이지
-│   ├── config.py            # 환경 변수 설정
-│   ├── requirements.txt     # Python 의존성 목록
-│   ├── Procfile            # Railway 배포 설정
-│   ├── run.py              # Flask 앱 실행 파일
-│   ├── .gitignore          # Git 제외 파일 목록
-│   └── README.md           # 프로젝트 설명서
-├── no/                     # 민감한 파일들 (Git 제외)
-│   ├── .env               # 환경 변수 파일
+├── app/                      # Flask 앱 모듈
+│   ├── __init__.py          # Flask 앱 초기화 및 설정
+│   ├── routes.py            # 웹 라우팅 및 요청 처리
+│   ├── services.py          # AI 분석 및 PDF 생성 서비스
+│   ├── static/              # 정적 파일
+│   │   ├── css/
+│   │   │   └── style.css    # 메인 스타일시트
+│   │   ├── fonts/           # NanumGothic 한글 폰트
+│   │   └── uploads/         # 업로드된 임시 파일
+│   └── templates/           # HTML 템플릿
+│       ├── index.html       # 메인 페이지
+│       ├── results.html     # 분석 결과 페이지
+│       ├── deepfake_help.html # 딥페이크 상담 안내
+│       ├── cyberbullying_help.html # 사이버폭력 상담 안내
+│       ├── evidence_report.html # PDF 증거보고서 템플릿
+│       └── evidence.html    # 증거 페이지
+├── no/                      # 민감한 파일들 (Git 제외)
+│   ├── .env                # 환경 변수 파일
 │   ├── google-credentials.json # Google API 인증 파일
 │   └── 기타_민감_파일들
-├── config.py              # 환경 변수 설정 (로컬용)
-├── requirements.txt       # Python 의존성 목록
-├── Procfile              # Railway 배포 설정
-├── run.py                # Flask 앱 실행 파일
-├── .gitignore            # Git 제외 파일 목록
-└── README.md             # 프로젝트 설명서
+├── config.py               # 환경 변수 설정
+├── requirements.txt        # Python 의존성 목록
+├── Procfile               # Railway 배포 설정
+├── run.py                 # Flask 앱 실행 파일
+├── .gitignore             # Git 제외 파일 목록
+├── README.md              # 프로젝트 설명서
+├── 완전구현가이드.md       # 상세 구현 가이드
+├── 작품설계_최종보고서.md   # 설계 보고서
+└── 작품원리_설명서.md       # 작동 원리 설명
 ```
 
 ---
@@ -60,7 +56,7 @@ ansimtalk/
 ### 1. 저장소 클론
 ```bash
 git clone [your-repository-url]
-cd ansimtalk/ansimtalk-
+cd ansimtalk
 ```
 
 ### 2. 가상환경 생성 및 활성화
@@ -156,34 +152,34 @@ Railway Variables 탭에서 다음 변수 설정:
 
 ## 🔒 보안 및 프라이버시
 
-- **임시 파일 자동 삭제**: 분석 완료 후 서버에서 즉시 삭제
-- **세션 관리**: 사용자별 독립적인 세션 관리
-- **API 키 보안**: 환경 변수로 민감 정보 분리
-- **HTTPS 권장**: 실제 서비스 배포 시 필수
+- 임시 파일 자동 삭제: 분석 완료 후 서버에서 즉시 삭제
+- 세션 관리: 사용자별 독립적인 세션 관리
+- API 키 보안: 환경 변수로 민감 정보 분리
+- HTTPS 권장: 실제 서비스 배포 시 필수
 
 ---
 
 ## 🛠️ 기술 스택
 
-- **Backend**: Python Flask
-- **AI/ML**: Google Gemini AI, Sightengine API, Google Vision OCR
-- **PDF 생성**: WeasyPrint
-- **배포**: Railway
-- **버전 관리**: Git/GitHub
+- Backend: Python Flask
+- AI/ML: Google Gemini AI, Sightengine API, Google Vision OCR
+- PDF 생성: WeasyPrint
+- 배포: Railway
+- 버전 관리: Git/GitHub
 
 ---
 
 ## 📞 상담/신고 기관
 
 ### 딥페이크 관련
-- **경찰청 사이버수사과**: 182
-- **한국정보통신기술협회**: 02-580-0123
-- **디지털성범죄피해자지원센터**: 1366
+- 경찰청 사이버수사과: 182
+- 한국정보통신기술협회: 02-580-0123
+- 디지털성범죄피해자지원센터: 1366
 
 ### 사이버폭력 관련
-- **경찰청 사이버수사과**: 182
-- **청소년사이버상담센터**: 1388
-- **한국청소년상담복지개발원**: 1388
+- 경찰청 사이버수사과: 182
+- 청소년사이버상담센터: 1388
+- 한국청소년상담복지개발원: 1388
 
 ---
 
@@ -199,4 +195,4 @@ Railway Variables 탭에서 다음 변수 설정:
 
 ---
 
-**안심톡으로 더 안전한 디지털 세상을 만들어가겠습니다.** 🛡️
+안심톡으로 더 안전한 디지털 세상을 만들어가겠습니다. 🛡️
