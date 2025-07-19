@@ -159,6 +159,20 @@ def analyze_image_with_sightengine(file_path):
     file_size = os.path.getsize(file_path)
     print(f"파일 크기: {file_size} bytes")
     
+    if file_size == 0:
+        print("오류: 파일 크기가 0입니다.")
+        return {'error': 'File is empty'}
+    
+    # 파일 확장자에 따른 MIME 타입 결정
+    file_extension = os.path.splitext(file_path)[1].lower()
+    mime_type_map = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png'
+    }
+    mime_type = mime_type_map.get(file_extension, 'image/jpeg')
+    print(f"파일 확장자: {file_extension}, MIME 타입: {mime_type}")
+    
     # API 키 확인
     api_user = current_app.config.get('SIGHTENGINE_API_USER')
     api_secret = current_app.config.get('SIGHTENGINE_API_SECRET')
@@ -172,9 +186,19 @@ def analyze_image_with_sightengine(file_path):
     url = 'https://api.sightengine.com/1.0/check.json'
     
     try:
-        # 파일을 바이너리 모드로 열기
+        # 파일을 바이너리 모드로 열고 내용 확인
         with open(file_path, 'rb') as f:
-            files = {'media': f}
+            file_content = f.read()
+            print(f"파일 내용 크기: {len(file_content)} bytes")
+            
+            if len(file_content) == 0:
+                print("오류: 파일 내용이 비어있습니다.")
+                return {'error': 'File content is empty'}
+            
+            # 파일을 다시 처음으로 되돌리기
+            f.seek(0)
+            
+            files = {'media': (os.path.basename(file_path), f, mime_type)}
             params = {
                 'models': 'deepfake,offensive,nudity,wad',
                 'api_user': api_user,
@@ -183,8 +207,9 @@ def analyze_image_with_sightengine(file_path):
             
             print(f"API 요청 시작: {url}")
             print(f"파일명: {os.path.basename(file_path)}")
+            print(f"파일 타입: {mime_type}")
             
-            response = requests.post(url, files=files, data=params, timeout=30)
+            response = requests.post(url, files=files, data=params, timeout=60)
             
             print(f"API 응답 상태 코드: {response.status_code}")
             print(f"API 응답 헤더: {dict(response.headers)}")
@@ -196,11 +221,19 @@ def analyze_image_with_sightengine(file_path):
             result = response.json()
             print(f"Sightengine API 응답: {result}")
             
+            # 응답에 오류가 있는지 확인
+            if 'error' in result:
+                print(f"Sightengine API 오류: {result['error']}")
+                return {'error': f'Sightengine API error: {result["error"]}'}
+            
             return result
             
     except FileNotFoundError as e:
         print(f"파일을 찾을 수 없음: {e}")
         return {'error': f'File was not found: {file_path}'}
+    except PermissionError as e:
+        print(f"파일 접근 권한 오류: {e}")
+        return {'error': f'Permission denied: {file_path}'}
     except requests.exceptions.Timeout as e:
         print(f"API 요청 타임아웃: {e}")
         return {'error': f'API request timeout: {e}'}
