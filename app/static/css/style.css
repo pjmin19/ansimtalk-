@@ -1,6 +1,28 @@
+/* Font Face Definitions */
+@font-face {
+    font-family: 'NanumGothic';
+    src: url('../fonts/NanumGothic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NanumGothic';
+    src: url('../fonts/NanumGothic-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NanumGothic';
+    src: url('../fonts/NanumGothic-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
 /* General Body Styles */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'NanumGothic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #e0f2f7; /* Light blue background */
     color: #333;
     display: flex;
@@ -84,7 +106,6 @@ body {
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 .file-select-btn {
@@ -98,7 +119,6 @@ body {
     font-weight: 600;
     transition: background-color 0.3s ease;
     white-space: nowrap;
-    min-width: 120px; /* Ensure minimum width */
 }
 
 .file-select-btn:hover {
@@ -116,7 +136,6 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 150px; /* Ensure minimum width */
 }
 
 .analyze-btn {
@@ -130,7 +149,6 @@ body {
     font-weight: 600;
     transition: background-color 0.3s ease;
     white-space: nowrap;
-    min-width: 120px; /* Ensure minimum width */
 }
 
 .analyze-btn:hover {
@@ -145,7 +163,6 @@ body {
     padding: 25px;
     border-radius: 10px;
     border: 1px solid #e9ecef;
-    overflow-x: auto; /* Prevent horizontal overflow */
 }
 
 .result-section h2 {
@@ -169,7 +186,6 @@ body {
     color: #555;
     font-size: 1em;
     line-height: 1.5;
-    word-wrap: break-word; /* Prevent text overflow */
 }
 
 .result-section ul {
@@ -194,7 +210,6 @@ body {
     font-weight: 700;
     display: inline-block;
     margin-left: 5px;
-    white-space: nowrap; /* Prevent label text wrapping */
 }
 
 /* Actions Section */
@@ -203,7 +218,6 @@ body {
     display: flex;
     justify-content: center;
     gap: 20px; /* Space between buttons */
-    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 /* Button Variants */
@@ -218,7 +232,6 @@ body {
     display: inline-block;
     transition: background-color 0.3s ease, transform 0.2s ease;
     white-space: nowrap;
-    min-width: 100px; /* Ensure minimum width */
 }
 
 .primary-btn {
@@ -259,13 +272,11 @@ body {
 }
 
 .flash-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 15px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
     border-radius: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #f5c6cb;
-    word-wrap: break-word; /* Prevent text overflow */
+    font-weight: 600;
+    text-align: center;
 }
 
 /* Severity Labels */
@@ -297,82 +308,85 @@ body {
 /* Extracted Text Box */
 .extracted-text-box {
     background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     padding: 15px;
-    margin: 15px 0;
-    max-height: 200px;
-    overflow-y: auto;
-    word-wrap: break-word; /* Prevent text overflow */
-    white-space: pre-wrap; /* Preserve line breaks */
+    margin-top: 15px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 /* Analysis Table */
 .analysis-table table {
     width: 100%;
     border-collapse: collapse;
-    margin: 15px 0;
-    overflow-x: auto; /* Allow horizontal scroll on small screens */
+    margin-top: 15px;
 }
 
 .analysis-table th, .analysis-table td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #dee2e6;
-    word-wrap: break-word; /* Prevent text overflow */
+    border-bottom: 1px solid #e9ecef;
 }
 
 .analysis-table th {
     background-color: #f8f9fa;
     font-weight: 600;
-    color: #495057;
+    color: #2c3e50;
 }
 
 /* Analysis Summary */
 .analysis-summary {
-    background-color: #e8f5e8;
-    border: 1px solid #c3e6c3;
+    background-color: #f0f0ff;
+    border: 1px solid #d6d6ff;
     border-radius: 8px;
     padding: 20px;
-    margin: 20px 0;
+    margin-top: 20px;
+    line-height: 1.6;
 }
 
 .analysis-summary h4 {
-    color: #2d5a2d;
-    margin-bottom: 10px;
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 15px;
     font-size: 1.2em;
+    font-weight: 600;
 }
 
 /* Analysis Container */
 .analysis-container {
-    background-color: #ffffff;
+    background-color: #f8f8f8;
     border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 25px;
-    margin: 20px 0;
-    overflow-x: auto; /* Prevent horizontal overflow */
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+    line-height: 1.6;
+    white-space: pre-line;
 }
 
-/* Analysis Table Styles */
+/* Analysis Table */
 .analysis-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 15px 0;
+    margin-top: 20px;
+    overflow-x: auto;
 }
 
 .analysis-table th, .analysis-table td {
-    padding: 12px 8px;
+    padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #dee2e6;
-    word-wrap: break-word; /* Prevent text overflow */
-    max-width: 200px; /* Limit cell width */
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.95em;
 }
 
 .analysis-table th {
     background-color: #f8f9fa;
     font-weight: 600;
-    color: #495057;
-    white-space: nowrap; /* Keep headers on one line */
+    color: #2c3e50;
+    position: sticky;
+    top: 0;
 }
 
 .analysis-table tr:nth-child(even) {
@@ -383,75 +397,78 @@ body {
     background-color: #e9ecef;
 }
 
-/* Risk Level Styling */
+/* Risk Level Colors */
 .risk-severe {
-    background-color: #dc3545;
-    color: white;
+    color: #e74c3c !important;
+    font-weight: 700;
 }
 
 .risk-present {
-    background-color: #fd7e14;
-    color: white;
+    color: #f39c12 !important;
+    font-weight: 700;
 }
 
 .risk-slight {
-    background-color: #ffc107;
-    color: #212529;
+    color: #f1c40f !important;
+    font-weight: 700;
 }
 
 .risk-suspicion {
-    background-color: #17a2b8;
-    color: white;
+    color: #3498db !important;
+    font-weight: 700;
 }
 
 .risk-none {
-    background-color: #28a745;
-    color: white;
+    color: #27ae60 !important;
+    font-weight: 700;
 }
 
 /* Error Message */
 .error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 15px;
+    color: #e74c3c;
+    background-color: #fdf2f2;
+    border: 1px solid #fecaca;
     border-radius: 8px;
-    margin: 15px 0;
+    padding: 15px;
+    margin-top: 15px;
+    font-weight: 600;
 }
 
-/* Score Display */
+/* Score Styling */
 .score {
-    font-size: 1.2em;
-    font-weight: bold;
+    font-weight: 700;
+    color: #e74c3c;
+    font-size: 1.1em;
 }
 
 /* Raw Data Box */
 .raw-data-box {
     background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
     padding: 15px;
-    margin: 15px 0;
-    max-height: 300px;
-    overflow-y: auto;
-    word-wrap: break-word; /* Prevent text overflow */
+    margin-top: 15px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    line-height: 1.4;
 }
 
 .raw-data-box pre {
     margin: 0;
-    white-space: pre-wrap; /* Preserve formatting but allow wrapping */
-    word-wrap: break-word; /* Prevent text overflow */
-    font-family: 'Courier New', monospace;
-    font-size: 0.9em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #2c3e50;
 }
 
 /* Risk Level Card */
 .risk-level-card {
-    background-color: #f8f9fa;
-    border: 2px solid #dee2e6;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 15px 0;
-    text-align: center;
+    background-color: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .risk-level-card .risk-header {
@@ -459,56 +476,56 @@ body {
 }
 
 .risk-level-card .risk-title {
-    font-size: 1.1em;
+    font-size: 1.3em;
     font-weight: 600;
-    color: #495057;
-    margin-bottom: 5px;
+    color: #2c3e50;
+    margin-bottom: 10px;
 }
 
 .risk-level-card .risk-value {
-    font-size: 1.5em;
-    font-weight: bold;
-    padding: 8px 15px;
-    border-radius: 5px;
+    font-size: 1.4em;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
     display: inline-block;
 }
 
 .risk-level-card .risk-severe {
-    background-color: #dc3545;
-    color: white;
+    background-color: #fdf2f2;
+    color: #e74c3c;
 }
 
 .risk-level-card .risk-present {
-    background-color: #fd7e14;
-    color: white;
+    background-color: #fef5e7;
+    color: #f39c12;
 }
 
 .risk-level-card .risk-slight {
-    background-color: #ffc107;
-    color: #212529;
+    background-color: #fef9e7;
+    color: #f1c40f;
 }
 
 .risk-level-card .risk-suspicion {
-    background-color: #17a2b8;
-    color: white;
+    background-color: #ebf8ff;
+    color: #3498db;
 }
 
 .risk-level-card .risk-none {
-    background-color: #28a745;
-    color: white;
+    background-color: #f0fff4;
+    color: #27ae60;
 }
 
 /* Mobile Responsive Design */
 @media (max-width: 768px) {
     body {
         padding: 10px;
-        align-items: flex-start; /* Align to top on mobile */
+        align-items: flex-start;
     }
     
     .container {
-        padding: 20px;
-        margin: 10px 0;
-        border-radius: 10px;
+        padding: 25px 20px;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
     
     .header h1 {
@@ -524,24 +541,21 @@ body {
     }
     
     .analysis-card h2 {
-        font-size: 1.5em;
+        font-size: 1.6em;
     }
     
     .file-input-group {
         flex-direction: column;
         align-items: stretch;
-        gap: 15px;
     }
     
     .file-select-btn, .analyze-btn {
         width: 100%;
-        min-width: auto;
-        padding: 12px 20px;
+        margin-bottom: 10px;
     }
     
     .file-name {
-        min-width: auto;
-        text-align: center;
+        margin-bottom: 10px;
     }
     
     .actions {
@@ -551,21 +565,19 @@ body {
     
     .btn {
         width: 100%;
-        min-width: auto;
-        padding: 15px 20px;
+        text-align: center;
     }
     
     .result-section {
         padding: 20px;
-        margin-bottom: 20px;
     }
     
     .result-section h2 {
-        font-size: 1.5em;
+        font-size: 1.6em;
     }
     
     .result-section h3 {
-        font-size: 1.2em;
+        font-size: 1.3em;
     }
     
     .analysis-table {
@@ -573,8 +585,7 @@ body {
     }
     
     .analysis-table th, .analysis-table td {
-        padding: 8px 6px;
-        max-width: 150px;
+        padding: 8px 10px;
     }
     
     .label {
@@ -583,34 +594,32 @@ body {
     }
     
     .extracted-text-box {
-        max-height: 150px;
-        font-size: 0.9em;
+        font-size: 0.85em;
+        padding: 12px;
     }
     
     .raw-data-box {
-        max-height: 200px;
         font-size: 0.8em;
+        padding: 12px;
     }
     
     .risk-level-card {
-        padding: 15px;
+        padding: 20px;
     }
     
     .risk-level-card .risk-value {
-        font-size: 1.3em;
+        font-size: 1.2em;
         padding: 6px 12px;
     }
 }
 
-/* Small Mobile Devices */
 @media (max-width: 480px) {
     body {
         padding: 5px;
     }
     
     .container {
-        padding: 15px;
-        margin: 5px 0;
+        padding: 20px 15px;
     }
     
     .header h1 {
@@ -626,7 +635,7 @@ body {
     }
     
     .analysis-card h2 {
-        font-size: 1.3em;
+        font-size: 1.4em;
     }
     
     .result-section {
@@ -634,45 +643,47 @@ body {
     }
     
     .result-section h2 {
-        font-size: 1.3em;
+        font-size: 1.4em;
     }
     
     .result-section h3 {
-        font-size: 1.1em;
+        font-size: 1.2em;
     }
     
     .analysis-table {
-        font-size: 0.8em;
+        font-size: 0.85em;
     }
     
     .analysis-table th, .analysis-table td {
-        padding: 6px 4px;
-        max-width: 120px;
+        padding: 6px 8px;
     }
     
     .label {
-        font-size: 0.8em;
+        font-size: 0.85em;
         padding: 3px 6px;
     }
     
     .extracted-text-box {
-        max-height: 120px;
         font-size: 0.8em;
+        padding: 10px;
     }
     
     .raw-data-box {
-        max-height: 150px;
-        font-size: 0.7em;
+        font-size: 0.75em;
+        padding: 10px;
     }
 }
 
-/* Landscape Mobile */
+/* Landscape Mode for Mobile */
 @media (max-width: 768px) and (orientation: landscape) {
     body {
-        align-items: center;
+        align-items: flex-start;
+        padding: 10px;
     }
     
     .container {
+        margin-top: 10px;
+        margin-bottom: 10px;
         max-height: 90vh;
         overflow-y: auto;
     }
@@ -692,7 +703,7 @@ body {
 /* Print Styles */
 @media print {
     body {
-        background-color: white;
+        background: white;
         padding: 0;
     }
     
