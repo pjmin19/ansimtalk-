@@ -1,9 +1,8 @@
+gunicorn
 Flask
-requests
-fpdf
-Pillow
-google-cloud-aiplatform
-google-cloud-vision
-google-genai
+python-dotenv
 weasyprint
-reportlab
+pillow
+google-cloud-vision
+openai
+requests
