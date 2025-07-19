@@ -11,7 +11,7 @@ env.bak/
 venv.bak/
 
 # 환경설정/민감정보
-config.py
+# config.py  # Railway 배포를 위해 주석 처리
 *.json
 .env
 .env.local
