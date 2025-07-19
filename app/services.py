@@ -150,29 +150,66 @@ def analyze_file(file_path, analysis_type, file_extension):
     return result
 
 def analyze_image_with_sightengine(file_path):
-    api_user = current_app.config['SIGHTENGINE_API_USER']
-    api_secret = current_app.config['SIGHTENGINE_API_SECRET']
+    # 파일 존재 여부 확인
+    if not os.path.exists(file_path):
+        print(f"오류: 파일이 존재하지 않습니다: {file_path}")
+        return {'error': f'File was not found: {file_path}'}
+    
+    # 파일 크기 확인
+    file_size = os.path.getsize(file_path)
+    print(f"파일 크기: {file_size} bytes")
+    
+    # API 키 확인
+    api_user = current_app.config.get('SIGHTENGINE_API_USER')
+    api_secret = current_app.config.get('SIGHTENGINE_API_SECRET')
+    
+    if not api_user or not api_secret:
+        print("오류: Sightengine API 키가 설정되지 않았습니다.")
+        return {'error': 'Sightengine API keys not configured'}
+    
+    print(f"API User: {api_user[:10]}...")  # 보안을 위해 일부만 출력
+    
     url = 'https://api.sightengine.com/1.0/check.json'
-    files = {'media': open(file_path, 'rb')}
-    params = {
-        'models': 'deepfake,offensive,nudity,wad',
-        'api_user': api_user,
-        'api_secret': api_secret
-    }
+    
     try:
-        response = requests.post(url, files=files, data=params)
-        response.raise_for_status()
-        result = response.json()
-        
-        # 디버깅을 위한 로그 출력
-        print(f"Sightengine API 응답: {result}")
-        
-        return result
+        # 파일을 바이너리 모드로 열기
+        with open(file_path, 'rb') as f:
+            files = {'media': f}
+            params = {
+                'models': 'deepfake,offensive,nudity,wad',
+                'api_user': api_user,
+                'api_secret': api_secret
+            }
+            
+            print(f"API 요청 시작: {url}")
+            print(f"파일명: {os.path.basename(file_path)}")
+            
+            response = requests.post(url, files=files, data=params, timeout=30)
+            
+            print(f"API 응답 상태 코드: {response.status_code}")
+            print(f"API 응답 헤더: {dict(response.headers)}")
+            
+            if response.status_code != 200:
+                print(f"API 오류 응답: {response.text}")
+                return {'error': f'API Error: {response.status_code} - {response.text}'}
+            
+            result = response.json()
+            print(f"Sightengine API 응답: {result}")
+            
+            return result
+            
+    except FileNotFoundError as e:
+        print(f"파일을 찾을 수 없음: {e}")
+        return {'error': f'File was not found: {file_path}'}
+    except requests.exceptions.Timeout as e:
+        print(f"API 요청 타임아웃: {e}")
+        return {'error': f'API request timeout: {e}'}
+    except requests.exceptions.RequestException as e:
+        print(f"API 요청 오류: {e}")
+        return {'error': f'API request error: {e}'}
     except Exception as e:
         print(f"Sightengine API 오류: {e}")
         return {'error': str(e)}
-    finally:
-        files['media'].close()
 
 def extract_text_from_image(image_path):
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']

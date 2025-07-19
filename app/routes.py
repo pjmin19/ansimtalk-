@@ -45,43 +45,85 @@ def get_file_sha256(filepath):
 
 def _handle_file_upload_and_analysis(analysis_type):
     try:
+        print(f"=== {analysis_type} 분석 시작 ===")
+        
         if 'file' not in request.files:
+            print("오류: 파일이 요청에 없습니다.")
             flash('파일이 없습니다.')
             return redirect(url_for('main.index'))
+        
         file = request.files['file']
+        print(f"업로드된 파일명: {file.filename}")
+        
         if file.filename == '':
+            print("오류: 파일명이 비어있습니다.")
             flash('파일을 선택해주세요.')
             return redirect(url_for('main.index'))
+        
         if not allowed_file(file.filename):
+            print(f"오류: 허용되지 않는 파일 형식: {file.filename}")
             flash('허용되지 않는 파일 형식입니다.')
             return redirect(url_for('main.index'))
+        
+        # 파일 크기 확인
         file.seek(0, os.SEEK_END)
         file_size = file.tell()
         file.seek(0)
+        print(f"파일 크기: {file_size} bytes")
+        
         if file_size > MAX_FILE_SIZE:
+            print(f"오류: 파일 크기가 너무 큼: {file_size} bytes")
             flash('파일 크기가 너무 큽니다.')
             return redirect(url_for('main.index'))
 
         original_filename = secure_filename(file.filename)
         file_extension = original_filename.rsplit('.', 1)[1].lower()
         unique_filename = f"{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file_extension}"
+        
+        print(f"원본 파일명: {original_filename}")
+        print(f"고유 파일명: {unique_filename}")
+        print(f"파일 확장자: {file_extension}")
+        
+        # 업로드 폴더 생성
         upload_folder = os.path.join(current_app.root_path, '..', 'tmp')
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
+            print(f"업로드 폴더 생성: {upload_folder}")
+        
         file_path = os.path.join(upload_folder, unique_filename)
+        print(f"파일 저장 경로: {file_path}")
+        
+        # 파일 저장
         file.save(file_path)
+        print(f"파일 저장 완료: {file_path}")
+        
+        # 파일 존재 확인
+        if not os.path.exists(file_path):
+            print(f"오류: 파일 저장 후에도 존재하지 않음: {file_path}")
+            flash('파일 저장에 실패했습니다.')
+            return redirect(url_for('main.index'))
+        
+        # 파일 크기 재확인
+        saved_file_size = os.path.getsize(file_path)
+        print(f"저장된 파일 크기: {saved_file_size} bytes")
 
         # static/uploads로 복사
         static_uploads = os.path.join(current_app.root_path, 'static', 'uploads')
         if not os.path.exists(static_uploads):
             os.makedirs(static_uploads)
+            print(f"static 업로드 폴더 생성: {static_uploads}")
+        
         static_file_path = os.path.join(static_uploads, unique_filename)
         shutil.copy(file_path, static_file_path)
+        print(f"static 폴더로 복사 완료: {static_file_path}")
 
         # 파일 정보 추출
         file_stat = os.stat(file_path)
         metadata = extract_metadata(file_path)
         sha256 = get_file_sha256(file_path)
+        
+        print(f"파일 메타데이터: {metadata}")
+        print(f"SHA-256: {sha256}")
 
         # 세션에 저장
         session['uploaded_file_path'] = file_path
@@ -92,14 +134,18 @@ def _handle_file_upload_and_analysis(analysis_type):
         session['metadata'] = metadata
         session['sha256'] = sha256
         session['static_image_url'] = f"uploads/{unique_filename}"
-        session['original_image_path'] = static_file_path  # 원본 이미지 절대 경로 저장
-        session['analysis_type'] = analysis_type # 분석 타입 세션에 저장
+        session['original_image_path'] = static_file_path
+        session['analysis_type'] = analysis_type
+        
+        print("세션 정보 저장 완료")
 
-        # 분석 결과 생성(서비스 함수 활용)
+        # 분석 결과 생성
         try:
+            print(f"분석 시작: {analysis_type}")
             analysis_result = analyze_file(file_path, analysis_type, file_extension)
+            print(f"분석 완료: {analysis_result}")
             
-            # 업로더 정보 추가 - 더 확실한 증거로 채택될 수 있도록 개선
+            # 업로더 정보 추가
             upload_timestamp = datetime.now()
             analysis_result['uploader_id'] = f"ANSIMTALK_USER_{upload_timestamp.strftime('%Y%m%d')}_{uuid.uuid4().hex[:8].upper()}"
             analysis_result['uploader_ip'] = request.remote_addr
@@ -114,7 +160,9 @@ def _handle_file_upload_and_analysis(analysis_type):
                         analysis_result['image_width'] = img.width
                         analysis_result['image_height'] = img.height
                         analysis_result['image_resolution'] = f"{img.width}x{img.height}"
+                        print(f"이미지 크기: {img.width}x{img.height}")
                 except Exception as e:
+                    print(f"이미지 크기 추출 오류: {e}")
                     analysis_result['image_width'] = 'N/A'
                     analysis_result['image_height'] = 'N/A'
                     analysis_result['image_resolution'] = 'N/A'
@@ -124,13 +172,21 @@ def _handle_file_upload_and_analysis(analysis_type):
                 analysis_result['image_resolution'] = 'N/A'
             
             session['analysis_result'] = analysis_result
+            print("분석 결과 세션 저장 완료")
+            
         except Exception as e:
+            print(f"분석 중 오류 발생: {e}")
             flash(f'{analysis_type} 분석 중 오류: {e}')
             if os.path.exists(file_path):
                 os.remove(file_path)
+                print(f"임시 파일 삭제: {file_path}")
             return redirect(url_for('main.index'))
+        
+        print(f"=== {analysis_type} 분석 완료 ===")
         return redirect(url_for('main.results'))
+        
     except Exception as e:
+        print(f"파일 처리 중 예상치 못한 오류: {e}")
         flash(f'파일 처리 중 오류: {e}')
         return redirect(url_for('main.index'))
 
