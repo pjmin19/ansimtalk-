@@ -7,7 +7,14 @@ from PIL import Image
 import pytesseract
 import hashlib
 from datetime import datetime
-from weasyprint import HTML
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from flask import render_template
 from google.cloud import vision
 from google import genai
@@ -367,13 +374,60 @@ def safe_multi_cell(pdf, text, line_height=7, max_width=None):
     return len(lines)
 
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
-    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - HTML 기반"""
+    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - ReportLab 기반"""
     try:
-        # HTML 템플릿 생성
-        html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
+        # ReportLab로 PDF 생성
+        doc = SimpleDocTemplate(pdf_path, pagesize=A4)
+        story = []
         
-        # WeasyPrint로 PDF 생성
-        HTML(string=html_content).write_pdf(pdf_path)
+        # 스타일 설정
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            spaceAfter=30,
+            alignment=1  # 중앙 정렬
+        )
+        
+        # 제목
+        story.append(Paragraph("안심톡 디지털 증거 분석 보고서", title_style))
+        story.append(Spacer(1, 20))
+        
+        # 파일 정보
+        file_info = analysis_result.get('file_info', {})
+        story.append(Paragraph("파일 정보", styles['Heading2']))
+        story.append(Paragraph(f"파일명: {file_info.get('filename', 'N/A')}", styles['Normal']))
+        story.append(Paragraph(f"파일 크기: {file_info.get('size_bytes', 'N/A')} bytes", styles['Normal']))
+        story.append(Paragraph(f"SHA-256: {file_info.get('sha256', 'N/A')}", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        # 분석 결과
+        story.append(Paragraph("분석 결과", styles['Heading2']))
+        if analysis_type == 'deepfake' and 'deepfake_analysis' in analysis_result:
+            deepfake_analysis = analysis_result['deepfake_analysis']
+            if 'error' not in deepfake_analysis:
+                if deepfake_analysis.get('type', {}).get('deepfake'):
+                    prob = deepfake_analysis['type']['deepfake']
+                    story.append(Paragraph(f"딥페이크일 확률: {prob:.1%}", styles['Normal']))
+                else:
+                    story.append(Paragraph("딥페이크일 확률: N/A%", styles['Normal']))
+            else:
+                story.append(Paragraph(f"딥페이크 분석 오류: {str(deepfake_analysis['error'])[:100]}", styles['Normal']))
+        
+        elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
+            risk_line = analysis_result['cyberbullying_risk_line']
+            story.append(Paragraph(f"전체 대화 사이버폭력 위험도: {risk_line}", styles['Normal']))
+        
+        story.append(Spacer(1, 20))
+        
+        # 분석 시간
+        story.append(Paragraph("분석 시간", styles['Heading2']))
+        story.append(Paragraph(f"분석 타임스탬프: {analysis_result.get('analysis_timestamp', 'N/A')}", styles['Normal']))
+        story.append(Paragraph(f"분석 유형: {analysis_type or 'N/A'}", styles['Normal']))
+        
+        # PDF 생성
+        doc.build(story)
         return pdf_path
         
     except Exception as e:

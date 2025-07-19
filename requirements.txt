@@ -1,7 +1,7 @@
 gunicorn
 Flask
 python-dotenv
-weasyprint
+reportlab
 pillow
 google-cloud-vision
 openai
