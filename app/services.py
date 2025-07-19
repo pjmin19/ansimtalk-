@@ -4,7 +4,6 @@ from flask import current_app
 from fpdf import FPDF
 import os
 from PIL import Image
-import pytesseract
 import hashlib
 from datetime import datetime
 from reportlab.pdfgen import canvas
