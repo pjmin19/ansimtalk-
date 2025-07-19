@@ -7,3 +7,4 @@ google-cloud-vision
 openai
 requests
 fpdf
+pytesseract
