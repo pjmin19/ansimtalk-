@@ -377,9 +377,13 @@ def extract_text_from_image(image_path):
         return f"[이미지 텍스트 추출 중 오류 발생: {e}]"
 
 def analyze_text_with_gemini(text_content):
-    # Google Gemini API 키 설정
-    genai.configure(api_key=current_app.config['GOOGLE_GEMINI_API_KEY'])
-    model = genai.GenerativeModel('gemini-2.0-flash-exp')
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+    client = genai.Client(
+        vertexai=True,
+        project="dazzling-howl-465316-m7",
+        location="global",
+    )
+    model = "gemini-2.5-flash-lite-preview-06-17"
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
@@ -417,8 +421,11 @@ def analyze_text_with_gemini(text_content):
 잠재적 위험/주의사항: 직접적인 위협과 사회적 배제는 피해자에게 심각한 정신적 고통을 줄 수 있습니다. 즉각적인 개입과 보호 조치가 필요한 상황입니다.
 """
     try:
-        response = model.generate_content(prompt)
-        result_text = response.text.strip()
+        response = client.models.generate_content(
+            model=model,
+            contents=[prompt]
+        )
+        result_text = response.candidates[0].content.parts[0].text.strip()
         # 표와 표 아래 3줄 분리
         lines = result_text.splitlines()
         table_lines = []
