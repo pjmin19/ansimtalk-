@@ -15,7 +15,9 @@ def create_app():
     app.config['SIGHTENGINE_API_SECRET'] = 'JbRcN79c6iunXBHG29WRzyQyFHRoYnQa'
     app.config['GOOGLE_GEMINI_API_KEY'] = 'AIzaSyAZ__v5f-3pYxDfMi--rdCyphpcqsxxrLo'
     app.config['GOOGLE_CLOUD_VISION_API_KEY'] = 'your-vision-api-key-here'
-    app.config['GOOGLE_APPLICATION_CREDENTIALS'] = 'path/to/your/credentials.json'
+    
+    # Google Cloud Vision API 자격 증명 파일 경로 제거
+    # app.config['GOOGLE_APPLICATION_CREDENTIALS'] = 'path/to/your/credentials.json'
     
     # 블루프린트 등록
     app.register_blueprint(bp)

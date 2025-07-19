@@ -333,16 +333,31 @@ def _fallback_deepfake_analysis(file_path, file_extension):
         }
 
 def extract_text_from_image(image_path):
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-    client = vision.ImageAnnotatorClient()
-    with open(image_path, "rb") as image_file:
-        content = image_file.read()
-    image = vision.Image(content=content)
-    response = client.text_detection(image=image)
-    texts = response.text_annotations
-    if not texts:
-        return ""
-    return texts[0].description.strip()
+    try:
+        # Google Cloud Vision API 자격 증명 파일 사용 제거
+        # 대신 간단한 이미지 분석만 수행
+        print(f"이미지 텍스트 추출 시작: {image_path}")
+        
+        # 이미지 파일 존재 확인
+        if not os.path.exists(image_path):
+            print(f"이미지 파일이 존재하지 않음: {image_path}")
+            return ""
+        
+        # 기본적인 이미지 정보만 추출
+        with Image.open(image_path) as img:
+            width, height = img.size
+            format_type = img.format
+            mode = img.mode
+            
+            print(f"이미지 정보: {width}x{height}, {format_type}, {mode}")
+            
+            # Google Cloud Vision API 대신 기본 메시지 반환
+            # 실제 OCR 기능은 나중에 구현
+            return f"[이미지에서 텍스트를 추출할 수 없습니다. 이미지 크기: {width}x{height}, 형식: {format_type}]"
+            
+    except Exception as e:
+        print(f"이미지 텍스트 추출 오류: {e}")
+        return f"[이미지 텍스트 추출 중 오류 발생: {e}]"
 
 def analyze_text_with_gemini(text_content):
     # Google Gemini API 키 설정
