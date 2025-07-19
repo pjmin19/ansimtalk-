@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>안심톡 - 분석 결과</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>분석 결과</h1>
+            <p class="tagline">요청하신 파일에 대한 분석 결과입니다.</p>
+        </div>
+        
+        <div class="result-section file-info-section">
+            <h2>파일 정보</h2>
+            <p><strong>파일명:</strong> {{ result.file_info.filename }}</p>
+            <p><strong>파일 크기:</strong> {{ "{:.2f} MB".format(result.file_info.size_bytes / (1024 * 1024)) }}</p>
+            <p><strong>파일 타입:</strong> {{ result.file_info.type | upper }}</p>
+            <p><strong>SHA-256 해시:</strong> {{ result.sha256 }}</p>
+            <p><strong>분석 요청 시각:</strong> {{ result.analysis_timestamp }}</p>
+        </div>
+
+        {% if result.analysis_type == 'deepfake' %}
+            <div class="result-section deepfake-analysis-section">
+                <h2>AI 딥페이크 분석 요약</h2>
+                {% if result.deepfake_analysis.error %}
+                    <p class="error-message">오류: {{ result.deepfake_analysis.error }}</p>
+                {% else %}
+                    {% if result.deepfake_analysis.get('type', {}).get('deepfake') %}
+                        <p><strong>딥페이크일 확률:</strong> <span class="score">{{ "{:.1f}%".format(result.deepfake_analysis.get('type', {}).get('deepfake', 0) * 100) }}</span></p>
+                    {% endif %}
+                    
+                    {% if result.deepfake_analysis.get('offensive') %}
+                        <p><strong>유해성 점수:</strong> <span class="score">{{ "{:.1f}%".format(result.deepfake_analysis.get('offensive', {}).get('prob', 0) * 100) }}</span></p>
+                    {% endif %}
+                    
+                    {% if result.deepfake_analysis.get('nudity') %}
+                        <p><strong>노출 점수:</strong> <span class="score">{{ "{:.1f}%".format(result.deepfake_analysis.get('nudity', {}).get('raw', 0) * 100) }}</span></p>
+                    {% endif %}
+                    
+                    <h3>상세 분석 결과 (Raw Data):</h3>
+                    <div class="raw-data-box">
+                        <pre>{{ result.deepfake_analysis | tojson(indent=2) }}</pre>
+                    </div>
+                    
+                    {% if result.extracted_text %}
+                        <h3>추출된 텍스트:</h3>
+                        <div class="extracted-text-box">
+                            <pre>{{ result.extracted_text }}</pre>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% elif result.analysis_type == 'cyberbullying' %}
+            <!-- 사이버폭력 위험도 표시 카드 -->
+            <div class="result-section risk-level-card">
+                <div class="risk-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 1.2em;">
+                        <span style="color: #3498db;">전체 대화 사이버폭력 위험도</span>
+                        {% set risk_level = '분석 중' %}
+                        {% set risk_class = 'risk-suspicion' %}
+                        {% if result.cyberbullying_risk_line %}
+                            {% set risk_level = result.cyberbullying_risk_line %}
+                            {% if '심각' in result.cyberbullying_risk_line %}
+                                {% set risk_class = 'risk-severe' %}
+                            {% elif '있음' in result.cyberbullying_risk_line %}
+                                {% set risk_class = 'risk-present' %}
+                            {% elif '약간 있음' in result.cyberbullying_risk_line %}
+                                {% set risk_class = 'risk-slight' %}
+                            {% elif '의심' in result.cyberbullying_risk_line %}
+                                {% set risk_class = 'risk-suspicion' %}
+                            {% elif '없음' in result.cyberbullying_risk_line %}
+                                {% set risk_class = 'risk-none' %}
+                            {% else %}
+                                {% set risk_class = 'risk-suspicion' %}
+                            {% endif %}
+                        {% endif %}
+                        <span class="risk-value {{ risk_class }}" style="color: #e74c3c;">{{ risk_level }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상세 분석 결과는 PDF에서만 표시되도록 숨김 -->
+            <div class="result-section cyberbullying-analysis-section">
+                <h2>AI 대화 내용 분석 요약</h2>
+                
+                {% if result.extracted_text %}
+                    <h3>이미지 속 추출 텍스트:</h3>
+                    <div class="extracted-text-box">
+                        <pre>{{ result.extracted_text }}</pre>
+                    </div>
+                {% endif %}
+
+                {% if result.cyberbullying_analysis %}
+                    <h3>사이버폭력 분석 결과(Gemini):</h3>
+                    <div class="analysis-container" style="white-space: pre-line; background: #f8f8f8; padding: 1em; border-radius: 8px; line-height: 1.6;">
+                        {{ result.cyberbullying_analysis | safe }}
+                    </div>
+                    
+                    {% if result.cyberbullying_analysis_summary %}
+                        <div class="analysis-summary" style="white-space: pre-line; background: #f0f0ff; padding: 1em; border-radius: 8px; line-height: 1.6; margin-top: 1em;">
+                            <h4>전체 분석 요약:</h4>
+                            {% if result.cyberbullying_risk_line and '전체 대화 사이버폭력 위험도:' not in result.cyberbullying_analysis_summary %}
+전체 대화 사이버폭력 위험도: {{ result.cyberbullying_risk_line }}
+
+{% endif %}{{ result.cyberbullying_analysis_summary | safe }}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="error-message">사이버폭력 분석 결과를 가져올 수 없습니다.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="{{ url_for('main.download_pdf') }}" class="btn primary-btn">증거 보고서(PDF) 다운로드</a>
+            {% if result.analysis_type == 'deepfake' %}
+                <a href="{{ url_for('main.deepfake_help') }}" class="btn secondary-btn">상담/신고 안내</a>
+            {% elif result.analysis_type == 'cyberbullying' %}
+                <a href="{{ url_for('main.cyberbullying_help') }}" class="btn secondary-btn">상담/신고 안내</a>
+            {% else %}
+                <a href="https://www.safe182.go.kr/" target="_blank" class="btn secondary-btn">상담/신고 안내</a>
+            {% endif %}
+            <a href="{{ url_for('main.reset') }}" class="btn tertiary-btn">새로운 분석 시작</a>
+        </div>
+    </div>
+</body>
+</html>

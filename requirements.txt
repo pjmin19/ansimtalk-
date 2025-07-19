@@ -1,0 +1,9 @@
+Flask
+requests
+fpdf
+Pillow
+google-cloud-aiplatform
+google-cloud-vision
+google-genai
+weasyprint
+reportlab

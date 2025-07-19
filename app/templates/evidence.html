@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>안심톡 - 증거 보고서</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>증거 보고서</h1>
+        <p>분석 결과를 PDF로 저장해 법적 증거로 활용하세요.</p>
+        <div id="downloadMsg" style="margin-top:10px; color:green; display:none;">
+            다운로드가 시작되었습니다.<br>
+            다운로드가 완료되면 <b>브라우저의 기본 다운로드 폴더</b>에서 파일을 확인하세요.
+        </div>
+        <div class="actions">
+            <a href="{{ url_for('main.download_pdf') }}" class="btn">PDF 다운로드</a>
+            <a href="https://www.safe182.go.kr/" target="_blank" class="btn">상담/신고 안내</a>
+            <a href="/" class="btn">분석 종료 및 새로 시작</a>
+        </div>
+    </div>
+    <script>
+    document.getElementById('download-pdf').addEventListener('click', function() {
+        document.getElementById('downloadMsg').style.display = 'block';
+    });
+    </script>
+</body>
+</html> 

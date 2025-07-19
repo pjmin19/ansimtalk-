@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>안심톡 - AI 기반 디지털 안전망</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>안심톡</h1>
+            <p class="tagline">AI로 디지털 증거를 분석하고 안전하게 증거화하세요.</p>
+            <p class="developers">개발자: 윤여준팀장, 김태양, 김태영</p>
+        </div>
+        
+        <div class="analysis-sections">
+            <!-- 딥페이크 분석 섹션 -->
+            <div class="analysis-card">
+                <h2>딥페이크 분석</h2>
+                <p class="file-type-info">지원 파일 형식: PNG, JPG, JPEG (이미지 파일)</p>
+                <form action="{{ url_for('main.analyze_deepfake') }}" method="post" enctype="multipart/form-data">
+                    <div class="file-input-group">
+                        <input type="file" name="file" id="deepfake-file" accept=".png,.jpg,.jpeg" style="display: none;">
+                        <button type="button" class="file-select-btn" onclick="document.getElementById('deepfake-file').click()">파일 선택</button>
+                        <span class="file-name" id="deepfake-file-name">선택된 파일 없음</span>
+                        <button type="submit" class="analyze-btn deepfake-btn">분석 시작</button>
+                    </div>
+                </form>
+                <div style="margin-top: 10px; text-align: right;">
+                    <a href="{{ url_for('main.deepfake_help') }}" class="help-link-btn" style="font-size:1em; color:#1976d2; font-weight:bold;">딥페이크 피해 상담/신고 안내 →</a>
+                </div>
+            </div>
+
+            <!-- 사이버폭력 분석 섹션 -->
+            <div class="analysis-card">
+                <h2>사이버폭력 분석</h2>
+                <p class="file-type-info">지원 파일 형식: TXT, PNG, JPG, JPEG (텍스트 또는 이미지 파일)</p>
+                <form action="{{ url_for('main.analyze_cyberbullying') }}" method="post" enctype="multipart/form-data">
+                    <div class="file-input-group">
+                        <input type="file" name="file" id="cyberbullying-file" accept=".txt,.png,.jpg,.jpeg" style="display: none;">
+                        <button type="button" class="file-select-btn" onclick="document.getElementById('cyberbullying-file').click()">파일 선택</button>
+                        <span class="file-name" id="cyberbullying-file-name">선택된 파일 없음</span>
+                        <button type="submit" class="analyze-btn cyberbullying-btn">분석 시작</button>
+                    </div>
+                </form>
+                <div style="margin-top: 10px; text-align: right;">
+                    <a href="{{ url_for('main.cyberbullying_help') }}" class="help-link-btn" style="font-size:1em; color:#1976d2; font-weight:bold;">사이버폭력 신고 안내 →</a>
+                </div>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        // 딥페이크 파일 선택
+        document.getElementById('deepfake-file').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : '선택된 파일 없음';
+            document.getElementById('deepfake-file-name').textContent = fileName;
+        });
+
+        // 사이버폭력 파일 선택
+        document.getElementById('cyberbullying-file').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : '선택된 파일 없음';
+            document.getElementById('cyberbullying-file-name').textContent = fileName;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# 환경설정/민감정보
+config.py
+*.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 임시/업로드 파일
+uploads/
+tmp/
+temp/
+*.tmp
+*.temp
+
+# IDE/에디터
+.vscode/
+.venv/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# 로그 파일
+*.log
+logs/
+
+# 데이터베이스
+*.db
+*.sqlite
+*.sqlite3
+
+# 기타
+*.zip
+*.tar.gz
+*.rar 
