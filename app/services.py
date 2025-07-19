@@ -377,13 +377,27 @@ def extract_text_from_image(image_path):
         return f"[이미지 텍스트 추출 중 오류 발생: {e}]"
 
 def analyze_text_with_gemini(text_content):
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-    client = genai.Client(
-        vertexai=True,
-        project="dazzling-howl-465316-m7",
-        location="global",
-    )
-    model = "gemini-2.5-flash-lite-preview-06-17"
+    try:
+        # Google Cloud 인증 시도
+        credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+        if os.path.exists(credentials_path):
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+            client = genai.Client(
+                vertexai=True,
+                project="dazzling-howl-465316-m7",
+                location="global",
+            )
+            model = "gemini-2.5-flash-lite-preview-06-17"
+        else:
+            # 인증 파일이 없으면 기본 Gemini API 사용
+            genai.configure(api_key=current_app.config.get('GOOGLE_GEMINI_API_KEY', ''))
+            client = genai.GenerativeModel('gemini-2.0-flash-exp')
+            model = None
+    except Exception as e:
+        # 모든 방법이 실패하면 기본 Gemini API 사용
+        genai.configure(api_key=current_app.config.get('GOOGLE_GEMINI_API_KEY', ''))
+        client = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = None
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
@@ -421,11 +435,15 @@ def analyze_text_with_gemini(text_content):
 잠재적 위험/주의사항: 직접적인 위협과 사회적 배제는 피해자에게 심각한 정신적 고통을 줄 수 있습니다. 즉각적인 개입과 보호 조치가 필요한 상황입니다.
 """
     try:
-        response = client.models.generate_content(
-            model=model,
-            contents=[prompt]
-        )
-        result_text = response.candidates[0].content.parts[0].text.strip()
+        if model:  # Vertex AI 사용
+            response = client.models.generate_content(
+                model=model,
+                contents=[prompt]
+            )
+            result_text = response.candidates[0].content.parts[0].text.strip()
+        else:  # 기본 Gemini API 사용
+            response = client.generate_content(prompt)
+            result_text = response.text.strip()
         # 표와 표 아래 3줄 분리
         lines = result_text.splitlines()
         table_lines = []
@@ -463,7 +481,102 @@ def analyze_text_with_gemini(text_content):
         
         return {"table": html_table, "summary": summary}
     except Exception as e:
-        return {"table": '', "summary": f'Gemini 분석 오류: {e}'}
+        print(f"Gemini 분석 오류: {e}")
+        # API 오류 시 대체 분석 제공
+        return _fallback_cyberbullying_analysis(text_content)
+
+def _fallback_cyberbullying_analysis(text_content):
+    """Gemini API 실패 시 대체 사이버폭력 분석"""
+    print(f"대체 사이버폭력 분석 시작: {text_content[:100]}...")
+    
+    try:
+        # 간단한 키워드 기반 분석
+        text_lower = text_content.lower()
+        
+        # 위험 키워드 정의
+        violent_keywords = ['죽어', '디져', '죽여', '때려', '패줄', '꺼져', '사라져', '바보', '멍청이', '개새끼', '병신']
+        threat_keywords = ['까먹으면', '안하면', '안되면', '그러면', '그럼']
+        bullying_keywords = ['그런 애랑', '말 섞지 마', '따돌려', '무시해', '놀려']
+        
+        # 문장별 분석
+        sentences = text_content.split('\n')
+        analysis_lines = []
+        risk_count = 0
+        
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if not sentence:
+                continue
+                
+            risk_level = "없음"
+            risk_type = "-"
+            explanation = "일반적인 대화 내용"
+            
+            # 위험도 판단
+            if any(keyword in sentence.lower() for keyword in violent_keywords):
+                risk_level = "심각"
+                risk_type = "욕설"
+                explanation = "폭력적이거나 모욕적인 표현 포함"
+                risk_count += 1
+            elif any(keyword in sentence.lower() for keyword in threat_keywords):
+                risk_level = "있음"
+                risk_type = "위협"
+                explanation = "협박이나 위협적 표현 포함"
+                risk_count += 1
+            elif any(keyword in sentence.lower() for keyword in bullying_keywords):
+                risk_level = "약간 있음"
+                risk_type = "따돌림"
+                explanation = "따돌리거나 배제하려는 의도"
+                risk_count += 1
+            
+            analysis_lines.append(f"| {sentence} | {risk_type} | - | - | {risk_level} | {explanation} |")
+        
+        # HTML 테이블 생성
+        html_table = """
+        <table class="analysis-table">
+        <thead>
+        <tr>
+        <th>문장</th>
+        <th>유형</th>
+        <th>피해자</th>
+        <th>가해자</th>
+        <th>위험도</th>
+        <th>해설</th>
+        </tr>
+        </thead>
+        <tbody>
+        """
+        
+        for line in analysis_lines:
+            html_table += f"<tr>{line}</tr>"
+        
+        html_table += """
+        </tbody>
+        </table>
+        """
+        
+        # 전체 위험도 판단
+        if risk_count == 0:
+            overall_risk = "없음"
+        elif risk_count <= 2:
+            overall_risk = "약간 있음"
+        elif risk_count <= 5:
+            overall_risk = "있음"
+        else:
+            overall_risk = "심각"
+        
+        summary = f"""
+전체 대화 사이버폭력 위험도: {overall_risk}
+
+대화 전체 분위기 요약: 키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다.
+
+잠재적 위험/주의사항: AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요.
+        """
+        
+        return {"table": html_table, "summary": summary.strip()}
+        
+    except Exception as e:
+        return {"table": '', "summary": f'대체 분석 오류: {e}'}
 
 def extract_risk_line(summary):
     """Gemini 분석 결과에서 위험도 라인을 추출"""

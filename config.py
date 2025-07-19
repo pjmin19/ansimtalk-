@@ -9,7 +9,7 @@ SIGHTENGINE_API_SECRET = os.environ.get('SIGHTENGINE_API_SECRET', '')
 
 # Google Cloud Vision/Gemini
 GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'dazzling-howl-465316-m7-6605bfd84de1.json')
-GOOGLE_GEMINI_API_KEY = os.environ.get('GOOGLE_GEMINI_API_KEY', 'AIzaSyBQJQJQJQJQJQJQJQJQJQJQJQJQJQJQJQ')
+GOOGLE_GEMINI_API_KEY = os.environ.get('GOOGLE_GEMINI_API_KEY', '')
 
 # 실제 배포 시에는 환경변수로 민감정보를 관리하세요.
 
