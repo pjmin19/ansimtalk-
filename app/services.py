@@ -1,7 +1,7 @@
 import requests
 import json
 from flask import current_app
-from fpdf import FPDF
+
 import os
 from PIL import Image
 import hashlib
