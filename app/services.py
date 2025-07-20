@@ -727,6 +727,43 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 color: #856404;
             }}
             
+            .analysis-table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin: 15px 0;
+                font-size: 11px;
+                page-break-inside: avoid;
+            }}
+            
+            .analysis-table th, .analysis-table td {{
+                border: 1px solid #ddd;
+                padding: 6px 8px;
+                word-wrap: break-word;
+                text-align: left;
+                vertical-align: top;
+            }}
+            
+            .analysis-table th {{
+                background: #f8f9fa;
+                font-weight: bold;
+                color: #495057;
+            }}
+            
+            .risk-none {{
+                color: #28a745;
+                font-weight: bold;
+            }}
+            
+            .risk-severe {{
+                color: #dc3545;
+                font-weight: bold;
+            }}
+            
+            .risk-moderate {{
+                color: #ffc107;
+                font-weight: bold;
+            }}
+            
             @page {{
                 size: A4;
                 margin: 40px 40px 50px 40px;
@@ -934,14 +971,16 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', 'N/A')}
             </div>
             
-            <h3>대화 전체 분위기 요약:</h3>
+            <h3>상세 분석 결과:</h3>
             <div class="box">
-                {analysis_result.get('conversation_atmosphere', '분석 중...')}
+                {analysis_result.get('cyberbullying_analysis', '분석 중...')}
             </div>
             
-            <h3>잠재적 위험/주의사항:</h3>
-            <div class="box" style="background: #fff3cd; border-left: 4px solid #ffc107;">
-                {analysis_result.get('potential_risks', '분석 중...')}
+            <h3>전체 분석 요약:</h3>
+            <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745;">
+                <strong>전체 대화 사이버폭력 위험도:</strong> {analysis_result.get('cyberbullying_risk_line', 'N/A')}<br><br>
+                <strong>대화 전체 분위기 요약:</strong> {analysis_result.get('conversation_atmosphere', '분석 중...')}<br><br>
+                <strong>잠재적 위험/주의사항:</strong> {analysis_result.get('potential_risks', '분석 중...')}
             </div>
         </div>
         
