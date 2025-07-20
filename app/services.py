@@ -1059,7 +1059,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             
             <h3>상세 분석 결과:</h3>
             <div class="box">
-                {analysis_result.get('deepfake_analysis', {}).get('type', {}) if analysis_result.get('deepfake_analysis') else '분석 결과가 없습니다.'}
+                {str(analysis_result.get('deepfake_analysis', {})) if analysis_result.get('deepfake_analysis') else '분석 결과가 없습니다.'}
             </div>
             ''' if analysis_type == 'deepfake' else f'''
             <h3>추출 텍스트(OCR):</h3>
