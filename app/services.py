@@ -512,13 +512,36 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         #    이 변수는 Railway 대시보드에서 'https://${{RAILWAY_PUBLIC_DOMAIN}}'와 같이 설정해야 합니다.
         #    이 URL은 WeasyPrint가 CSS나 이미지 같은 정적 파일의 경로를 해석하는 기준이 됩니다.
         base_url = os.environ.get('BASE_URL')
+        
+        # 로컬 개발 환경을 위한 기본값 설정
         if not base_url:
-            # 설정이 누락된 경우, 개발자가 문제를 즉시 인지할 수 있도록 명시적인 오류를 발생시킵니다.
-            raise ValueError("PDF 생성을 위한 BASE_URL 환경 변수가 설정되지 않았습니다.")
+            # 로컬 개발 환경에서는 기본값 사용
+            base_url = "http://127.0.0.1:5000"
+            print(f"BASE_URL 환경 변수가 설정되지 않아 기본값 사용: {base_url}")
+            print("프로덕션 환경에서는 Railway 대시보드에서 BASE_URL을 설정하세요.")
 
         # 2. HTML 템플릿을 렌더링합니다.
         #    세 번째 인자로 전달된 pdf_path는 HTML 내부에서 원본 이미지 경로를 찾는 데 사용됩니다.
         html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
+        
+        # 2-1. 폰트 파일을 base64로 인코딩하여 직접 임베드 (Railway 환경에서 더 안정적)
+        try:
+            font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'NanumGothic.ttf')
+            if os.path.exists(font_path):
+                import base64
+                with open(font_path, 'rb') as f:
+                    font_data = f.read()
+                font_base64 = base64.b64encode(font_data).decode('utf-8')
+                # HTML에 base64 폰트 데이터를 직접 삽입
+                html_content = html_content.replace(
+                    'src: url(\'/static/fonts/NanumGothic.ttf\')',
+                    f'src: url(data:font/truetype;base64,{font_base64})'
+                )
+                print(f"✅ 폰트 파일을 base64로 임베드 완료: {len(font_data)} bytes")
+            else:
+                print(f"⚠️ 폰트 파일을 찾을 수 없습니다: {font_path}")
+        except Exception as font_error:
+            print(f"⚠️ 폰트 임베드 실패, 기본 방식 사용: {font_error}")
         
         # 3. WeasyPrint가 @font-face 규칙을 인식하고 처리하도록 FontConfiguration 객체를 생성합니다.
         from weasyprint import HTML
@@ -539,10 +562,26 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         
         # 6. PDF를 파일에 씁니다.
         #    - font_config를 전달해야 CSS에 정의된 커스텀 폰트가 적용됩니다.
-        html_doc.write_pdf(pdf_path, font_config=font_config)
+        print(f"PDF 생성 시작: {pdf_path}")
+        print(f"사용 중인 base_url: {base_url}")
+        print(f"FontConfiguration 상태: {font_config}")
         
-        print(f"PDF 저장 성공: {pdf_path}")
-        return pdf_path
+        try:
+            html_doc.write_pdf(pdf_path, font_config=font_config)
+            print(f"PDF 저장 성공: {pdf_path}")
+            
+            # 파일 생성 확인
+            if os.path.exists(pdf_path):
+                file_size = os.path.getsize(pdf_path)
+                print(f"PDF 파일 크기: {file_size} bytes")
+                return pdf_path
+            else:
+                print(f"❌ PDF 파일이 생성되지 않았습니다: {pdf_path}")
+                raise Exception("PDF 파일이 생성되지 않았습니다.")
+                
+        except Exception as pdf_error:
+            print(f"PDF 생성 중 오류: {pdf_error}")
+            raise pdf_error
         
     except Exception as e:
         print(f"WeasyPrint generation failed: {e}")
@@ -655,11 +694,12 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 src: url('/static/fonts/NanumGothic.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
+                font-display: swap; /* 폰트 로딩 실패 시 빠른 대체 */
             }}
             
             body {{ 
-                /* 기본 폰트를 NanumGothic으로 설정합니다. */
-                font-family: 'NanumGothic', sans-serif; 
+                /* 기본 폰트를 NanumGothic으로 설정하고, 실패 시 시스템 폰트로 대체 */
+                font-family: 'NanumGothic', 'Malgun Gothic', '맑은 고딕', 'Arial', sans-serif; 
                 margin: 40px; 
                 line-height: 1.6;
                 word-wrap: break-word;
