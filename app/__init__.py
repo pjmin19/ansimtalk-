@@ -18,7 +18,7 @@ def create_app():
     app.config['GOOGLE_CLOUD_VISION_API_KEY'] = os.environ.get('GOOGLE_CLOUD_VISION_API_KEY', 'your-vision-api-key-here')
     
     # Google Cloud 자격 증명 파일 경로 설정
-    app.config['GOOGLE_APPLICATION_CREDENTIALS'] = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'no/no/dazzling-howl-465316-m7-6605bfd84de1.json')
+    app.config['GOOGLE_APPLICATION_CREDENTIALS'] = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'dazzling-howl-465316-m7-1940c1e7d0a2.json')
     
     # 블루프린트 등록
     app.register_blueprint(bp)
