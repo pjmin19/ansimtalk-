@@ -1,13 +1,9 @@
 gunicorn
 Flask
 python-dotenv
-reportlab
 pillow
 google-cloud-vision
 openai
 requests
 fpdf
 google-generativeai
-weasyprint
-cairocffi
-cairosvg
