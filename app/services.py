@@ -231,31 +231,39 @@ def analyze_text_with_gemini(text_content):
     import json
     from google.oauth2 import service_account
     
-    # 환경 변수에서 서비스 계정 키 JSON 가져오기
-    service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-    if service_account_info:
-        # JSON 문자열을 파싱하여 서비스 계정 정보 생성
-        service_account_dict = json.loads(service_account_info)
-        credentials = service_account.Credentials.from_service_account_info(service_account_dict)
-        client = genai.Client(
-            vertexai=True,
-            project="dazzling-howl-465316-m7",
-            location="global",
-            credentials=credentials
-        )
-    else:
-        # 기존 방식 (로컬 파일)
-        credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-        if os.path.exists(credentials_path):
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+    try:
+        # 환경 변수에서 서비스 계정 키 JSON 가져오기
+        service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+        if service_account_info:
+            # JSON 문자열을 파싱하여 서비스 계정 정보 생성
+            service_account_dict = json.loads(service_account_info)
+            credentials = service_account.Credentials.from_service_account_info(service_account_dict)
             client = genai.Client(
                 vertexai=True,
                 project="dazzling-howl-465316-m7",
                 location="global",
+                credentials=credentials
             )
+            print("환경 변수에서 서비스 계정 정보를 사용합니다.")
         else:
-            print("Google Cloud 인증 정보가 설정되지 않았습니다")
-            return _fallback_cyberbullying_analysis(text_content)
+            # 기존 방식 (로컬 파일)
+            credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+            if os.path.exists(credentials_path):
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+                client = genai.Client(
+                    vertexai=True,
+                    project="dazzling-howl-465316-m7",
+                    location="global",
+                )
+                print(f"로컬 파일에서 서비스 계정 정보를 사용합니다: {credentials_path}")
+            else:
+                print("Google Cloud 인증 정보가 설정되지 않았습니다")
+                print(f"환경 변수 GOOGLE_SERVICE_ACCOUNT_JSON: {'설정됨' if os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON') else '설정되지 않음'}")
+                print(f"로컬 파일 경로: {credentials_path}")
+                return _fallback_cyberbullying_analysis(text_content)
+    except Exception as e:
+        print(f"Google Cloud 인증 설정 오류: {e}")
+        return _fallback_cyberbullying_analysis(text_content)
     
     model = "gemini-2.5-flash-lite-preview-06-17"
     prompt = f"""
