@@ -1,15 +1,16 @@
 import requests
 import json
 from flask import current_app
-
+from fpdf import FPDF
 import os
 from PIL import Image
+import pytesseract
 import hashlib
 from datetime import datetime
-# from weasyprint import HTML  # WeasyPrint 제거됨
+from weasyprint import HTML
 from flask import render_template
 from google.cloud import vision
-import google.generativeai as genai
+from google import genai
 import re
 import uuid
 
@@ -118,20 +119,14 @@ def analyze_file(file_path, analysis_type, file_extension):
     elif analysis_type == 'cyberbullying':
         if file_extension in {'png', 'jpg', 'jpeg'}:
             extracted_text = extract_text_from_image(file_path)
-            if extracted_text.strip() and not extracted_text.startswith('['):
-                # 텍스트 추출 성공
+            if extracted_text.strip():
                 gemini_result = analyze_text_with_gemini(extracted_text)
                 result['extracted_text'] = extracted_text
                 result['cyberbullying_analysis'] = gemini_result.get('table', '')
                 result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
                 result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
             else:
-                # 텍스트 추출 실패 시 대체 분석 제공
-                result['extracted_text'] = extracted_text if extracted_text else "[이미지에서 텍스트를 추출할 수 없습니다.]"
-                fallback_result = _fallback_cyberbullying_analysis("이미지에서 텍스트를 추출할 수 없어 기본 분석을 제공합니다.")
-                result['cyberbullying_analysis'] = fallback_result.get('table', '')
-                result['cyberbullying_analysis_summary'] = fallback_result.get('summary', '')
-                result['cyberbullying_risk_line'] = extract_risk_line(fallback_result.get('summary', ''))
+                result['error'] = '이미지에서 텍스트를 추출할 수 없습니다.'
         elif file_extension == 'txt':
             with open(file_path, 'r', encoding='utf-8') as f:
                 text = f.read()
@@ -173,70 +168,25 @@ def analyze_image_with_sightengine(file_path):
         files['media'].close()
 
 def extract_text_from_image(image_path):
-    try:
-        print(f"이미지 텍스트 추출 시작: {image_path}")
-        
-        # 이미지 파일 존재 확인
-        if not os.path.exists(image_path):
-            print(f"이미지 파일이 존재하지 않음: {image_path}")
-            return ""
-        
-        # Google Cloud Vision API 사용
-        try:
-            # Railway 환경에서 환경 변수로 설정된 서비스 계정 키 사용
-            import json
-            from google.oauth2 import service_account
-            
-            # 환경 변수에서 서비스 계정 키 JSON 가져오기
-            service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-            if service_account_info:
-                # JSON 문자열을 파싱하여 서비스 계정 정보 생성
-                service_account_dict = json.loads(service_account_info)
-                credentials = service_account.Credentials.from_service_account_info(service_account_dict)
-                client = vision.ImageAnnotatorClient(credentials=credentials)
-            else:
-                # 기존 방식 (로컬 파일)
-                credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-                if os.path.exists(credentials_path):
-                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-                    client = vision.ImageAnnotatorClient()
-                else:
-                    print("Google Cloud 인증 정보가 설정되지 않았습니다")
-                    return "[Google Cloud 인증 정보가 설정되지 않았습니다. 관리자에게 문의하세요.]"
-            
-            with open(image_path, "rb") as image_file:
-                content = image_file.read()
-            image = vision.Image(content=content)
-            response = client.text_detection(image=image)
-            texts = response.text_annotations
-            if not texts:
-                print("Google Vision API 결과: 텍스트가 발견되지 않음")
-                return "[이미지에서 텍스트를 찾을 수 없습니다.]"
-            extracted_text = texts[0].description.strip()
-            print(f"Google Vision API 성공: {len(extracted_text)} 문자 추출")
-            return extracted_text
-                
-        except Exception as vision_error:
-            print(f"Google Vision API 오류: {vision_error}")
-            return f"[Google Cloud Vision API 오류: {vision_error}]"
-            
-    except Exception as e:
-        print(f"이미지 텍스트 추출 오류: {e}")
-        return f"[이미지 텍스트 추출 중 오류 발생: {e}]"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+    client = vision.ImageAnnotatorClient()
+    with open(image_path, "rb") as image_file:
+        content = image_file.read()
+    image = vision.Image(content=content)
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    if not texts:
+        return ""
+    return texts[0].description.strip()
 
 def analyze_text_with_gemini(text_content):
-    try:
-        # Gemini API 키 설정
-        api_key = current_app.config.get('GOOGLE_GEMINI_API_KEY', '')
-        if not api_key:
-            print("Gemini API 키가 설정되지 않았습니다")
-            return _fallback_cyberbullying_analysis(text_content)
-        
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-    except Exception as e:
-        print(f"Gemini 설정 오류: {e}")
-        return _fallback_cyberbullying_analysis(text_content)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+    client = genai.Client(
+        vertexai=True,
+        project="dazzling-howl-465316-m7",
+        location="global",
+    )
+    model = "gemini-2.5-flash-lite-preview-06-17"
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
@@ -274,8 +224,11 @@ def analyze_text_with_gemini(text_content):
 잠재적 위험/주의사항: 직접적인 위협과 사회적 배제는 피해자에게 심각한 정신적 고통을 줄 수 있습니다. 즉각적인 개입과 보호 조치가 필요한 상황입니다.
 """
     try:
-        response = model.generate_content(prompt)
-        result_text = response.text.strip()
+        response = client.models.generate_content(
+            model=model,
+            contents=[prompt]
+        )
+        result_text = response.candidates[0].content.parts[0].text.strip()
         # 표와 표 아래 3줄 분리
         lines = result_text.splitlines()
         table_lines = []
@@ -500,117 +453,58 @@ def safe_multi_cell(pdf, text, line_height=7, max_width=None):
     return len(lines)
 
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
-    """
-    WeasyPrint, Noto Sans KR, Railway 환경 변수를 사용하여
-    안정적으로 PDF 보고서를 생성합니다.
-    """
+    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - HTML 기반"""
     try:
-        print(f"PDF 생성 시작: {pdf_path}")
-        print(f"분석 타입: {analysis_type}")
-        
-        # 1. BASE_URL 환경 변수를 가져옵니다.
-        #    이 변수는 Railway 대시보드에서 'https://${{RAILWAY_PUBLIC_DOMAIN}}'와 같이 설정해야 합니다.
-        #    이 URL은 WeasyPrint가 CSS나 이미지 같은 정적 파일의 경로를 해석하는 기준이 됩니다.
-        base_url = os.environ.get('BASE_URL')
-        
-        # 로컬 개발 환경을 위한 기본값 설정
-        if not base_url:
-            # 로컬 개발 환경에서는 기본값 사용
-            base_url = "http://127.0.0.1:5000"
-            print(f"BASE_URL 환경 변수가 설정되지 않아 기본값 사용: {base_url}")
-            print("프로덕션 환경에서는 Railway 대시보드에서 BASE_URL을 설정하세요.")
-
-        # 2. HTML 템플릿을 렌더링합니다.
-        #    세 번째 인자로 전달된 pdf_path는 HTML 내부에서 원본 이미지 경로를 찾는 데 사용됩니다.
+        # HTML 템플릿 생성
         html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
         
-        # 2-1. 폰트 파일을 base64로 인코딩하여 직접 임베드 (Railway 환경에서 더 안정적)
-        try:
-            font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'NanumGothic.ttf')
-            if os.path.exists(font_path):
-                import base64
-                with open(font_path, 'rb') as f:
-                    font_data = f.read()
-                font_base64 = base64.b64encode(font_data).decode('utf-8')
-                # HTML에 base64 폰트 데이터를 직접 삽입
-                html_content = html_content.replace(
-                    'src: url(\'/static/fonts/NanumGothic.ttf\')',
-                    f'src: url(data:font/truetype;base64,{font_base64})'
-                )
-                print(f"✅ 폰트 파일을 base64로 임베드 완료: {len(font_data)} bytes")
-            else:
-                print(f"⚠️ 폰트 파일을 찾을 수 없습니다: {font_path}")
-        except Exception as font_error:
-            print(f"⚠️ 폰트 임베드 실패, 기본 방식 사용: {font_error}")
-        
-        # 3. WeasyPrint가 @font-face 규칙을 인식하고 처리하도록 FontConfiguration 객체를 생성합니다.
-        from weasyprint import HTML
-        from weasyprint.text.fonts import FontConfiguration
-        font_config = FontConfiguration()
-
-        # 4. WeasyPrint HTML 객체를 생성합니다.
-        #    - string: 렌더링할 HTML 콘텐츠입니다.
-        #    - base_url: CSS의 url('/static/...') 같은 루트 상대 경로를 해석할 기준 URL을 제공합니다.
-        #      이것이 로컬과 프로덕션 환경의 경로 차이를 해결하는 핵심입니다.
-        html_doc = HTML(string=html_content, base_url=base_url)
-        
-        # 5. 디렉토리 확인 및 생성
-        pdf_dir = os.path.dirname(pdf_path)
-        if pdf_dir and not os.path.exists(pdf_dir):
-            os.makedirs(pdf_dir)
-            print(f"디렉토리 생성: {pdf_dir}")
-        
-        # 6. PDF를 파일에 씁니다.
-        #    - font_config를 전달해야 CSS에 정의된 커스텀 폰트가 적용됩니다.
-        print(f"PDF 생성 시작: {pdf_path}")
-        print(f"사용 중인 base_url: {base_url}")
-        print(f"FontConfiguration 상태: {font_config}")
-        
-        try:
-            html_doc.write_pdf(pdf_path, font_config=font_config)
-            print(f"PDF 저장 성공: {pdf_path}")
-            
-            # 파일 생성 확인
-            if os.path.exists(pdf_path):
-                file_size = os.path.getsize(pdf_path)
-                print(f"PDF 파일 크기: {file_size} bytes")
-                return pdf_path
-            else:
-                print(f"❌ PDF 파일이 생성되지 않았습니다: {pdf_path}")
-                raise Exception("PDF 파일이 생성되지 않았습니다.")
-                
-        except Exception as pdf_error:
-            print(f"PDF 생성 중 오류: {pdf_error}")
-            raise pdf_error
+        # WeasyPrint로 PDF 생성
+        HTML(string=html_content).write_pdf(pdf_path)
+        return pdf_path
         
     except Exception as e:
-        print(f"WeasyPrint generation failed: {e}")
-        import traceback
-        print(f"상세 오류 정보: {traceback.format_exc()}")
-        
-        # Railway 환경 변수 설정 안내
-        print("""
-        Railway 환경에서 WeasyPrint 사용을 위한 설정:
-        1. Railway 대시보드에서 프로젝트 설정으로 이동
-        2. Variables 탭에서 다음 환경 변수 추가:
-           BASE_URL: https://${{RAILWAY_PUBLIC_DOMAIN}}
-        3. 배포를 다시 트리거하세요
-        """)
-        
-        # 대체 방법: HTML 파일 생성
+        print(f"HTML-based PDF generation failed: {e}")
+        # 최후의 수단: 텍스트 파일 생성
         try:
-            html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
-            html_path = pdf_path.replace('.pdf', '.html')
-            with open(html_path, 'w', encoding='utf-8') as f:
-                f.write(html_content)
-            print(f"HTML 파일 생성됨: {html_path}")
-            return html_path
+            text_path = pdf_path.replace('.pdf', '.txt')
+            with open(text_path, 'w', encoding='utf-8') as f:
+                f.write("DIGITAL EVIDENCE ANALYSIS REPORT\n")
+                f.write("AI-Based Deepfake and Cyberbullying Analysis\n")
+                f.write("=" * 60 + "\n\n")
+                f.write("EXPERT REPORT\n")
+                f.write("Selected Expert: Legal-Tech Product Manager and Forensic Analyst\n\n")
+                f.write("I. CASE AND EVIDENCE OVERVIEW\n")
+                f.write("A. Case Information\n")
+                f.write(f"Case Management Number: DF-CB-{datetime.now().strftime('%Y')}-001\n")
+                f.write(f"Report ID: DF-CB-{datetime.now().strftime('%Y')}-001-v1.0\n")
+                f.write(f"Issue Date: {datetime.now().strftime('%Y-%m-%d')}\n")
+                f.write("Requesting Agency: Seoul Seocho Police Station Cyber Investigation Team\n")
+                f.write("Lead Analyst: Senior Digital Forensic Analyst\n\n")
+                f.write("II. AI-BASED FORENSIC ANALYSIS\n")
+                f.write("A. Comprehensive Analysis Results\n")
+                
+                if analysis_type == 'deepfake' and 'deepfake_analysis' in analysis_result:
+                    deepfake_analysis = analysis_result['deepfake_analysis']
+                    if 'error' not in deepfake_analysis:
+                        if deepfake_analysis.get('type', {}).get('deepfake'):
+                            f.write(f"Deepfake Detection: {deepfake_analysis['type']['deepfake']:.1%} probability\n")
+                
+                elif analysis_type == 'cyberbullying' and 'cyberbullying_analysis_summary' in analysis_result:
+                    summary = str(analysis_result['cyberbullying_analysis_summary'])
+                    f.write(f"Cyberbullying Analysis: {summary[:500]}...\n" if len(summary) > 500 else f"Cyberbullying Analysis: {summary}\n")
+                
+                f.write(f"\nIII. EVIDENTIARY INTEGRITY\n")
+                f.write(f"SHA-256 Hash: {analysis_result.get('sha256', 'N/A')}\n")
+                f.write(f"Analysis Timestamp: {analysis_result.get('analysis_timestamp', 'N/A')}\n")
+                f.write(f"Analysis Type: {analysis_type or 'N/A'}\n")
+            
+            return text_path
         except Exception as e2:
-            print(f"HTML file generation also failed: {e2}")
+            print(f"Text file generation also failed: {e2}")
             raise e
 
 def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
-    """Noto Sans KR 폰트와 웹 친화적인 이미지 경로를 사용하도록 수정된 보고서 HTML 템플릿을 생성합니다."""
+    """보고서 HTML 템플릿 생성"""
     original_file = analysis_result.get('file_info', {})
     
     # 분석 결과 텍스트 생성
