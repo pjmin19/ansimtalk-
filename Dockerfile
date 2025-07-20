@@ -8,11 +8,11 @@ WORKDIR /app
 
 # Install system dependencies for WeasyPrint
 RUN apt-get update && apt-get install -y \
-    cairo \
-    pango \
-    gobject-introspection \
-    glib \
-    libffi \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libgobject-2.0-0 \
+    libglib2.0-0 \
+    libffi-dev \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
