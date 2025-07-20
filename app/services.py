@@ -319,7 +319,9 @@ def analyze_text_with_gemini(text_content):
         
         return {"table": html_table, "summary": summary}
     except Exception as e:
-        return {"table": '', "summary": f'Gemini 분석 오류: {e}'}
+        print(f"Gemini 분석 오류: {e}")
+        # API 오류 시 대체 분석 제공
+        return _fallback_cyberbullying_analysis(text_content)
 
 def _fallback_cyberbullying_analysis(text_content):
     """Gemini API 실패 시 대체 사이버폭력 분석"""
