@@ -1059,7 +1059,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             
             <h3>상세 분석 결과:</h3>
             <div class="box">
-                {str(analysis_result.get('deepfake_analysis', {})) if analysis_result.get('deepfake_analysis') else '분석 결과가 없습니다.'}
+                <pre style="white-space: pre-wrap; font-family: 'Noto Sans KR', sans-serif; font-size: 12px; line-height: 1.4; margin: 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px; overflow-x: auto;">{json.dumps(analysis_result.get('deepfake_analysis', {}), indent=2, ensure_ascii=False) if analysis_result.get('deepfake_analysis') else '분석 결과가 없습니다.'}</pre>
             </div>
             ''' if analysis_type == 'deepfake' else f'''
             <h3>추출 텍스트(OCR):</h3>
