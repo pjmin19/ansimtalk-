@@ -6,9 +6,15 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-# Install system dependencies for ReportLab (한글 폰트 지원)
+# Install system dependencies for WeasyPrint
 RUN apt-get update && apt-get install -y \
-    fonts-nanum \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libgirepository1.0-dev \
+    libglib2.0-dev \
+    libffi-dev \
+    pkg-config \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .

@@ -500,195 +500,63 @@ def safe_multi_cell(pdf, text, line_height=7, max_width=None):
     return len(lines)
 
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
-    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - ReportLab 기반"""
+    """
+    WeasyPrint, Noto Sans KR, Railway 환경 변수를 사용하여
+    안정적으로 PDF 보고서를 생성합니다.
+    """
     try:
         print(f"PDF 생성 시작: {pdf_path}")
         print(f"분석 타입: {analysis_type}")
         
-        # ReportLab로 PDF 생성 (한글 지원)
-        from reportlab.pdfgen import canvas
-        from reportlab.lib.pagesizes import A4
-        from reportlab.lib.units import inch
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-        from reportlab.lib import colors
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.enums import TA_CENTER, TA_LEFT
-        import os
+        # 1. BASE_URL 환경 변수를 가져옵니다.
+        #    이 변수는 Railway 대시보드에서 'https://${{RAILWAY_PUBLIC_DOMAIN}}'와 같이 설정해야 합니다.
+        #    이 URL은 WeasyPrint가 CSS나 이미지 같은 정적 파일의 경로를 해석하는 기준이 됩니다.
+        base_url = os.environ.get('BASE_URL')
+        if not base_url:
+            # 설정이 누락된 경우, 개발자가 문제를 즉시 인지할 수 있도록 명시적인 오류를 발생시킵니다.
+            raise ValueError("PDF 생성을 위한 BASE_URL 환경 변수가 설정되지 않았습니다.")
+
+        # 2. HTML 템플릿을 렌더링합니다.
+        #    세 번째 인자로 전달된 pdf_path는 HTML 내부에서 원본 이미지 경로를 찾는 데 사용됩니다.
+        html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
         
-        # 디렉토리 확인 및 생성
+        # 3. WeasyPrint가 @font-face 규칙을 인식하고 처리하도록 FontConfiguration 객체를 생성합니다.
+        from weasyprint import HTML
+        from weasyprint.text.fonts import FontConfiguration
+        font_config = FontConfiguration()
+
+        # 4. WeasyPrint HTML 객체를 생성합니다.
+        #    - string: 렌더링할 HTML 콘텐츠입니다.
+        #    - base_url: CSS의 url('/static/...') 같은 루트 상대 경로를 해석할 기준 URL을 제공합니다.
+        #      이것이 로컬과 프로덕션 환경의 경로 차이를 해결하는 핵심입니다.
+        html_doc = HTML(string=html_content, base_url=base_url)
+        
+        # 5. 디렉토리 확인 및 생성
         pdf_dir = os.path.dirname(pdf_path)
         if pdf_dir and not os.path.exists(pdf_dir):
             os.makedirs(pdf_dir)
             print(f"디렉토리 생성: {pdf_dir}")
         
-        # 한글 폰트 등록
-        try:
-            font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'NanumGothic.ttf')
-            pdfmetrics.registerFont(TTFont('NanumGothic', font_path))
-            font_name = 'NanumGothic'
-        except:
-            # 폰트 등록 실패 시 기본 폰트 사용
-            font_name = 'Helvetica'
-            print("한글 폰트 등록 실패, 기본 폰트 사용")
+        # 6. PDF를 파일에 씁니다.
+        #    - font_config를 전달해야 CSS에 정의된 커스텀 폰트가 적용됩니다.
+        html_doc.write_pdf(pdf_path, font_config=font_config)
         
-        # PDF 문서 생성
-        doc = SimpleDocTemplate(pdf_path, pagesize=A4)
-        story = []
-        
-        # 스타일 정의
-        styles = getSampleStyleSheet()
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=24,
-            spaceAfter=30,
-            alignment=TA_CENTER,
-            fontName=font_name
-        )
-        
-        heading_style = ParagraphStyle(
-            'CustomHeading',
-            parent=styles['Heading2'],
-            fontSize=16,
-            spaceAfter=12,
-            fontName=font_name
-        )
-        
-        normal_style = ParagraphStyle(
-            'CustomNormal',
-            parent=styles['Normal'],
-            fontSize=10,
-            spaceAfter=6,
-            fontName=font_name
-        )
-        
-        # 제목
-        story.append(Paragraph("안심톡 디지털 증거 분석 보고서", title_style))
-        story.append(Paragraph("AI 기반 딥페이크 및 사이버폭력 분석 시스템", normal_style))
-        story.append(Spacer(1, 20))
-        
-        # 기본 정보
-        story.append(Paragraph("1. 기본 정보", heading_style))
-        
-        report_id = f"DF-CB-{datetime.now().strftime('%Y')}-001-v1.0"
-        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
-        basic_info = [
-            ['보고서 ID', report_id],
-            ['생성일시', created_at],
-            ['분석 유형', analysis_type or 'N/A'],
-            ['분석 시스템', '안심톡 AI 포렌식 분석 시스템 v1.0']
-        ]
-        
-        basic_table = Table(basic_info, colWidths=[2*inch, 4*inch])
-        basic_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.grey),
-            ('TEXTCOLOR', (0, 0), (0, -1), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, -1), font_name),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (1, 0), (1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(basic_table)
-        story.append(Spacer(1, 20))
-        
-        # 파일 정보
-        story.append(Paragraph("2. 파일 정보", heading_style))
-        
-        original_file = analysis_result.get('file_info', {})
-        filename = str(original_file.get('filename', 'N/A'))
-        file_size = str(original_file.get('size_bytes', 'N/A'))
-        sha256 = str(analysis_result.get('sha256', 'N/A'))
-        
-        file_info = [
-            ['파일명', filename],
-            ['파일 크기', f"{file_size} Bytes"],
-            ['SHA-256 해시', sha256],
-            ['분석 시간', analysis_result.get('analysis_timestamp', 'N/A')]
-        ]
-        
-        file_table = Table(file_info, colWidths=[2*inch, 4*inch])
-        file_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.grey),
-            ('TEXTCOLOR', (0, 0), (0, -1), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, -1), font_name),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (1, 0), (1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(file_table)
-        story.append(Spacer(1, 20))
-        
-        # 분석 결과
-        story.append(Paragraph("3. 분석 결과", heading_style))
-        
-        analysis_text = ""
-        if analysis_type == 'deepfake' and 'deepfake_analysis' in analysis_result:
-            deepfake_analysis = analysis_result['deepfake_analysis']
-            if 'error' not in deepfake_analysis:
-                if deepfake_analysis.get('type', {}).get('deepfake'):
-                    prob = deepfake_analysis['type']['deepfake']
-                    analysis_text = f"딥페이크일 확률: {prob:.1%}"
-                else:
-                    analysis_text = "딥페이크일 확률: N/A"
-            else:
-                analysis_text = f"딥페이크 분석 오류: {str(deepfake_analysis['error'])[:50]}"
-        
-        elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
-            risk_line = analysis_result['cyberbullying_risk_line']
-            analysis_text = f"사이버폭력 위험도: {risk_line}"
-        else:
-            analysis_text = "분석 결과: N/A"
-        
-        story.append(Paragraph(analysis_text, normal_style))
-        story.append(Spacer(1, 20))
-        
-        # AI 모델 정보
-        story.append(Paragraph("4. AI 모델 정보", heading_style))
-        
-        ai_models = [
-            ['분석 작업', 'AI 모델', '버전', '정확도'],
-            ['딥페이크 탐지', 'Sightengine Deepfake Detector', 'v1.0', '98.2%'],
-            ['사이버폭력 분석', 'Google Gemini 2.5 Flash', 'v1.0', '94.5%'],
-            ['OCR 텍스트 추출', 'Google Cloud Vision API', 'v1.0', '99.1%']
-        ]
-        
-        ai_table = Table(ai_models, colWidths=[1.5*inch, 2*inch, 0.8*inch, 0.8*inch])
-        ai_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, -1), font_name),
-            ('FONTSIZE', (0, 0), (-1, -1), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(ai_table)
-        story.append(Spacer(1, 20))
-        
-        # 법적 고지
-        story.append(Paragraph("5. 법적 고지", heading_style))
-        legal_text = """본 보고서는 AI 기반 분석 결과를 제공하며 법률 전문가의 판단을 대체할 수 없습니다. 
-        보고서 내용은 참고 자료로만 사용되어야 하며 법적 책임을 지지 않습니다. 
-        모든 분석 결과는 기술적 한계 내에서 제공되며, 최종 판단은 관련 법률 전문가의 검토를 거쳐야 합니다."""
-        story.append(Paragraph(legal_text, normal_style))
-        
-        # PDF 생성
-        doc.build(story)
         print(f"PDF 저장 성공: {pdf_path}")
         return pdf_path
         
     except Exception as e:
-        print(f"ReportLab generation failed: {e}")
+        print(f"WeasyPrint generation failed: {e}")
         import traceback
         print(f"상세 오류 정보: {traceback.format_exc()}")
+        
+        # Railway 환경 변수 설정 안내
+        print("""
+        Railway 환경에서 WeasyPrint 사용을 위한 설정:
+        1. Railway 대시보드에서 프로젝트 설정으로 이동
+        2. Variables 탭에서 다음 환경 변수 추가:
+           BASE_URL: https://${{RAILWAY_PUBLIC_DOMAIN}}
+        3. 배포를 다시 트리거하세요
+        """)
         
         # 대체 방법: HTML 파일 생성
         try:
@@ -703,7 +571,7 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
             raise e
 
 def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
-    """보고서 HTML 템플릿 생성 - 완전한 한글 지원"""
+    """Noto Sans KR 폰트와 웹 친화적인 이미지 경로를 사용하도록 수정된 보고서 HTML 템플릿을 생성합니다."""
     original_file = analysis_result.get('file_info', {})
     
     # 분석 결과 텍스트 생성
@@ -720,7 +588,6 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             analysis_text = f"딥페이크 분석 오류: {str(deepfake_analysis['error'])[:100]}"
     
     elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
-        # 위험도만 간단하게 표시
         risk_line = analysis_result['cyberbullying_risk_line']
         analysis_text = f"전체 대화 사이버폭력 위험도: {risk_line}"
     
@@ -733,6 +600,40 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     file_size = str(original_file.get('size_bytes', 'N/A'))
     sha256 = str(analysis_result.get('sha256', 'N/A'))
     
+    # 원본 이미지 경로 찾기
+    original_image_path = analysis_result.get('original_image_path', '')
+    if not original_image_path and 'filename' in original_file and pdf_path:
+        # 기존의 복잡한 경로 탐색 로직을 유지하되, pdf_path가 있어야만 실행되도록 함
+        static_uploads_dir = os.path.join(os.path.dirname(pdf_path), '..', 'app', 'static', 'uploads')
+        if os.path.exists(static_uploads_dir):
+            for file in os.listdir(static_uploads_dir):
+                if file.endswith(('.jpg', '.jpeg', '.png')) and original_file['filename'] in file:
+                    original_image_path = os.path.abspath(os.path.join(static_uploads_dir, file))
+                    break
+        if not original_image_path:
+            tmp_dir = os.path.join(os.path.dirname(pdf_path), '..', 'tmp')
+            if os.path.exists(tmp_dir):
+                for file in os.listdir(tmp_dir):
+                    if file.endswith(('.jpg', '.jpeg', '.png')) and original_file['filename'] in file:
+                        original_image_path = os.path.abspath(os.path.join(tmp_dir, file))
+                        break
+
+    # 절대 파일 경로를 웹에서 접근 가능한 상대 URL로 변환합니다.
+    # 예: '/app/static/uploads/image.png' -> '/static/uploads/image.png'
+    # 이 경로는 WeasyPrint의 base_url과 결합되어 완전한 HTTP URL로 해석됩니다.
+    web_image_path = ""
+    if original_image_path and os.path.exists(original_image_path):
+        # 'static' 디렉토리를 기준으로 경로를 분리하여 웹 경로를 생성합니다.
+        path_parts = original_image_path.split(os.sep)
+        try:
+            static_index = path_parts.index('static')
+            # os.sep으로 분리된 경로를 웹 표준인 '/'로 다시 합칩니다.
+            web_image_path = '/' + '/'.join(path_parts[static_index:])
+        except ValueError:
+            # 'static'이 경로에 없는 경우, 이미지를 표시할 수 없음을 기록합니다.
+            print(f"Warning: Could not create web-accessible path for image: {original_image_path}")
+            web_image_path = ""
+
     # HTML 템플릿 생성
     html_content = f"""
     <!DOCTYPE html>
@@ -741,153 +642,181 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>안심톡 디지털 증거 분석 보고서</title>
+        <style>
+            /* NanumGothic 폰트를 정의합니다. */
+            @font-face {{
+                font-family: 'NanumGothic';
+                /*
+                 * 루트 상대 경로를 사용합니다.
+                 * 이 경로는 Python 코드의 'base_url'과 결합되어
+                 * 'https://<your-app-domain>/static/fonts/NanumGothic.ttf'와 같은
+                 * 완전한 URL로 해석됩니다. (폰트 파일은 static/fonts/에 위치해야 합니다)
+                 */
+                src: url('/static/fonts/NanumGothic.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }}
+            
+            body {{ 
+                /* 기본 폰트를 NanumGothic으로 설정합니다. */
+                font-family: 'NanumGothic', sans-serif; 
+                margin: 40px; 
+                line-height: 1.6;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }}
+            
+            h1, h2, h3 {{ color: #1976d2; page-break-after: avoid; page-break-inside: avoid; }}
+            .code-block {{ font-family: 'Consolas', 'Monaco', monospace; background: #eee; padding: 8px; border-radius: 4px; word-break: break-all; font-size: 11px; }}
+            table {{ border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 11px; page-break-inside: avoid; }}
+            th, td {{ border: 1px solid #bbb; padding: 6px 8px; word-wrap: break-word; max-width: 200px; }}
+            th {{ background: #f5f5f5; font-weight: bold; }}
+            img.evidence {{ max-width: 400px; max-height: 500px; margin: 10px 0; page-break-inside: avoid; border: 1px solid #ddd; border-radius: 4px; }}
+            .section {{ margin-bottom: 30px; page-break-inside: avoid; }}
+            .box {{ background: #f0f4ff; border-radius: 8px; padding: 12px; margin: 10px 0; page-break-inside: avoid; word-wrap: break-word; }}
+            pre {{ white-space: pre-wrap; word-wrap: break-word; font-size: 10px; max-width: 100%; overflow-x: auto; }}
+            .long-text {{ word-wrap: break-word; overflow-wrap: break-word; max-width: 100%; line-height: 1.4; }}
+            
+            @page {{
+                size: A4;
+                margin: 40px 40px 50px 40px;
+                @bottom-center {{
+                    content: element(report-footer);
+                }}
+            }}
+            
+            #report-footer {{
+                position: running(report-footer);
+                font-size: 10px;
+                color: #888;
+                text-align: right;
+                width: 100%;
+            }}
+        </style>
     </head>
     <body>
-        <div class="report-container">
-            <div class="report-header">
-                <h1 class="report-title">안심톡 디지털 증거 분석 보고서</h1>
-                <p class="report-subtitle">AI 기반 딥페이크 및 사이버폭력 분석 시스템</p>
+        <div id="report-footer">
+            보고서ID: {report_id} | 생성일시: {created_at} | 플랫폼: 안심톡 AI 포렌식 분석 시스템 v1.0
+        </div>
+        
+        <h1>안심톡 디지털 증거 분석 보고서</h1>
+        
+        <div class="section">
+            <h2>1. 기본 정보</h2>
+            <table>
+                <tr><th>보고서 ID</th><td>{report_id}</td></tr>
+                <tr><th>생성일시</th><td>{created_at}</td></tr>
+                <tr><th>분석 유형</th><td>{analysis_type or 'N/A'}</td></tr>
+                <tr><th>분석 시스템</th><td>안심톡 AI 포렌식 분석 시스템 v1.0</td></tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>2. 파일 정보</h2>
+            <table>
+                <tr><th>파일명</th><td>{filename}</td></tr>
+                <tr><th>파일 크기</th><td>{file_size} Bytes</td></tr>
+                <tr><th>SHA-256 해시</th><td class="code-block">{sha256}</td></tr>
+                <tr><th>분석 시간</th><td>{analysis_result.get('analysis_timestamp', 'N/A')}</td></tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>3. 분석 결과</h2>
+            <div class="box">
+                <strong>AI 분석 결과:</strong> {analysis_text}
             </div>
-            
-            <div class="section">
-                <h2 class="section-title">1. 기본 정보</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">보고서 ID</div>
-                        <div class="info-value">{report_id}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">생성일시</div>
-                        <div class="info-value">{created_at}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">분석 유형</div>
-                        <div class="info-value">{analysis_type or 'N/A'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">분석 시스템</div>
-                        <div class="info-value">안심톡 AI 포렌식 분석 시스템 v1.0</div>
-                    </div>
-                </div>
+        </div>
+        
+        <div class="section">
+            <h2>4. AI 모델 정보</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>분석 작업</th>
+                        <th>AI 모델</th>
+                        <th>버전</th>
+                        <th>정확도</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>딥페이크 탐지</td>
+                        <td>Sightengine Deepfake Detector</td>
+                        <td>v1.0</td>
+                        <td>98.2%</td>
+                    </tr>
+                    <tr>
+                        <td>사이버폭력 분석</td>
+                        <td>Google Gemini 2.5 Flash</td>
+                        <td>v1.0</td>
+                        <td>94.5%</td>
+                    </tr>
+                    <tr>
+                        <td>OCR 텍스트 추출</td>
+                        <td>Google Cloud Vision API</td>
+                        <td>v1.0</td>
+                        <td>99.1%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>5. 분석 로그</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>단계</th>
+                        <th>시간</th>
+                        <th>서버</th>
+                        <th>AI 모델</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>파일 업로드</td>
+                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
+                        <td>안심톡 서버</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>해시값 계산</td>
+                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
+                        <td>SHA-256</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>AI 분석</td>
+                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
+                        <td>AI 서버</td>
+                        <td>{'Gemini 2.5 Flash' if analysis_type == 'cyberbullying' else 'Sightengine'}</td>
+                    </tr>
+                    <tr>
+                        <td>결과 생성</td>
+                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
+                        <td>보고서 생성 서버</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>6. 원본 증거 이미지</h2>
+            {f'<img class="evidence" src="{web_image_path}" alt="원본 증거 이미지"/>' if web_image_path else f'<p>원본 이미지를 찾을 수 없거나 웹 경로를 생성할 수 없습니다. (경로: {original_image_path if original_image_path else "없음"})</p>'}
+            <div style="color:#1976d2; font-size:12px; margin-top:10px;">
+                * 위 이미지는 분석 대상 원본 증거물입니다.
             </div>
-            
-            <div class="section">
-                <h2 class="section-title">2. 파일 정보</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">파일명</div>
-                        <div class="info-value">{filename}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">파일 크기</div>
-                        <div class="info-value">{file_size} Bytes</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">SHA-256 해시</div>
-                        <div class="info-value">{sha256}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">분석 시간</div>
-                        <div class="info-value">{analysis_result.get('analysis_timestamp', 'N/A')}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2 class="section-title">3. 분석 결과</h2>
-                <div class="analysis-result">
-                    <div class="result-title">AI 분석 결과</div>
-                    <div class="result-value">{analysis_text}</div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2 class="section-title">4. AI 모델 정보</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>분석 작업</th>
-                            <th>AI 모델</th>
-                            <th>버전</th>
-                            <th>정확도</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>딥페이크 탐지</td>
-                            <td>Sightengine Deepfake Detector</td>
-                            <td>v1.0</td>
-                            <td>98.2%</td>
-                        </tr>
-                        <tr>
-                            <td>사이버폭력 분석</td>
-                            <td>Google Gemini 2.5 Flash</td>
-                            <td>v1.0</td>
-                            <td>94.5%</td>
-                        </tr>
-                        <tr>
-                            <td>OCR 텍스트 추출</td>
-                            <td>Google Cloud Vision API</td>
-                            <td>v1.0</td>
-                            <td>99.1%</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="section">
-                <h2 class="section-title">5. 분석 로그</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>단계</th>
-                            <th>시간</th>
-                            <th>서버</th>
-                            <th>AI 모델</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>파일 업로드</td>
-                            <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
-                            <td>안심톡 서버</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>해시값 계산</td>
-                            <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
-                            <td>SHA-256</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>AI 분석</td>
-                            <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
-                            <td>AI 서버</td>
-                            <td>{'Gemini 2.5 Flash' if analysis_type == 'cyberbullying' else 'Sightengine'}</td>
-                        </tr>
-                        <tr>
-                            <td>결과 생성</td>
-                            <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
-                            <td>보고서 생성 서버</td>
-                            <td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="legal-disclaimer">
-                <div class="disclaimer-title">법적 고지</div>
-                <div class="disclaimer-text">
-                    본 보고서는 AI 기반 분석 결과를 제공하며 법률 전문가의 판단을 대체할 수 없습니다. 
-                    보고서 내용은 참고 자료로만 사용되어야 하며 법적 책임을 지지 않습니다. 
-                    모든 분석 결과는 기술적 한계 내에서 제공되며, 최종 판단은 관련 법률 전문가의 검토를 거쳐야 합니다.
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p>안심톡 AI 포렌식 분석 시스템 v1.0 | 생성일시: {created_at}</p>
-                <p>본 보고서는 디지털 증거의 법적 효력을 보장하기 위해 SHA-256 해시값으로 무결성을 검증합니다.</p>
-            </div>
+        </div>
+        
+        <div class="section">
+            <h2>7. 무결성 및 법적 검증</h2>
+            <ul>
+                <li><b>원본(이미지) 해시값:</b> <span class="code-block">{str(analysis_result.get('sha256', 'N/A'))}</span></li>
+                <br>
+                <li><b>법적 책임 선언:</b> <span class="long-text">본 보고서는 AI 기반 분석 결과를 제공하며 법률 전문가의 판단을 대체할 수 없습니다. 보고서 내용은 참고 자료로만 사용되어야 하며 법적 책임을 지지 않습니다. 정확한 법적 조치나 상담을 위해서는 변호사나 관련 기관에 문의하시기 바랍니다.</span></li>
+            </ul>
         </div>
     </body>
     </html>
