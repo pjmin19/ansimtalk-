@@ -1067,9 +1067,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             
             <h3>전체 분석 요약:</h3>
             <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745;">
-                <strong>전체 대화 사이버폭력 위험도:</strong> {analysis_result.get('cyberbullying_risk_line', 'N/A')}<br><br>
-                <strong>대화 전체 분위기 요약:</strong> {analysis_result.get('conversation_atmosphere', '분석 중...')}<br><br>
-                <strong>잠재적 위험/주의사항:</strong> {analysis_result.get('potential_risks', '분석 중...')}
+                {analysis_result.get('cyberbullying_analysis_summary', '분석 결과가 없습니다.').replace('\n', '<br>')}
             </div>
         </div>
         
