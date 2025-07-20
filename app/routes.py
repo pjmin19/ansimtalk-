@@ -258,7 +258,7 @@ def health():
 @bp.route('/')
 def index():
     try:
-        return render_template('index.html')
+    return render_template('index.html')
     except Exception as e:
         return f"AnsimTalk is running! Error: {str(e)}", 200
 
