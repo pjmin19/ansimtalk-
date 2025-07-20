@@ -13,11 +13,11 @@ import re
 def convert_markdown_table_to_html(markdown_table):
     """마크다운 표를 HTML 표로 변환"""
     if not markdown_table.strip():
-        return ""
+        return "<p>분석 결과가 없습니다.</p>"
     
     lines = markdown_table.strip().split('\n')
     if len(lines) < 2:
-        return markdown_table
+        return f"<p>표 형식이 올바르지 않습니다: {markdown_table}</p>"
     
     html_lines = ['<table class="analysis-table">']
     
@@ -56,7 +56,9 @@ def convert_markdown_table_to_html(markdown_table):
     html_lines.append('  </tbody>')
     html_lines.append('</table>')
     
-    return '\n'.join(html_lines)
+    result = '\n'.join(html_lines)
+    print(f"변환된 HTML 테이블: {result[:300]}...")
+    return result
 
 def get_risk_class(risk_text):
     """위험도 텍스트에 따른 CSS 클래스 반환"""
