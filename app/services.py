@@ -121,6 +121,11 @@ def analyze_file(file_path, analysis_type, file_extension):
                 result['cyberbullying_analysis'] = gemini_result.get('table', '')
                 result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
                 result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
+                
+                # 대화 전체 분위기 요약과 잠재적 위험/주의사항 추출
+                summary_text = gemini_result.get('summary', '')
+                result['conversation_atmosphere'] = extract_conversation_atmosphere(summary_text)
+                result['potential_risks'] = extract_potential_risks(summary_text)
             else:
                 result['error'] = '이미지에서 텍스트를 추출할 수 없습니다.'
         elif file_extension == 'txt':
@@ -131,6 +136,11 @@ def analyze_file(file_path, analysis_type, file_extension):
             result['cyberbullying_analysis'] = gemini_result.get('table', '')
             result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
             result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
+            
+            # 대화 전체 분위기 요약과 잠재적 위험/주의사항 추출
+            summary_text = gemini_result.get('summary', '')
+            result['conversation_atmosphere'] = extract_conversation_atmosphere(summary_text)
+            result['potential_risks'] = extract_potential_risks(summary_text)
         else:
             result['error'] = '사이버폭력 분석은 텍스트 또는 이미지 파일만 지원합니다.'
     else:
@@ -410,6 +420,42 @@ def extract_risk_line(summary):
         value = re.sub(r'[\]\)\}\s]*$', '', value)  # 뒤쪽 괄호/공백 제거
         return value.strip()
     return None
+
+def extract_conversation_atmosphere(summary):
+    """요약에서 대화 전체 분위기 요약 추출"""
+    if not summary:
+        return "분석 중..."
+    
+    lines = summary.split('\n')
+    for i, line in enumerate(lines):
+        if '대화 전체 분위기 요약:' in line:
+            # 다음 줄부터 다음 섹션까지의 내용을 가져옴
+            atmosphere_lines = []
+            for j in range(i + 1, len(lines)):
+                if '잠재적 위험/주의사항:' in lines[j]:
+                    break
+                if lines[j].strip():
+                    atmosphere_lines.append(lines[j].strip())
+            return ' '.join(atmosphere_lines)
+    
+    return "분석 중..."
+
+def extract_potential_risks(summary):
+    """요약에서 잠재적 위험/주의사항 추출"""
+    if not summary:
+        return "분석 중..."
+    
+    lines = summary.split('\n')
+    for i, line in enumerate(lines):
+        if '잠재적 위험/주의사항:' in line:
+            # 다음 줄부터 끝까지의 내용을 가져옴
+            risk_lines = []
+            for j in range(i + 1, len(lines)):
+                if lines[j].strip():
+                    risk_lines.append(lines[j].strip())
+            return ' '.join(risk_lines)
+    
+    return "분석 중..."
 
 def pipe_table_to_html(text):
     """
@@ -886,6 +932,16 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             <h3>사이버폭력 분석 결과(Gemini):</h3>
             <div class="analysis-result">
                 전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', 'N/A')}
+            </div>
+            
+            <h3>대화 전체 분위기 요약:</h3>
+            <div class="box">
+                {analysis_result.get('conversation_atmosphere', '분석 중...')}
+            </div>
+            
+            <h3>잠재적 위험/주의사항:</h3>
+            <div class="box" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                {analysis_result.get('potential_risks', '분석 중...')}
             </div>
         </div>
         
