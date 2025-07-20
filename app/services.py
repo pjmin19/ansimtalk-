@@ -505,7 +505,7 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         print(f"PDF 생성 시작: {pdf_path}")
         print(f"분석 타입: {analysis_type}")
         
-        # FPDF로 PDF 생성
+        # FPDF2로 PDF 생성 (한글 지원)
         from fpdf import FPDF
         
         pdf = FPDF()
@@ -542,9 +542,14 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         file_size = str(original_file.get('size_bytes', 'N/A'))
         sha256 = str(analysis_result.get('sha256', 'N/A'))
         
-        pdf.cell(200, 8, txt=f"Filename: {filename}", ln=True)
-        pdf.cell(200, 8, txt=f"File Size: {file_size} Bytes", ln=True)
-        pdf.cell(200, 8, txt=f"SHA-256: {sha256}", ln=True)
+        # 한글 문자 제거 (ASCII만 허용)
+        filename_safe = ''.join(c for c in filename if ord(c) < 128)
+        file_size_safe = ''.join(c for c in file_size if ord(c) < 128)
+        sha256_safe = ''.join(c for c in sha256 if ord(c) < 128)
+        
+        pdf.cell(200, 8, txt=f"Filename: {filename_safe}", ln=True)
+        pdf.cell(200, 8, txt=f"File Size: {file_size_safe} Bytes", ln=True)
+        pdf.cell(200, 8, txt=f"SHA-256: {sha256_safe}", ln=True)
         pdf.ln(5)
         
         # 분석 결과
@@ -561,11 +566,23 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
                 else:
                     pdf.cell(200, 8, txt="Deepfake Probability: N/A", ln=True)
             else:
-                pdf.cell(200, 8, txt=f"Deepfake Analysis Error: {str(deepfake_analysis['error'])[:50]}", ln=True)
+                error_msg = str(deepfake_analysis['error'])[:50]
+                # 한글 문자 제거
+                error_msg = ''.join(c for c in error_msg if ord(c) < 128)
+                pdf.cell(200, 8, txt=f"Deepfake Analysis Error: {error_msg}", ln=True)
         
         elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
             risk_line = analysis_result['cyberbullying_risk_line']
-            pdf.cell(200, 8, txt=f"Cyberbullying Risk: {risk_line}", ln=True)
+            # 한글 문자를 영어로 변환
+            risk_mapping = {
+                '없음': 'None',
+                '의심': 'Suspicious',
+                '약간 있음': 'Slight',
+                '있음': 'Present',
+                '심각': 'Severe'
+            }
+            risk_english = risk_mapping.get(risk_line, risk_line)
+            pdf.cell(200, 8, txt=f"Cyberbullying Risk: {risk_english}", ln=True)
         else:
             pdf.cell(200, 8, txt="Analysis Results: N/A", ln=True)
         

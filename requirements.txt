@@ -6,4 +6,4 @@ google-cloud-vision
 openai
 requests
 google-generativeai
-fpdf
+fpdf2
