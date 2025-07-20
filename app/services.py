@@ -290,11 +290,14 @@ def analyze_text_with_gemini(text_content):
 잠재적 위험/주의사항: 직접적인 위협과 사회적 배제는 피해자에게 심각한 정신적 고통을 줄 수 있습니다. 즉각적인 개입과 보호 조치가 필요한 상황입니다.
 """
     try:
+        print("Gemini AI API 호출 시작...")
         response = client.models.generate_content(
             model=model,
             contents=[prompt]
         )
         result_text = response.candidates[0].content.parts[0].text.strip()
+        print("Gemini AI API 호출 성공!")
+        print(f"응답 길이: {len(result_text)} 문자")
         # 표와 표 아래 3줄 분리
         lines = result_text.splitlines()
         table_lines = []
@@ -333,6 +336,7 @@ def analyze_text_with_gemini(text_content):
         return {"table": html_table, "summary": summary}
     except Exception as e:
         print(f"Gemini 분석 오류: {e}")
+        print("Fallback 분석으로 전환합니다...")
         # API 오류 시 대체 분석 제공
         return _fallback_cyberbullying_analysis(text_content)
 
@@ -413,20 +417,20 @@ def _fallback_cyberbullying_analysis(text_content):
         # 더 정교한 요약 생성
         if severe_count >= 2:
             risk_summary = "심각"
-            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었으며, 그 중 {severe_count}개가 심각한 수준입니다."
-            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
+            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었으며, 그 중 {severe_count}개가 심각한 수준입니다. 대화에서 폭력적이거나 모욕적인 표현이 다수 발견되어 즉각적인 개입이 필요한 상황입니다."
+            warning = "심각한 사이버폭력 요소가 다수 발견되었습니다. 피해자 보호와 가해자 교육이 시급하며, 필요시 법적 조치를 고려해야 합니다. AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다."
         elif risk_count >= 3:
             risk_summary = "있음"
-            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다."
-            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
+            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다. 대화에서 위협적이거나 비하적인 표현이 확인되어 주의가 필요한 상황입니다."
+            warning = "사이버폭력 위험 요소가 다수 발견되었습니다. 지속적인 모니터링과 적절한 개입이 필요하며, 피해자 지원을 고려해야 합니다. AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다."
         elif risk_count >= 1:
             risk_summary = "약간 있음"
-            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다."
-            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
+            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다. 대화에서 일부 부적절한 표현이 확인되어 주의가 필요한 상황입니다."
+            warning = "사이버폭력 위험 요소가 발견되었습니다. 상황을 지켜보고 필요시 적절한 개입을 고려해야 합니다. AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다."
         else:
             risk_summary = "없음"
-            mood_summary = "키워드 기반 분석 결과, 위험 요소가 발견되지 않았습니다."
-            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
+            mood_summary = "키워드 기반 분석 결과, 위험 요소가 발견되지 않았습니다. 대화 내용이 전반적으로 건전하고 적절한 수준을 유지하고 있습니다."
+            warning = "현재 대화에서 사이버폭력 위험 요소가 발견되지 않았습니다. 지속적인 모니터링을 통해 건전한 대화 환경을 유지하는 것이 좋습니다. AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다."
         
         summary = f"""
 전체 대화 사이버폭력 위험도: {risk_summary}
