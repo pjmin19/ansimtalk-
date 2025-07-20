@@ -27,23 +27,27 @@ body {
     color: #333;
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Use min-height for better content handling */
+    align-items: flex-start; /* Changed from center to flex-start for better mobile */
+    min-height: 100vh;
     margin: 0;
-    padding: 20px; /* Add some padding around the edges */
+    padding: 20px;
     box-sizing: border-box;
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Container for the main content */
 .container {
-    background: #ffffff;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     padding: 40px 50px;
-    border-radius: 15px; /* More rounded corners */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Stronger, softer shadow */
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
     text-align: center;
-    max-width: 700px; /* Slightly wider container */
+    max-width: 700px;
     width: 100%;
     box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Header Section */
@@ -79,11 +83,18 @@ body {
 }
 
 .analysis-card {
-    background-color: #f8f9fa; /* Light background for cards */
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.03);
     text-align: left;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.analysis-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .analysis-card h2 {
@@ -106,23 +117,27 @@ body {
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 .file-select-btn {
-    background-color: #3498db; /* Primary blue */
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1em;
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
 }
 
 .file-select-btn:hover {
-    background-color: #2980b9;
+    background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
 }
 
 .file-name {
@@ -133,36 +148,46 @@ body {
     background-color: #ecf0f1;
     color: #34495e;
     font-size: 0.95em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0; /* Allow flex item to shrink */
 }
 
 .analyze-btn {
-    background-color: #2ecc71; /* Green for analyze */
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1em;
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
 }
 
 .analyze-btn:hover {
-    background-color: #27ae60;
+    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
 }
 
 /* Result Section Styling */
 .result-section {
     margin-bottom: 30px;
     text-align: left;
-    background-color: #f8f9fa; /* Light background for sections */
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     padding: 25px;
-    border-radius: 10px;
+    border-radius: 16px;
     border: 1px solid #e9ecef;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.result-section:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 .result-section h2 {
@@ -452,6 +477,8 @@ body {
     font-family: 'Courier New', monospace;
     font-size: 0.85em;
     line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .raw-data-box pre {
@@ -520,12 +547,15 @@ body {
     body {
         padding: 10px;
         align-items: flex-start;
+        overflow-x: hidden;
     }
     
     .container {
         padding: 25px 20px;
         margin-top: 20px;
         margin-bottom: 20px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .header h1 {
@@ -547,15 +577,21 @@ body {
     .file-input-group {
         flex-direction: column;
         align-items: stretch;
+        gap: 15px;
     }
     
     .file-select-btn, .analyze-btn {
         width: 100%;
         margin-bottom: 10px;
+        white-space: normal;
+        word-wrap: break-word;
     }
     
     .file-name {
         margin-bottom: 10px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
     
     .actions {
@@ -570,22 +606,31 @@ body {
     
     .result-section {
         padding: 20px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .result-section h2 {
         font-size: 1.6em;
+        word-wrap: break-word;
     }
     
     .result-section h3 {
         font-size: 1.3em;
+        word-wrap: break-word;
     }
     
     .analysis-table {
         font-size: 0.9em;
+        table-layout: fixed;
+        width: 100%;
     }
     
     .analysis-table th, .analysis-table td {
         padding: 8px 10px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
     
     .label {
@@ -601,6 +646,9 @@ body {
     .raw-data-box {
         font-size: 0.8em;
         padding: 12px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
     }
     
     .risk-level-card {
@@ -616,10 +664,13 @@ body {
 @media (max-width: 480px) {
     body {
         padding: 5px;
+        overflow-x: hidden;
     }
     
     .container {
         padding: 20px 15px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .header h1 {
@@ -652,15 +703,22 @@ body {
     
     .analysis-table {
         font-size: 0.85em;
+        table-layout: fixed;
+        width: 100%;
     }
     
     .analysis-table th, .analysis-table td {
         padding: 6px 8px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
     
     .label {
         font-size: 0.85em;
         padding: 3px 6px;
+        word-wrap: break-word;
+        white-space: normal;
     }
     
     .extracted-text-box {
@@ -671,6 +729,9 @@ body {
     .raw-data-box {
         font-size: 0.75em;
         padding: 10px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
     }
 }
 
