@@ -9,3 +9,5 @@ requests
 fpdf
 google-generativeai
 weasyprint
+cairocffi
+cairosvg
