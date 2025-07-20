@@ -132,6 +132,10 @@ def analyze_file(file_path, analysis_type, file_extension):
                 summary_text = gemini_result.get('summary', '')
                 result['conversation_atmosphere'] = extract_conversation_atmosphere(summary_text)
                 result['potential_risks'] = extract_potential_risks(summary_text)
+                
+                # 디버깅 로그 추가
+                print(f"추출된 대화 분위기: {result['conversation_atmosphere']}")
+                print(f"추출된 잠재적 위험: {result['potential_risks']}")
             else:
                 result['error'] = '이미지에서 텍스트를 추출할 수 없습니다.'
         elif file_extension == 'txt':
@@ -151,6 +155,10 @@ def analyze_file(file_path, analysis_type, file_extension):
             summary_text = gemini_result.get('summary', '')
             result['conversation_atmosphere'] = extract_conversation_atmosphere(summary_text)
             result['potential_risks'] = extract_potential_risks(summary_text)
+            
+            # 디버깅 로그 추가
+            print(f"추출된 대화 분위기: {result['conversation_atmosphere']}")
+            print(f"추출된 잠재적 위험: {result['potential_risks']}")
         else:
             result['error'] = '사이버폭력 분석은 텍스트 또는 이미지 파일만 지원합니다.'
     else:
@@ -436,6 +444,18 @@ def extract_conversation_atmosphere(summary):
     if not summary:
         return "분석 중..."
     
+    import re
+    # 정규표현식으로 "대화 전체 분위기 요약:" 다음의 내용을 추출
+    pattern = r'대화\s*전체\s*분위기\s*요약\s*:\s*(.*?)(?=\n\s*잠재적\s*위험/주의사항\s*:|$)'
+    match = re.search(pattern, summary, re.DOTALL | re.IGNORECASE)
+    
+    if match:
+        result = match.group(1).strip()
+        # 여러 줄을 하나로 합치고 불필요한 공백 제거
+        result = re.sub(r'\s+', ' ', result)
+        return result if result else "분석 중..."
+    
+    # 정규표현식으로 찾지 못한 경우 기존 방식 시도
     lines = summary.split('\n')
     for i, line in enumerate(lines):
         if '대화 전체 분위기 요약:' in line:
@@ -446,7 +466,8 @@ def extract_conversation_atmosphere(summary):
                     break
                 if lines[j].strip():
                     atmosphere_lines.append(lines[j].strip())
-            return ' '.join(atmosphere_lines)
+            result = ' '.join(atmosphere_lines)
+            return result if result else "분석 중..."
     
     return "분석 중..."
 
@@ -455,6 +476,18 @@ def extract_potential_risks(summary):
     if not summary:
         return "분석 중..."
     
+    import re
+    # 정규표현식으로 "잠재적 위험/주의사항:" 다음의 내용을 추출
+    pattern = r'잠재적\s*위험/주의사항\s*:\s*(.*)'
+    match = re.search(pattern, summary, re.DOTALL | re.IGNORECASE)
+    
+    if match:
+        result = match.group(1).strip()
+        # 여러 줄을 하나로 합치고 불필요한 공백 제거
+        result = re.sub(r'\s+', ' ', result)
+        return result if result else "분석 중..."
+    
+    # 정규표현식으로 찾지 못한 경우 기존 방식 시도
     lines = summary.split('\n')
     for i, line in enumerate(lines):
         if '잠재적 위험/주의사항:' in line:
@@ -463,7 +496,8 @@ def extract_potential_risks(summary):
             for j in range(i + 1, len(lines)):
                 if lines[j].strip():
                     risk_lines.append(lines[j].strip())
-            return ' '.join(risk_lines)
+            result = ' '.join(risk_lines)
+            return result if result else "분석 중..."
     
     return "분석 중..."
 
