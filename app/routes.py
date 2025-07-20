@@ -249,7 +249,17 @@ def index():
 
 @bp.route('/health')
 def health():
-    return "OK", 200
+    try:
+        # 기본 상태 확인
+        status = {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "service": "AnsimTalk AI Forensic Analysis",
+            "version": "1.0.0"
+        }
+        return status, 200
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}, 500
 
 @bp.route('/analyze_deepfake', methods=['POST'])
 def analyze_deepfake():
