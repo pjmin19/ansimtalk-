@@ -555,6 +555,18 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             print(f"Warning: Could not create web-accessible path for image: {original_image_path}")
             web_image_path = ""
 
+    # 추가 정보 추출
+    uploader_id = analysis_result.get('uploader_id', 'N/A')
+    uploader_ip = analysis_result.get('uploader_ip', 'N/A')
+    upload_timestamp = analysis_result.get('upload_timestamp', 'N/A')
+    file_size_mb = analysis_result.get('file_size_mb', 'N/A')
+    image_width = analysis_result.get('image_width', 'N/A')
+    image_height = analysis_result.get('image_height', 'N/A')
+    image_resolution = analysis_result.get('image_resolution', 'N/A')
+    extracted_text = analysis_result.get('extracted_text', '')
+    cyberbullying_analysis = analysis_result.get('cyberbullying_analysis', '')
+    cyberbullying_summary = analysis_result.get('cyberbullying_analysis_summary', '')
+    
     # HTML 템플릿 생성
     html_content = f"""
     <!DOCTYPE html>
@@ -564,40 +576,110 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>안심톡 디지털 증거 분석 보고서</title>
         <style>
-            /* NanumGothic 폰트를 정의합니다. */
             @font-face {{
                 font-family: 'NanumGothic';
-                /*
-                 * 루트 상대 경로를 사용합니다.
-                 * 이 경로는 Python 코드의 'base_url'과 결합되어
-                 * 'https://<your-app-domain>/static/fonts/NanumGothic.ttf'와 같은
-                 * 완전한 URL로 해석됩니다. (폰트 파일은 static/fonts/에 위치해야 합니다)
-                 */
                 src: url('/static/fonts/NanumGothic.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
-                font-display: swap; /* 폰트 로딩 실패 시 빠른 대체 */
+                font-display: swap;
             }}
             
             body {{ 
-                /* 기본 폰트를 NanumGothic으로 설정하고, 실패 시 시스템 폰트로 대체 */
                 font-family: 'NanumGothic', 'Malgun Gothic', '맑은 고딕', 'Arial', sans-serif; 
                 margin: 40px; 
                 line-height: 1.6;
                 word-wrap: break-word;
                 overflow-wrap: break-word;
+                color: #333;
             }}
             
-            h1, h2, h3 {{ color: #1976d2; page-break-after: avoid; page-break-inside: avoid; }}
-            .code-block {{ font-family: 'Consolas', 'Monaco', monospace; background: #eee; padding: 8px; border-radius: 4px; word-break: break-all; font-size: 11px; }}
-            table {{ border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 11px; page-break-inside: avoid; }}
-            th, td {{ border: 1px solid #bbb; padding: 6px 8px; word-wrap: break-word; max-width: 200px; }}
-            th {{ background: #f5f5f5; font-weight: bold; }}
-            img.evidence {{ max-width: 400px; max-height: 500px; margin: 10px 0; page-break-inside: avoid; border: 1px solid #ddd; border-radius: 4px; }}
-            .section {{ margin-bottom: 30px; page-break-inside: avoid; }}
-            .box {{ background: #f0f4ff; border-radius: 8px; padding: 12px; margin: 10px 0; page-break-inside: avoid; word-wrap: break-word; }}
-            pre {{ white-space: pre-wrap; word-wrap: break-word; font-size: 10px; max-width: 100%; overflow-x: auto; }}
-            .long-text {{ word-wrap: break-word; overflow-wrap: break-word; max-width: 100%; line-height: 1.4; }}
+            h1, h2, h3 {{ 
+                color: #1976d2; 
+                page-break-after: avoid; 
+                page-break-inside: avoid; 
+                margin-top: 30px;
+                margin-bottom: 15px;
+            }}
+            
+            .code-block {{ 
+                font-family: 'Consolas', 'Monaco', monospace; 
+                background: #f5f5f5; 
+                padding: 8px; 
+                border-radius: 4px; 
+                word-break: break-all; 
+                font-size: 11px; 
+                border: 1px solid #ddd;
+            }}
+            
+            table {{ 
+                border-collapse: collapse; 
+                width: 100%; 
+                margin: 15px 0; 
+                font-size: 12px; 
+                page-break-inside: avoid; 
+            }}
+            
+            th, td {{ 
+                border: 1px solid #ddd; 
+                padding: 8px 12px; 
+                word-wrap: break-word; 
+                text-align: left;
+            }}
+            
+            th {{ 
+                background: #f8f9fa; 
+                font-weight: bold; 
+                color: #495057;
+            }}
+            
+            img.evidence {{ 
+                max-width: 400px; 
+                max-height: 500px; 
+                margin: 15px 0; 
+                page-break-inside: avoid; 
+                border: 1px solid #ddd; 
+                border-radius: 4px; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }}
+            
+            .section {{ 
+                margin-bottom: 40px; 
+                page-break-inside: avoid; 
+            }}
+            
+            .box {{ 
+                background: #f0f4ff; 
+                border-radius: 8px; 
+                padding: 15px; 
+                margin: 15px 0; 
+                page-break-inside: avoid; 
+                word-wrap: break-word; 
+                border-left: 4px solid #1976d2;
+            }}
+            
+            .extracted-text {{
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 4px;
+                padding: 15px;
+                margin: 15px 0;
+                font-family: 'Consolas', 'Monaco', monospace;
+                font-size: 11px;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                max-height: 300px;
+                overflow-y: auto;
+            }}
+            
+            .analysis-result {{
+                background: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-radius: 4px;
+                padding: 15px;
+                margin: 15px 0;
+                font-weight: bold;
+                color: #856404;
+            }}
             
             @page {{
                 size: A4;
@@ -613,12 +695,29 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 color: #888;
                 text-align: right;
                 width: 100%;
+                border-top: 1px solid #eee;
+                padding-top: 10px;
+            }}
+            
+            .metadata-item {{
+                margin: 8px 0;
+            }}
+            
+            .metadata-label {{
+                font-weight: bold;
+                color: #495057;
+                display: inline-block;
+                width: 120px;
+            }}
+            
+            .metadata-value {{
+                color: #333;
             }}
         </style>
     </head>
     <body>
         <div id="report-footer">
-            보고서ID: {report_id} | 생성일시: {created_at} | 플랫폼: 안심톡 AI 포렌식 분석 시스템 v1.0
+            보고서ID: {report_id} | 생성일시: {created_at} | 플랫폼: 안심톡 AI 포렌식 분석 시스템 v1.0 | 배포일: 2025-07-18
         </div>
         
         <h1>안심톡 디지털 증거 분석 보고서</h1>
@@ -634,24 +733,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         </div>
         
         <div class="section">
-            <h2>2. 파일 정보</h2>
-            <table>
-                <tr><th>파일명</th><td>{filename}</td></tr>
-                <tr><th>파일 크기</th><td>{file_size} Bytes</td></tr>
-                <tr><th>SHA-256 해시</th><td class="code-block">{sha256}</td></tr>
-                <tr><th>분석 시간</th><td>{analysis_result.get('analysis_timestamp', 'N/A')}</td></tr>
-            </table>
-        </div>
-        
-        <div class="section">
-            <h2>3. 분석 결과</h2>
-            <div class="box">
-                <strong>AI 분석 결과:</strong> {analysis_text}
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>4. AI 모델 정보</h2>
+            <h2>2. 분석에 사용된 AI 모델 전체 목록</h2>
             <table>
                 <thead>
                     <tr>
@@ -685,47 +767,130 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         </div>
         
         <div class="section">
-            <h2>5. 분석 로그</h2>
+            <h2>3. 분석 결과 요약</h2>
+            <div class="analysis-result">
+                <strong>사이버폭력 분석 결과 요약:</strong><br>
+                전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', 'N/A')}
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>4. 증거 파일 정보</h2>
+            <div class="metadata-item">
+                <span class="metadata-label">파일명:</span>
+                <span class="metadata-value">{filename}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">파일 유형:</span>
+                <span class="metadata-value">{analysis_type or 'N/A'}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">파일 크기:</span>
+                <span class="metadata-value">{file_size} Bytes</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">업로드 일시:</span>
+                <span class="metadata-value">{upload_timestamp}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">업로더 ID:</span>
+                <span class="metadata-value code-block">{uploader_id}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">업로드 IP:</span>
+                <span class="metadata-value">{uploader_ip}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">원본 해시값 (SHA-256):</span>
+                <span class="metadata-value code-block">{sha256}</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>원본 파일 메타데이터</h2>
+            <div class="metadata-item">
+                <span class="metadata-label">파일 형식:</span>
+                <span class="metadata-value">{original_file.get('type', 'N/A')}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">분석 타입:</span>
+                <span class="metadata-value">{analysis_type or 'N/A'}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">분석 타임스탬프:</span>
+                <span class="metadata-value">{analysis_result.get('analysis_timestamp', 'N/A')}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">파일 크기 (바이트):</span>
+                <span class="metadata-value">{file_size} bytes</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">파일 크기 (MB):</span>
+                <span class="metadata-value">{file_size_mb} MB</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">이미지 해상도:</span>
+                <span class="metadata-value">{image_resolution}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">이미지 너비:</span>
+                <span class="metadata-value">{image_width} pixels</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">이미지 높이:</span>
+                <span class="metadata-value">{image_height} pixels</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>5. 연계 보관성 (Chain of Custody)</h2>
             <table>
                 <thead>
                     <tr>
                         <th>단계</th>
-                        <th>시간</th>
-                        <th>서버</th>
-                        <th>AI 모델</th>
+                        <th>시각</th>
+                        <th>서버/AI 정보</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>파일 업로드</td>
-                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
+                        <td>{upload_timestamp}</td>
                         <td>안심톡 서버</td>
-                        <td>-</td>
                     </tr>
                     <tr>
                         <td>해시값 계산</td>
-                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
+                        <td>{upload_timestamp}</td>
                         <td>SHA-256</td>
-                        <td>-</td>
                     </tr>
                     <tr>
                         <td>AI 분석</td>
-                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
-                        <td>AI 서버</td>
-                        <td>{'Gemini 2.5 Flash' if analysis_type == 'cyberbullying' else 'Sightengine'}</td>
+                        <td>{upload_timestamp}</td>
+                        <td>AI 서버 (Gemini 2.5 Flash v1.0)</td>
                     </tr>
                     <tr>
                         <td>결과 생성</td>
-                        <td>{analysis_result.get('analysis_timestamp', 'N/A')}</td>
+                        <td>{upload_timestamp}</td>
                         <td>보고서 생성 서버</td>
-                        <td>-</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         
         <div class="section">
-            <h2>6. 원본 증거 이미지</h2>
+            <h2>6. AI 분석 결과</h2>
+            
+            <h3>추출 텍스트(OCR):</h3>
+            <div class="extracted-text">{extracted_text}</div>
+            
+            <h3>사이버폭력 분석 결과(Gemini):</h3>
+            <div class="analysis-result">
+                전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', 'N/A')}
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>7. 원본 증거 이미지</h2>
             {f'<img class="evidence" src="{web_image_path}" alt="원본 증거 이미지"/>' if web_image_path else f'<p>원본 이미지를 찾을 수 없거나 웹 경로를 생성할 수 없습니다. (경로: {original_image_path if original_image_path else "없음"})</p>'}
             <div style="color:#1976d2; font-size:12px; margin-top:10px;">
                 * 위 이미지는 분석 대상 원본 증거물입니다.
@@ -733,7 +898,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         </div>
         
         <div class="section">
-            <h2>7. 무결성 및 법적 검증</h2>
+            <h2>8. 무결성 및 법적 검증</h2>
             <ul>
                 <li><b>원본(이미지) 해시값:</b> <span class="code-block">{str(analysis_result.get('sha256', 'N/A'))}</span></li>
                 <br>
@@ -744,304 +909,4 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     </html>
     """
     
-    return html_content
-    
-    # 법적 고지
-    legal_disclaimer = "본 보고서는 AI 기반 분석 결과를 제공하며 법률 전문가의 판단을 대체할 수 없습니다. 보고서 내용은 참고 자료로만 사용되어야 하며 법적 책임을 지지 않습니다. 정확한 법적 조치나 상담을 위해서는 변호사나 관련 기관에 문의하시기 바랍니다."
-    
-    # 원본 이미지 경로 찾기 - 세션에서 가져오기
-    original_image_path = analysis_result.get('original_image_path', '')
-    if not original_image_path:
-        # 세션에서 찾지 못한 경우 파일 시스템에서 검색
-        if 'filename' in original_file:
-            # static/uploads 폴더에서 원본 이미지 찾기
-            static_uploads_dir = os.path.join(os.path.dirname(pdf_path), '..', 'app', 'static', 'uploads')
-            if os.path.exists(static_uploads_dir):
-                for file in os.listdir(static_uploads_dir):
-                    if file.endswith(('.jpg', '.jpeg', '.png')) and original_file['filename'] in file:
-                        original_image_path = os.path.abspath(os.path.join(static_uploads_dir, file))
-                        break
-            
-            # static/uploads에서 찾지 못하면 tmp 폴더에서 찾기
-            if not original_image_path:
-                tmp_dir = os.path.join(os.path.dirname(pdf_path), '..', 'tmp')
-                if os.path.exists(tmp_dir):
-                    for file in os.listdir(tmp_dir):
-                        if file.endswith(('.jpg', '.jpeg', '.png')) and original_file['filename'] in file:
-                            original_image_path = os.path.abspath(os.path.join(tmp_dir, file))
-                            break
-    
-    html_template = f"""
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-      <meta charset="utf-8">
-      <title>안심톡 디지털 증거 분석 보고서</title>
-      <style>
-        @font-face {{
-          font-family: 'NanumGothic';
-          src: url('static/fonts/NanumGothic.ttf') format('truetype');
-          font-weight: normal;
-          font-style: normal;
-        }}
-        
-        body {{ 
-          font-family: 'NanumGothic', 'Malgun Gothic', 'Arial', sans-serif; 
-          margin: 40px; 
-          line-height: 1.6;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-        }}
-        
-        h1, h2, h3 {{ 
-          color: #1976d2; 
-          page-break-after: avoid;
-          page-break-inside: avoid;
-        }}
-        
-        .code-block {{ 
-          font-family: 'Consolas', 'Monaco', monospace; 
-          background: #eee; 
-          padding: 8px; 
-          border-radius: 4px; 
-          word-break: break-all;
-          font-size: 11px;
-        }}
-        
-        .highlight {{ 
-          color: #fff; 
-          background: #1976d2; 
-          padding: 4px 8px; 
-          border-radius: 4px; 
-        }}
-        
-        table {{ 
-          border-collapse: collapse; 
-          width: 100%; 
-          margin: 10px 0; 
-          font-size: 11px;
-          page-break-inside: avoid;
-        }}
-        
-        th, td {{ 
-          border: 1px solid #bbb; 
-          padding: 6px 8px; 
-          word-wrap: break-word;
-          max-width: 200px;
-        }}
-        
-        th {{ 
-          background: #f5f5f5; 
-          font-weight: bold;
-        }}
-        
-        img.evidence {{ 
-          max-width: 400px; 
-          max-height: 500px;
-          margin: 10px 0; 
-          page-break-inside: avoid;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }}
-        
-        .section {{ 
-          margin-bottom: 30px; 
-          page-break-inside: avoid; 
-        }}
-        
-        ul {{ 
-          margin: 0 0 0 20px; 
-          page-break-inside: avoid;
-        }}
-        
-        li {{
-          margin-bottom: 5px;
-          word-wrap: break-word;
-        }}
-        
-        .box {{ 
-          background: #f0f4ff; 
-          border-radius: 8px; 
-          padding: 12px; 
-          margin: 10px 0; 
-          page-break-inside: avoid;
-          word-wrap: break-word;
-        }}
-        
-        .emph {{ 
-          font-weight: bold; 
-          color: #d32f2f; 
-        }}
-        
-        pre {{
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          font-size: 10px;
-          max-width: 100%;
-          overflow-x: auto;
-        }}
-        
-        /* 긴 텍스트 처리 */
-        .long-text {{
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-          max-width: 100%;
-          line-height: 1.4;
-          word-spacing: 0.1em;
-          text-align: justify;
-        }}
-        
-        /* 분석 결과 텍스트 가독성 개선 */
-        .analysis-text {{
-          line-height: 1.4;
-          word-spacing: 0.1em;
-          text-align: justify;
-          font-size: 0.95em;
-          margin-top: 10px;
-        }}
-        
-        /* WeasyPrint footer for every page */
-        @page {{
-          size: A4;
-          margin: 40px 40px 50px 40px;
-          @bottom-center {{
-            content: element(report-footer);
-          }}
-        }}
-        
-        #report-footer {{
-          position: running(report-footer);
-          font-size: 10px;
-          color: #888;
-          text-align: right;
-          width: 100%;
-        }}
-        
-        /* 표 내용이 길 때 처리 */
-        .md-table {{
-          font-size: 10px;
-        }}
-        
-        .md-table th,
-        .md-table td {{
-          max-width: 150px;
-          word-wrap: break-word;
-          vertical-align: top;
-        }}
-             </style>
-     </head>
-     <body>
-       <div id="report-footer">
-         보고서ID: {report_id} | 생성일시: {created_at} | 플랫폼: {software_info['platform']} | 배포일: {software_info['release_date']}
-       </div>
-       <h1>안심톡 디지털 증거 분석 보고서</h1>
-       <div class="section">
-         <h2>1. 기본 정보</h2>
-         <ul>
-           <li><b>보고서 ID:</b> {report_id}</li>
-           <li><b>생성일시:</b> {created_at}</li>
-           <li><b>플랫폼 버전:</b> {software_info['platform']}</li>
-           <li><b>배포일:</b> {software_info['release_date']}</li>
-           <li><b>마지막 업데이트:</b> {software_info['last_updated']}</li>
-         </ul>
-       </div>
-       <div class="section">
-         <h2>2. 분석에 사용된 AI 모델 전체 목록</h2>
-         <table>
-           <tr><th>분석 Task</th><th>모델명</th><th>버전</th><th>정확도</th></tr>
-           {''.join([f'<tr><td>{m["task"]}</td><td>{m["model"]}</td><td>{m["version"]}</td><td>{m["정확도"]}</td></tr>' for m in ai_models])}
-         </table>
-       </div>
-       <div class="section">
-         <h2>3. 분석 결과 요약</h2>
-         <div class="box" style="font-size: 1.1em;">
-           {f'<span style="color:#1976d2; font-weight:bold;">AI 딥페이크 분석 요약</span><br><span>딥페이크일 확률: <b>{analysis_text}</b></span>' if analysis_type == 'deepfake' else f'<span style="color:#1976d2; font-weight:bold;">사이버폭력 분석 결과 요약</span><br><span style="color:#d32f2f; font-weight:bold; font-size:1.0em; line-height:1.4; word-spacing:0.1em;">{analysis_text or "분석 결과 없음"}</span>' if analysis_type == 'cyberbullying' else f'<div class="long-text">{analysis_text or "분석 결과 요약이 제공되지 않았습니다."}</div>'}
-         </div>
-       </div>
-       <div class="section">
-         <h2>4. 증거 파일 정보</h2>
-         <ul>
-           <li><b>파일명:</b> <span class="long-text">{str(original_file.get('filename', 'N/A'))}</span></li>
-           <li><b>파일 유형:</b> {analysis_result.get('analysis_type', 'N/A')}</li>
-           <li><b>파일 크기:</b> {original_file.get('size_bytes', 'N/A')} Bytes</li>
-           <li><b>업로드 일시:</b> {analysis_result.get('analysis_timestamp', 'N/A')}</li>
-           <li><b>업로더 ID:</b> <span class="code-block">{analysis_result.get('uploader_id', 'ANSIMTALK_USER_' + datetime.now().strftime('%Y%m%d') + '_' + str(uuid.uuid4().hex[:8].upper()))}</span></li>
-           <li><b>업로드 IP:</b> {analysis_result.get('uploader_ip', '127.0.0.1')}</li>
-           <li><b>원본 해시값 (SHA-256):</b> <span class="code-block">{str(analysis_result.get('sha256', 'N/A'))}</span></li>
-         </ul>
-         <h3>원본 파일 메타데이터</h3>
-         <ul>
-           <li><b>파일 형식:</b> <span class="long-text">{original_file.get('type', 'N/A')}</span></li>
-           <li><b>분석 타입:</b> <span class="long-text">{analysis_result.get('analysis_type', 'N/A')}</span></li>
-           <li><b>분석 타임스탬프:</b> <span class="long-text">{analysis_result.get('analysis_timestamp', 'N/A')}</span></li>
-           <li><b>파일 크기 (바이트):</b> <span class="long-text">{analysis_result.get('file_size_bytes', original_file.get('size_bytes', 'N/A'))} bytes</span></li>
-           <li><b>파일 크기 (MB):</b> <span class="long-text">{analysis_result.get('file_size_mb', 'N/A')} MB</span></li>
-           <li><b>이미지 해상도:</b> <span class="long-text">{analysis_result.get('image_resolution', 'N/A')}</span></li>
-           <li><b>이미지 너비:</b> <span class="long-text">{analysis_result.get('image_width', 'N/A')} pixels</span></li>
-           <li><b>이미지 높이:</b> <span class="long-text">{analysis_result.get('image_height', 'N/A')} pixels</span></li>
-         </ul>
-       </div>
-       <div class="section">
-         <h2>5. 연계 보관성(Chain of Custody)</h2>
-         <table>
-           <tr>
-             <th>단계</th>
-             <th>시각</th>
-             <th>서버/AI 정보</th>
-           </tr>
-           {''.join([f'<tr><td>{log["step"]}</td><td>{log["timestamp"]}</td><td class="long-text">{log["server"]}{" (" + log["ai_model"] + " " + log["version"] + ")" if log["ai_model"] else ""}</td></tr>' for log in analysis_log])}
-         </table>
-       </div>
-       <div class="section">
-         <h2>6. AI 분석 결과</h2>
-         {f'''
-         <div class="box">
-           <b>딥페이크 분석 결과 (Sightengine Deepfake Detector):</b><br>
-           <div style="white-space:pre-line; background:#f0f0ff; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">
-             {analysis_text or '분석 결과 없음'}
-           </div>
-           <div style="margin-top:10px; font-size:11px; color:#555;">
-             <b>원본 분석 데이터:</b><br>
-             <pre style="background:#f8f8f8; border-radius:6px; padding:0.5em;">{json.dumps(analysis_result.get('deepfake_analysis', {}), indent=2, ensure_ascii=False)}</pre>
-           </div>
-         </div>
-         ''' if analysis_type == 'deepfake' else f'''
-         <div class="box">
-           <b>추출 텍스트(OCR):</b><br>
-           <div style="white-space:pre-line; background:#f8f8f8; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">{analysis_result.get('extracted_text', '없음')}</div>
-         </div>
-         <div class="box">
-           <b>사이버폭력 분석 결과(Gemini):</b><br>
-           <div style="white-space:pre-line; line-height:1.4; font-size: 11px; word-spacing:0.1em; text-align:justify;" class="long-text">
-             전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', '분석 중')}
-           </div>
-         </div>
-         ''' if analysis_type == 'cyberbullying' else '''
-         <div class="box">
-           <b>분석 결과:</b><br>
-           <div style="white-space:pre-line; background:#f8f8f8; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">
-             분석 결과가 제공되지 않았습니다.
-           </div>
-         </div>
-         '''}
-       </div>
-       <div class="section">
-         <h2>7. 원본 증거 이미지</h2>
-         {f'<img class="evidence" src="file:///{original_image_path.replace(os.sep, "/")}" alt="원본 증거 이미지"/>' if original_image_path and os.path.exists(original_image_path) else f'<p>원본 이미지를 찾을 수 없습니다. (경로: {original_image_path if original_image_path else "없음"})</p>'}
-         <div style="color:#1976d2; font-size:12px; margin-top:10px;">
-           * 위 이미지는 분석 대상 원본 증거물입니다.
-         </div>
-       </div>
-       <div class="section">
-         <h2>8. 무결성 및 법적 검증</h2>
-         <ul>
-           <li><b>원본(이미지) 해시값:</b> <span class="code-block">{str(analysis_result.get('sha256', 'N/A'))}</span></li>
-           <br>
-           <li><b>법적 책임 선언:</b> <span class="long-text">{legal_disclaimer}</span></li>
-         </ul>
-       </div>
-     </body>
-     </html>
-     """
-    
-    return html_template 
+    return html_content 
