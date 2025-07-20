@@ -511,31 +511,31 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         pdf = FPDF()
         pdf.add_page()
         
-        # 기본 폰트 설정
+        # 한글 폰트 설정 (기본 폰트 사용)
         pdf.set_font("Arial", size=12)
         
         # 제목
         pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="AnsimTalk Digital Evidence Analysis Report", ln=True, align='C')
+        pdf.cell(200, 10, txt="안심톡 디지털 증거 분석 보고서", ln=True, align='C')
         pdf.ln(10)
         
         # 기본 정보
         pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="1. Basic Information", ln=True)
+        pdf.cell(200, 10, txt="1. 기본 정보", ln=True)
         pdf.set_font("Arial", size=10)
         
         report_id = f"DF-CB-{datetime.now().strftime('%Y')}-001-v1.0"
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        pdf.cell(200, 8, txt=f"Report ID: {report_id}", ln=True)
-        pdf.cell(200, 8, txt=f"Created: {created_at}", ln=True)
-        pdf.cell(200, 8, txt=f"Analysis Type: {analysis_type or 'N/A'}", ln=True)
+        pdf.cell(200, 8, txt=f"보고서 ID: {report_id}", ln=True)
+        pdf.cell(200, 8, txt=f"생성일시: {created_at}", ln=True)
+        pdf.cell(200, 8, txt=f"분석 유형: {analysis_type or 'N/A'}", ln=True)
         pdf.ln(5)
         
         # 파일 정보
         original_file = analysis_result.get('file_info', {})
         pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="2. File Information", ln=True)
+        pdf.cell(200, 10, txt="2. 파일 정보", ln=True)
         pdf.set_font("Arial", size=10)
         
         filename = str(original_file.get('filename', 'N/A'))
@@ -547,14 +547,14 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         file_size_safe = ''.join(c for c in file_size if ord(c) < 128)
         sha256_safe = ''.join(c for c in sha256 if ord(c) < 128)
         
-        pdf.cell(200, 8, txt=f"Filename: {filename_safe}", ln=True)
-        pdf.cell(200, 8, txt=f"File Size: {file_size_safe} Bytes", ln=True)
+        pdf.cell(200, 8, txt=f"파일명: {filename_safe}", ln=True)
+        pdf.cell(200, 8, txt=f"파일 크기: {file_size_safe} Bytes", ln=True)
         pdf.cell(200, 8, txt=f"SHA-256: {sha256_safe}", ln=True)
         pdf.ln(5)
         
         # 분석 결과
         pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="3. Analysis Results", ln=True)
+        pdf.cell(200, 10, txt="3. 분석 결과", ln=True)
         pdf.set_font("Arial", size=10)
         
         if analysis_type == 'deepfake' and 'deepfake_analysis' in analysis_result:
@@ -562,38 +562,30 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
             if 'error' not in deepfake_analysis:
                 if deepfake_analysis.get('type', {}).get('deepfake'):
                     prob = deepfake_analysis['type']['deepfake']
-                    pdf.cell(200, 8, txt=f"Deepfake Probability: {prob:.1%}", ln=True)
+                    pdf.cell(200, 8, txt=f"딥페이크 확률: {prob:.1%}", ln=True)
                 else:
-                    pdf.cell(200, 8, txt="Deepfake Probability: N/A", ln=True)
+                    pdf.cell(200, 8, txt="딥페이크 확률: N/A", ln=True)
             else:
                 error_msg = str(deepfake_analysis['error'])[:50]
                 # 한글 문자 제거
                 error_msg = ''.join(c for c in error_msg if ord(c) < 128)
-                pdf.cell(200, 8, txt=f"Deepfake Analysis Error: {error_msg}", ln=True)
+                pdf.cell(200, 8, txt=f"딥페이크 분석 오류: {error_msg}", ln=True)
         
         elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
             risk_line = analysis_result['cyberbullying_risk_line']
-            # 한글 문자를 영어로 변환
-            risk_mapping = {
-                '없음': 'None',
-                '의심': 'Suspicious',
-                '약간 있음': 'Slight',
-                '있음': 'Present',
-                '심각': 'Severe'
-            }
-            risk_english = risk_mapping.get(risk_line, risk_line)
-            pdf.cell(200, 8, txt=f"Cyberbullying Risk: {risk_english}", ln=True)
+            # 한글 위험도 그대로 사용
+            pdf.cell(200, 8, txt=f"사이버폭력 위험도: {risk_line}", ln=True)
         else:
-            pdf.cell(200, 8, txt="Analysis Results: N/A", ln=True)
+            pdf.cell(200, 8, txt="분석 결과: N/A", ln=True)
         
         pdf.ln(5)
         
         # 법적 고지
         pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="4. Legal Disclaimer", ln=True)
+        pdf.cell(200, 10, txt="4. 법적 고지", ln=True)
         pdf.set_font("Arial", size=10)
         
-        legal_disclaimer = "This report provides AI-based analysis results and cannot replace legal expert judgment. Report content should be used for reference only and does not assume legal responsibility."
+        legal_disclaimer = "본 보고서는 AI 기반 분석 결과를 제공하며 법률 전문가의 판단을 대체할 수 없습니다. 보고서 내용은 참고 자료로만 사용되어야 하며 법적 책임을 지지 않습니다."
         pdf.multi_cell(0, 8, txt=legal_disclaimer)
         
         # PDF 저장
