@@ -611,39 +611,36 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     file_size = str(original_file.get('size_bytes', 'N/A'))
     sha256 = str(analysis_result.get('sha256', 'N/A'))
     
-    # 원본 이미지 경로 찾기
+    # 원본 이미지 경로 찾기 - 간단한 방식으로 수정
     original_image_path = analysis_result.get('original_image_path', '')
-    if not original_image_path and 'filename' in original_file and pdf_path:
-        # 기존의 복잡한 경로 탐색 로직을 유지하되, pdf_path가 있어야만 실행되도록 함
-        static_uploads_dir = os.path.join(os.path.dirname(pdf_path), '..', 'app', 'static', 'uploads')
-        if os.path.exists(static_uploads_dir):
-            for file in os.listdir(static_uploads_dir):
-                if file.endswith(('.jpg', '.jpeg', '.png')) and original_file['filename'] in file:
-                    original_image_path = os.path.abspath(os.path.join(static_uploads_dir, file))
-                    break
-        if not original_image_path:
-            tmp_dir = os.path.join(os.path.dirname(pdf_path), '..', 'tmp')
-            if os.path.exists(tmp_dir):
-                for file in os.listdir(tmp_dir):
-                    if file.endswith(('.jpg', '.jpeg', '.png')) and original_file['filename'] in file:
-                        original_image_path = os.path.abspath(os.path.join(tmp_dir, file))
-                        break
-
-    # 절대 파일 경로를 웹에서 접근 가능한 상대 URL로 변환합니다.
-    # 예: '/app/static/uploads/image.png' -> '/static/uploads/image.png'
-    # 이 경로는 WeasyPrint의 base_url과 결합되어 완전한 HTTP URL로 해석됩니다.
+    
+    # 파일명으로 이미지 찾기
+    if not original_image_path and 'filename' in original_file:
+        filename = original_file['filename']
+        # 여러 가능한 경로에서 이미지 찾기
+        possible_paths = [
+            os.path.join('app', 'static', 'uploads', filename),
+            os.path.join('static', 'uploads', filename),
+            os.path.join('tmp', filename),
+            os.path.join('uploads', filename)
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                original_image_path = os.path.abspath(path)
+                print(f"이미지 경로 찾음: {original_image_path}")
+                break
+    
+    # 웹 경로 생성 - 더 간단한 방식
     web_image_path = ""
     if original_image_path and os.path.exists(original_image_path):
-        # 'static' 디렉토리를 기준으로 경로를 분리하여 웹 경로를 생성합니다.
-        path_parts = original_image_path.split(os.sep)
-        try:
-            static_index = path_parts.index('static')
-            # os.sep으로 분리된 경로를 웹 표준인 '/'로 다시 합칩니다.
-            web_image_path = '/' + '/'.join(path_parts[static_index:])
-        except ValueError:
-            # 'static'이 경로에 없는 경우, 이미지를 표시할 수 없음을 기록합니다.
-            print(f"Warning: Could not create web-accessible path for image: {original_image_path}")
-            web_image_path = ""
+        # 파일명만 추출하여 웹 경로 생성
+        filename = os.path.basename(original_image_path)
+        web_image_path = f'/static/uploads/{filename}'
+        print(f"웹 이미지 경로: {web_image_path}")
+    else:
+        print(f"이미지 경로를 찾을 수 없음: {original_image_path}")
+        print(f"파일명: {original_file.get('filename', 'N/A')}")
 
     # 추가 정보 추출
     uploader_id = analysis_result.get('uploader_id', 'N/A')
@@ -1030,7 +1027,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         
         <div class="section">
             <h2>7. 원본 증거 이미지</h2>
-            {f'<img class="evidence" src="{web_image_path}" alt="원본 증거 이미지"/>' if web_image_path else f'<p>원본 이미지를 찾을 수 없거나 웹 경로를 생성할 수 없습니다. (경로: {original_image_path if original_image_path else "없음"})</p>'}
+            {f'<img class="evidence" src="{web_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if web_image_path else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p></div>'}
             <div style="color:#1976d2; font-size:12px; margin-top:10px;">
                 * 위 이미지는 분석 대상 원본 증거물입니다.
             </div>
