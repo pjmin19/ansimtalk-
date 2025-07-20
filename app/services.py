@@ -9,7 +9,7 @@ from datetime import datetime
 # from weasyprint import HTML  # WeasyPrint 제거됨
 from flask import render_template
 from google.cloud import vision
-from google import genai
+import google.generativeai as genai
 import re
 import uuid
 
@@ -226,26 +226,17 @@ def extract_text_from_image(image_path):
 
 def analyze_text_with_gemini(text_content):
     try:
-        # Google Cloud 인증 시도
-        credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-        if os.path.exists(credentials_path):
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-            client = genai.Client(
-                vertexai=True,
-                project="dazzling-howl-465316-m7",
-                location="global",
-            )
-            model = "gemini-2.5-flash-lite-preview-06-17"
-        else:
-            # 인증 파일이 없으면 기본 Gemini API 사용
-            genai.configure(api_key=current_app.config.get('GOOGLE_GEMINI_API_KEY', ''))
-            client = genai.GenerativeModel('gemini-2.0-flash-exp')
-            model = None
+        # Gemini API 키 설정
+        api_key = current_app.config.get('GOOGLE_GEMINI_API_KEY', '')
+        if not api_key:
+            print("Gemini API 키가 설정되지 않았습니다")
+            return _fallback_cyberbullying_analysis(text_content)
+        
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
     except Exception as e:
-        # 모든 방법이 실패하면 기본 Gemini API 사용
-        genai.configure(api_key=current_app.config.get('GOOGLE_GEMINI_API_KEY', ''))
-        client = genai.GenerativeModel('gemini-2.0-flash-exp')
-        model = None
+        print(f"Gemini 설정 오류: {e}")
+        return _fallback_cyberbullying_analysis(text_content)
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
@@ -283,15 +274,8 @@ def analyze_text_with_gemini(text_content):
 잠재적 위험/주의사항: 직접적인 위협과 사회적 배제는 피해자에게 심각한 정신적 고통을 줄 수 있습니다. 즉각적인 개입과 보호 조치가 필요한 상황입니다.
 """
     try:
-        if model:  # Vertex AI 사용
-            response = client.models.generate_content(
-                model=model,
-                contents=[prompt]
-            )
-            result_text = response.candidates[0].content.parts[0].text.strip()
-        else:  # 기본 Gemini API 사용
-            response = client.generate_content(prompt)
-            result_text = response.text.strip()
+        response = model.generate_content(prompt)
+        result_text = response.text.strip()
         # 표와 표 아래 3줄 분리
         lines = result_text.splitlines()
         table_lines = []
