@@ -502,6 +502,9 @@ def safe_multi_cell(pdf, text, line_height=7, max_width=None):
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
     """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - FPDF 기반"""
     try:
+        print(f"PDF 생성 시작: {pdf_path}")
+        print(f"분석 타입: {analysis_type}")
+        
         # FPDF로 PDF 생성
         from fpdf import FPDF
         
@@ -535,9 +538,13 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         pdf.cell(200, 10, txt="2. File Information", ln=True)
         pdf.set_font("Arial", size=10)
         
-        pdf.cell(200, 8, txt=f"Filename: {str(original_file.get('filename', 'N/A'))}", ln=True)
-        pdf.cell(200, 8, txt=f"File Size: {original_file.get('size_bytes', 'N/A')} Bytes", ln=True)
-        pdf.cell(200, 8, txt=f"SHA-256: {str(analysis_result.get('sha256', 'N/A'))}", ln=True)
+        filename = str(original_file.get('filename', 'N/A'))
+        file_size = str(original_file.get('size_bytes', 'N/A'))
+        sha256 = str(analysis_result.get('sha256', 'N/A'))
+        
+        pdf.cell(200, 8, txt=f"Filename: {filename}", ln=True)
+        pdf.cell(200, 8, txt=f"File Size: {file_size} Bytes", ln=True)
+        pdf.cell(200, 8, txt=f"SHA-256: {sha256}", ln=True)
         pdf.ln(5)
         
         # 분석 결과
@@ -551,10 +558,16 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
                 if deepfake_analysis.get('type', {}).get('deepfake'):
                     prob = deepfake_analysis['type']['deepfake']
                     pdf.cell(200, 8, txt=f"Deepfake Probability: {prob:.1%}", ln=True)
+                else:
+                    pdf.cell(200, 8, txt="Deepfake Probability: N/A", ln=True)
+            else:
+                pdf.cell(200, 8, txt=f"Deepfake Analysis Error: {str(deepfake_analysis['error'])[:50]}", ln=True)
         
         elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
             risk_line = analysis_result['cyberbullying_risk_line']
             pdf.cell(200, 8, txt=f"Cyberbullying Risk: {risk_line}", ln=True)
+        else:
+            pdf.cell(200, 8, txt="Analysis Results: N/A", ln=True)
         
         pdf.ln(5)
         
@@ -567,11 +580,23 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         pdf.multi_cell(0, 8, txt=legal_disclaimer)
         
         # PDF 저장
+        print(f"PDF 저장 시도: {pdf_path}")
+        
+        # 디렉토리 확인 및 생성
+        import os
+        pdf_dir = os.path.dirname(pdf_path)
+        if pdf_dir and not os.path.exists(pdf_dir):
+            os.makedirs(pdf_dir)
+            print(f"디렉토리 생성: {pdf_dir}")
+        
         pdf.output(pdf_path)
+        print(f"PDF 저장 성공: {pdf_path}")
         return pdf_path
         
     except Exception as e:
-        print(f"HTML-based PDF generation failed: {e}")
+        print(f"FPDF generation failed: {e}")
+        import traceback
+        print(f"상세 오류 정보: {traceback.format_exc()}")
         # 최후의 수단: 텍스트 파일 생성
         try:
             text_path = pdf_path.replace('.pdf', '.txt')
