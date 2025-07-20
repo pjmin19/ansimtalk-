@@ -941,8 +941,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <div class="section">
             <h2>3. 분석 결과 요약</h2>
             <div class="analysis-result">
-                <strong>사이버폭력 분석 결과 요약:</strong><br>
-                전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', 'N/A')}
+                {f'<strong>딥페이크 분석 결과 요약:</strong><br>딥페이크일 확률: {analysis_result.get("deepfake_analysis", {}).get("type", {}).get("deepfake", 0):.1%}' if analysis_type == 'deepfake' else f'<strong>사이버폭력 분석 결과 요약:</strong><br>전체 대화 사이버폭력 위험도: {analysis_result.get("cyberbullying_risk_line", "N/A")}'}
             </div>
         </div>
         
@@ -1052,6 +1051,17 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <div class="section">
             <h2>6. AI 분석 결과</h2>
             
+            {f'''
+            <h3>딥페이크 분석 결과(Sightengine):</h3>
+            <div class="analysis-result">
+                딥페이크일 확률: {analysis_result.get("deepfake_analysis", {}).get("type", {}).get("deepfake", 0):.1%}
+            </div>
+            
+            <h3>상세 분석 결과:</h3>
+            <div class="box">
+                {analysis_result.get('deepfake_analysis', {}).get('type', {}) if analysis_result.get('deepfake_analysis') else '분석 결과가 없습니다.'}
+            </div>
+            ''' if analysis_type == 'deepfake' else f'''
             <h3>추출 텍스트(OCR):</h3>
             <div class="extracted-text">{extracted_text}</div>
             
@@ -1069,6 +1079,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745;">
                 {analysis_result.get('cyberbullying_analysis_summary', '분석 결과가 없습니다.').replace('\n', '<br>')}
             </div>
+            '''}
         </div>
         
         <div class="section">
