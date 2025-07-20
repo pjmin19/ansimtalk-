@@ -4,7 +4,7 @@ AI 기술을 활용하여 딥페이크와 사이버폭력을 분석하고 디지
 
 ## 🚀 라이브 데모
 
-**Railway 배포**: https://ansimtalk-production-xxxx.up.railway.app
+**Railway 배포**: https://ansimtalk-production.up.railway.app
 
 > Railway에서 도메인을 생성하고 환경 변수를 설정하면 서비스가 활성화됩니다.
 
