@@ -123,19 +123,6 @@ def analyze_file(file_path, analysis_type, file_extension):
                 result['cyberbullying_analysis'] = gemini_result.get('table', '')
                 result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
                 result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
-                
-                # 디버깅 로그 추가
-                print(f"Gemini 결과 테이블: {gemini_result.get('table', '')[:200]}...")
-                print(f"Gemini 결과 요약: {gemini_result.get('summary', '')[:200]}...")
-                
-                # 대화 전체 분위기 요약과 잠재적 위험/주의사항 추출
-                summary_text = gemini_result.get('summary', '')
-                result['conversation_atmosphere'] = extract_conversation_atmosphere(summary_text)
-                result['potential_risks'] = extract_potential_risks(summary_text)
-                
-                # 디버깅 로그 추가
-                print(f"추출된 대화 분위기: {result['conversation_atmosphere']}")
-                print(f"추출된 잠재적 위험: {result['potential_risks']}")
             else:
                 result['error'] = '이미지에서 텍스트를 추출할 수 없습니다.'
         elif file_extension == 'txt':
@@ -146,19 +133,6 @@ def analyze_file(file_path, analysis_type, file_extension):
             result['cyberbullying_analysis'] = gemini_result.get('table', '')
             result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
             result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
-            
-            # 디버깅 로그 추가
-            print(f"Gemini 결과 테이블: {gemini_result.get('table', '')[:200]}...")
-            print(f"Gemini 결과 요약: {gemini_result.get('summary', '')[:200]}...")
-            
-            # 대화 전체 분위기 요약과 잠재적 위험/주의사항 추출
-            summary_text = gemini_result.get('summary', '')
-            result['conversation_atmosphere'] = extract_conversation_atmosphere(summary_text)
-            result['potential_risks'] = extract_potential_risks(summary_text)
-            
-            # 디버깅 로그 추가
-            print(f"추출된 대화 분위기: {result['conversation_atmosphere']}")
-            print(f"추출된 잠재적 위험: {result['potential_risks']}")
         else:
             result['error'] = '사이버폭력 분석은 텍스트 또는 이미지 파일만 지원합니다.'
     else:
@@ -192,78 +166,24 @@ def analyze_image_with_sightengine(file_path):
         files['media'].close()
 
 def extract_text_from_image(image_path):
-    try:
-        # Railway 환경에서 환경 변수로 설정된 서비스 계정 키 사용
-        import json
-        from google.oauth2 import service_account
-        
-        # 환경 변수에서 서비스 계정 키 JSON 가져오기
-        service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-        if service_account_info:
-            # JSON 문자열을 파싱하여 서비스 계정 정보 생성
-            service_account_dict = json.loads(service_account_info)
-            credentials = service_account.Credentials.from_service_account_info(service_account_dict)
-            client = vision.ImageAnnotatorClient(credentials=credentials)
-        else:
-            # 기존 방식 (로컬 파일)
-            credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-            if os.path.exists(credentials_path):
-                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-                client = vision.ImageAnnotatorClient()
-            else:
-                print("Google Cloud 인증 정보가 설정되지 않았습니다")
-                return "[Google Cloud 인증 정보가 설정되지 않았습니다. 관리자에게 문의하세요.]"
-        
-        with open(image_path, "rb") as image_file:
-            content = image_file.read()
-        image = vision.Image(content=content)
-        response = client.text_detection(image=image)
-        texts = response.text_annotations
-        if not texts:
-            return ""
-        return texts[0].description.strip()
-    except Exception as e:
-        print(f"Google Cloud Vision API 오류: {e}")
-        return f"[Google Cloud Vision API 오류: {e}]"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+    client = vision.ImageAnnotatorClient()
+    with open(image_path, "rb") as image_file:
+        content = image_file.read()
+    image = vision.Image(content=content)
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    if not texts:
+        return ""
+    return texts[0].description.strip()
 
 def analyze_text_with_gemini(text_content):
-    # Railway 환경에서 환경 변수로 설정된 서비스 계정 키 사용
-    import json
-    from google.oauth2 import service_account
-    
-    try:
-        # 환경 변수에서 서비스 계정 키 JSON 가져오기
-        service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-        if service_account_info:
-            # JSON 문자열을 파싱하여 서비스 계정 정보 생성
-            service_account_dict = json.loads(service_account_info)
-            credentials = service_account.Credentials.from_service_account_info(service_account_dict)
-            client = genai.Client(
-                vertexai=True,
-                project="dazzling-howl-465316-m7",
-                location="global",
-                credentials=credentials
-            )
-            print("환경 변수에서 서비스 계정 정보를 사용합니다.")
-        else:
-            # 기존 방식 (로컬 파일)
-            credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-            if os.path.exists(credentials_path):
-                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-                client = genai.Client(
-                    vertexai=True,
-                    project="dazzling-howl-465316-m7",
-                    location="global",
-                )
-                print(f"로컬 파일에서 서비스 계정 정보를 사용합니다: {credentials_path}")
-            else:
-                print("Google Cloud 인증 정보가 설정되지 않았습니다")
-                print(f"환경 변수 GOOGLE_SERVICE_ACCOUNT_JSON: {'설정됨' if os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON') else '설정되지 않음'}")
-                print(f"로컬 파일 경로: {credentials_path}")
-                return _fallback_cyberbullying_analysis(text_content)
-    except Exception as e:
-        print(f"Google Cloud 인증 설정 오류: {e}")
-        return _fallback_cyberbullying_analysis(text_content)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+    client = genai.Client(
+        vertexai=True,
+        project="dazzling-howl-465316-m7",
+        location="global",
+    )
     
     model = "gemini-2.5-flash-lite-preview-06-17"
     prompt = f"""
@@ -345,9 +265,7 @@ def analyze_text_with_gemini(text_content):
         
         return {"table": html_table, "summary": summary}
     except Exception as e:
-        print(f"Gemini 분석 오류: {e}")
-        # API 오류 시 대체 분석 제공
-        return _fallback_cyberbullying_analysis(text_content)
+        return {"table": '', "summary": f'Gemini 분석 오류: {e}'}
 
 def _fallback_cyberbullying_analysis(text_content):
     """Gemini API 실패 시 대체 사이버폭력 분석"""
