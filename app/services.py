@@ -1,18 +1,14 @@
 import requests
 import json
 from flask import current_app
-from fpdf import FPDF
 import os
 from PIL import Image
-import pytesseract
 import hashlib
 from datetime import datetime
 from weasyprint import HTML
-from flask import render_template
 from google.cloud import vision
 from google import genai
 import re
-import uuid
 
 def convert_markdown_table_to_html(markdown_table):
     """마크다운 표를 HTML 표로 변환"""
@@ -395,62 +391,7 @@ def pipe_table_to_html(text):
         html.append(f'<div style="margin-top:8px;"><b>{summary_line}</b></div>')
     return "\n".join(html)
 
-def safe_text_for_pdf(text, max_length=100):
-    """PDF에서 안전하게 표시할 수 있도록 텍스트를 처리"""
-    if not text:
-        return ""
-    
-    # 특수문자 처리
-    text = str(text)
-    text = text.replace('\n', ' ').replace('\r', ' ')
-    text = text.replace('\t', ' ')
-    
-    # 연속된 공백을 하나로
-    import re
-    text = re.sub(r'\s+', ' ', text)
-    
-    # 길이 제한
-    if len(text) > max_length:
-        text = text[:max_length-3] + "..."
-    
-    return text.strip()
 
-def safe_multi_cell(pdf, text, line_height=7, max_width=None):
-    """안전한 multi_cell 함수 - 긴 텍스트를 자동으로 줄바꿈"""
-    if not text:
-        return
-    
-    text = str(text)
-    
-    # 기본 너비 설정
-    if max_width is None:
-        max_width = pdf.w - 2 * pdf.l_margin
-    
-    # 텍스트를 안전하게 처리
-    safe_text = safe_text_for_pdf(text, 200)
-    
-    # 긴 텍스트를 여러 줄로 나누기
-    words = safe_text.split()
-    lines = []
-    current_line = ""
-    
-    for word in words:
-        test_line = current_line + " " + word if current_line else word
-        if pdf.get_string_width(test_line) <= max_width:
-            current_line = test_line
-        else:
-            if current_line:
-                lines.append(current_line)
-            current_line = word
-    
-    if current_line:
-        lines.append(current_line)
-    
-    # 각 줄을 출력
-    for line in lines:
-        pdf.multi_cell(0, line_height, line)
-    
-    return len(lines)
 
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
     """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - HTML 기반"""
