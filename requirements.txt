@@ -6,4 +6,3 @@ google-cloud-vision
 openai
 requests
 google-generativeai
-weasyprint
