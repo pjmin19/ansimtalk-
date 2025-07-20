@@ -214,7 +214,7 @@ def analyze_text_with_gemini(text_content):
             credentials = service_account.Credentials.from_service_account_info(service_account_dict)
             client = genai.Client(
                 vertexai=True,
-                project="caramel-thinker-329005",
+                project="dazzling-howl-465316-m7",
                 location="global",
                 credentials=credentials
             )
@@ -226,7 +226,7 @@ def analyze_text_with_gemini(text_content):
                 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
                 client = genai.Client(
                     vertexai=True,
-                    project="caramel-thinker-329005",
+                    project="dazzling-howl-465316-m7",
                     location="global",
                 )
                 print(f"로컬 파일에서 서비스 계정 정보를 사용합니다: {credentials_path}")
