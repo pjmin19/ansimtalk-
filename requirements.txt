@@ -6,4 +6,4 @@ google-cloud-vision
 openai
 requests
 google-generativeai
-weasyprint==62.2
+reportlab==4.0.7

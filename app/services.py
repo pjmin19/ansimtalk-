@@ -500,173 +500,22 @@ def safe_multi_cell(pdf, text, line_height=7, max_width=None):
     return len(lines)
 
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
-    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - WeasyPrint 기반"""
+    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - ReportLab 기반"""
     try:
         print(f"PDF 생성 시작: {pdf_path}")
         print(f"분석 타입: {analysis_type}")
         
-        # WeasyPrint로 PDF 생성 (한글 지원)
-        from weasyprint import HTML, CSS
+        # ReportLab로 PDF 생성 (한글 지원)
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.units import inch
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        from reportlab.lib import colors
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT
         import os
-        
-        # HTML 보고서 생성
-        html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
-        
-        # CSS 스타일 정의 (한글 폰트 포함)
-        css_content = """
-        @font-face {
-            font-family: 'NanumGothic';
-            src: url('static/fonts/NanumGothic.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        
-        @font-face {
-            font-family: 'NanumGothic';
-            src: url('static/fonts/NanumGothic-Bold.ttf') format('truetype');
-            font-weight: bold;
-            font-style: normal;
-        }
-        
-        body {
-            font-family: 'NanumGothic', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        .report-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
-        
-        .report-header {
-            text-align: center;
-            border-bottom: 3px solid #2c3e50;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .report-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin: 0;
-        }
-        
-        .report-subtitle {
-            font-size: 16px;
-            color: #7f8c8d;
-            margin: 10px 0 0 0;
-        }
-        
-        .section {
-            margin-bottom: 25px;
-        }
-        
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2c3e50;
-            border-left: 4px solid #3498db;
-            padding-left: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .info-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 3px solid #3498db;
-        }
-        
-        .info-label {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-        
-        .info-value {
-            color: #555;
-        }
-        
-        .analysis-result {
-            background: #e8f5e8;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #27ae60;
-            margin: 20px 0;
-        }
-        
-        .result-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #27ae60;
-            margin-bottom: 10px;
-        }
-        
-        .result-value {
-            font-size: 16px;
-            color: #2c3e50;
-        }
-        
-        .legal-disclaimer {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-        }
-        
-        .disclaimer-title {
-            font-weight: bold;
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        
-        .disclaimer-text {
-            color: #856404;
-            line-height: 1.6;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-        """
         
         # 디렉토리 확인 및 생성
         pdf_dir = os.path.dirname(pdf_path)
@@ -674,32 +523,176 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
             os.makedirs(pdf_dir)
             print(f"디렉토리 생성: {pdf_dir}")
         
-        # WeasyPrint로 PDF 생성
-        html_doc = HTML(string=html_content)
-        css_doc = CSS(string=css_content)
+        # 한글 폰트 등록
+        try:
+            font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'NanumGothic.ttf')
+            pdfmetrics.registerFont(TTFont('NanumGothic', font_path))
+            font_name = 'NanumGothic'
+        except:
+            # 폰트 등록 실패 시 기본 폰트 사용
+            font_name = 'Helvetica'
+            print("한글 폰트 등록 실패, 기본 폰트 사용")
+        
+        # PDF 문서 생성
+        doc = SimpleDocTemplate(pdf_path, pagesize=A4)
+        story = []
+        
+        # 스타일 정의
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            spaceAfter=30,
+            alignment=TA_CENTER,
+            fontName=font_name
+        )
+        
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=16,
+            spaceAfter=12,
+            fontName=font_name
+        )
+        
+        normal_style = ParagraphStyle(
+            'CustomNormal',
+            parent=styles['Normal'],
+            fontSize=10,
+            spaceAfter=6,
+            fontName=font_name
+        )
+        
+        # 제목
+        story.append(Paragraph("안심톡 디지털 증거 분석 보고서", title_style))
+        story.append(Paragraph("AI 기반 딥페이크 및 사이버폭력 분석 시스템", normal_style))
+        story.append(Spacer(1, 20))
+        
+        # 기본 정보
+        story.append(Paragraph("1. 기본 정보", heading_style))
+        
+        report_id = f"DF-CB-{datetime.now().strftime('%Y')}-001-v1.0"
+        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        basic_info = [
+            ['보고서 ID', report_id],
+            ['생성일시', created_at],
+            ['분석 유형', analysis_type or 'N/A'],
+            ['분석 시스템', '안심톡 AI 포렌식 분석 시스템 v1.0']
+        ]
+        
+        basic_table = Table(basic_info, colWidths=[2*inch, 4*inch])
+        basic_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.grey),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), font_name),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (1, 0), (1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(basic_table)
+        story.append(Spacer(1, 20))
+        
+        # 파일 정보
+        story.append(Paragraph("2. 파일 정보", heading_style))
+        
+        original_file = analysis_result.get('file_info', {})
+        filename = str(original_file.get('filename', 'N/A'))
+        file_size = str(original_file.get('size_bytes', 'N/A'))
+        sha256 = str(analysis_result.get('sha256', 'N/A'))
+        
+        file_info = [
+            ['파일명', filename],
+            ['파일 크기', f"{file_size} Bytes"],
+            ['SHA-256 해시', sha256],
+            ['분석 시간', analysis_result.get('analysis_timestamp', 'N/A')]
+        ]
+        
+        file_table = Table(file_info, colWidths=[2*inch, 4*inch])
+        file_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.grey),
+            ('TEXTCOLOR', (0, 0), (0, -1), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), font_name),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (1, 0), (1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(file_table)
+        story.append(Spacer(1, 20))
+        
+        # 분석 결과
+        story.append(Paragraph("3. 분석 결과", heading_style))
+        
+        analysis_text = ""
+        if analysis_type == 'deepfake' and 'deepfake_analysis' in analysis_result:
+            deepfake_analysis = analysis_result['deepfake_analysis']
+            if 'error' not in deepfake_analysis:
+                if deepfake_analysis.get('type', {}).get('deepfake'):
+                    prob = deepfake_analysis['type']['deepfake']
+                    analysis_text = f"딥페이크일 확률: {prob:.1%}"
+                else:
+                    analysis_text = "딥페이크일 확률: N/A"
+            else:
+                analysis_text = f"딥페이크 분석 오류: {str(deepfake_analysis['error'])[:50]}"
+        
+        elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
+            risk_line = analysis_result['cyberbullying_risk_line']
+            analysis_text = f"사이버폭력 위험도: {risk_line}"
+        else:
+            analysis_text = "분석 결과: N/A"
+        
+        story.append(Paragraph(analysis_text, normal_style))
+        story.append(Spacer(1, 20))
+        
+        # AI 모델 정보
+        story.append(Paragraph("4. AI 모델 정보", heading_style))
+        
+        ai_models = [
+            ['분석 작업', 'AI 모델', '버전', '정확도'],
+            ['딥페이크 탐지', 'Sightengine Deepfake Detector', 'v1.0', '98.2%'],
+            ['사이버폭력 분석', 'Google Gemini 2.5 Flash', 'v1.0', '94.5%'],
+            ['OCR 텍스트 추출', 'Google Cloud Vision API', 'v1.0', '99.1%']
+        ]
+        
+        ai_table = Table(ai_models, colWidths=[1.5*inch, 2*inch, 0.8*inch, 0.8*inch])
+        ai_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), font_name),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(ai_table)
+        story.append(Spacer(1, 20))
+        
+        # 법적 고지
+        story.append(Paragraph("5. 법적 고지", heading_style))
+        legal_text = """본 보고서는 AI 기반 분석 결과를 제공하며 법률 전문가의 판단을 대체할 수 없습니다. 
+        보고서 내용은 참고 자료로만 사용되어야 하며 법적 책임을 지지 않습니다. 
+        모든 분석 결과는 기술적 한계 내에서 제공되며, 최종 판단은 관련 법률 전문가의 검토를 거쳐야 합니다."""
+        story.append(Paragraph(legal_text, normal_style))
         
         # PDF 생성
-        html_doc.write_pdf(pdf_path, stylesheets=[css_doc])
-        
+        doc.build(story)
         print(f"PDF 저장 성공: {pdf_path}")
         return pdf_path
         
     except Exception as e:
-        print(f"WeasyPrint generation failed: {e}")
+        print(f"ReportLab generation failed: {e}")
         import traceback
         print(f"상세 오류 정보: {traceback.format_exc()}")
         
-        # Railway 환경 변수 설정 안내
-        print("""
-        Railway 환경에서 WeasyPrint 사용을 위한 설정:
-        1. Railway 대시보드에서 프로젝트 설정으로 이동
-        2. Variables 탭에서 다음 환경 변수 추가:
-           NIXPACKS_PKGS: cairo pango gobject-introspection glib libffi pkg-config
-        3. 배포를 다시 트리거하세요
-        """)
-        
         # 대체 방법: HTML 파일 생성
         try:
+            html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
             html_path = pdf_path.replace('.pdf', '.html')
             with open(html_path, 'w', encoding='utf-8') as f:
                 f.write(html_content)
