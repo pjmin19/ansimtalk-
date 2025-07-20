@@ -10,8 +10,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libpango1.0-dev \
-    libgobject-2.0-0 \
-    libglib2.0-0 \
+    libgirepository1.0-dev \
+    libglib2.0-dev \
     libffi-dev \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
