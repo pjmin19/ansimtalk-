@@ -346,18 +346,20 @@ def _fallback_cyberbullying_analysis(text_content):
     print(f"대체 사이버폭력 분석 시작: {text_content[:100]}...")
     
     try:
-        # 간단한 키워드 기반 분석
+        # 더 정교한 키워드 기반 분석
         text_lower = text_content.lower()
         
-        # 위험 키워드 정의
-        violent_keywords = ['죽어', '디져', '죽여', '때려', '패줄', '꺼져', '사라져', '바보', '멍청이', '개새끼', '병신']
-        threat_keywords = ['까먹으면', '안하면', '안되면', '그러면', '그럼']
-        bullying_keywords = ['그런 애랑', '말 섞지 마', '따돌려', '무시해', '놀려']
+        # 위험 키워드 정의 (더 상세하게)
+        violent_keywords = ['죽어', '디져', '죽여', '때려', '패줄', '꺼져', '사라져', '바보', '멍청이', '개새끼', '병신', '존재 자체가 죄', '못생겨서']
+        threat_keywords = ['까먹으면', '안하면', '안되면', '그러면', '그럼', '디진다']
+        bullying_keywords = ['그런 애랑', '말 섞지 마', '따돌려', '무시해', '놀려', '살빼돼지']
+        derogatory_keywords = ['비하', '모욕', '욕설', 'X아', 'X야']
         
         # 문장별 분석
         sentences = text_content.split('\n')
         analysis_lines = []
         risk_count = 0
+        severe_count = 0
         
         for sentence in sentences:
             sentence = sentence.strip()
@@ -368,21 +370,37 @@ def _fallback_cyberbullying_analysis(text_content):
             risk_type = "-"
             explanation = "일반적인 대화 내용"
             
-            # 위험도 판단
+            # 더 정교한 위험도 판단
             if any(keyword in sentence.lower() for keyword in violent_keywords):
-                risk_level = "심각"
-                risk_type = "욕설"
-                explanation = "폭력적이거나 모욕적인 표현 포함"
+                if '존재 자체가 죄' in sentence or '못생겨서' in sentence:
+                    risk_level = "심각"
+                    risk_type = "비하"
+                    explanation = "존재 자체를 부정하거나 외모를 비하하는 극단적 발언"
+                else:
+                    risk_level = "심각"
+                    risk_type = "욕설"
+                    explanation = "폭력적이거나 모욕적인 표현 포함"
+                severe_count += 1
                 risk_count += 1
             elif any(keyword in sentence.lower() for keyword in threat_keywords):
-                risk_level = "있음"
-                risk_type = "위협"
-                explanation = "협박이나 위협적 표현 포함"
+                if '디진다' in sentence:
+                    risk_level = "있음"
+                    risk_type = "위협"
+                    explanation = "협박이나 위협적 표현 포함"
+                else:
+                    risk_level = "있음"
+                    risk_type = "위협"
+                    explanation = "조건부 위협적 표현"
                 risk_count += 1
             elif any(keyword in sentence.lower() for keyword in bullying_keywords):
                 risk_level = "약간 있음"
                 risk_type = "따돌림"
                 explanation = "따돌리거나 배제하려는 의도"
+                risk_count += 1
+            elif any(keyword in sentence.lower() for keyword in derogatory_keywords):
+                risk_level = "있음"
+                risk_type = "비하"
+                explanation = "비하적이거나 모욕적인 표현"
                 risk_count += 1
             
             analysis_lines.append(f"| {sentence} | {risk_type} | - | - | {risk_level} | {explanation} |")
@@ -397,18 +415,22 @@ def _fallback_cyberbullying_analysis(text_content):
             html_table += '</tr>'
         html_table += '</tbody></table>'
         
-        # 요약 생성
-        if risk_count == 0:
-            risk_summary = "없음"
-            mood_summary = "키워드 기반 분석 결과, 0개의 위험 요소가 발견되었습니다."
+        # 더 정교한 요약 생성
+        if severe_count >= 2:
+            risk_summary = "심각"
+            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었으며, 그 중 {severe_count}개가 심각한 수준입니다."
             warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
-        elif risk_count <= 2:
+        elif risk_count >= 3:
+            risk_summary = "있음"
+            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다."
+            warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
+        elif risk_count >= 1:
             risk_summary = "약간 있음"
             mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다."
             warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
         else:
-            risk_summary = "있음"
-            mood_summary = f"키워드 기반 분석 결과, {risk_count}개의 위험 요소가 발견되었습니다."
+            risk_summary = "없음"
+            mood_summary = "키워드 기반 분석 결과, 위험 요소가 발견되지 않았습니다."
             warning = "AI 분석 서비스 일시적 오류로 인해 기본 키워드 분석을 제공합니다. 정확한 분석을 위해 잠시 후 다시 시도해주세요."
         
         summary = f"""
