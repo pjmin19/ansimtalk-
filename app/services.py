@@ -6,7 +6,7 @@ import os
 from PIL import Image
 import hashlib
 from datetime import datetime
-# from weasyprint import HTML  # WeasyPrint 제거
+from weasyprint import HTML
 from flask import render_template
 from google.cloud import vision
 from google import genai
