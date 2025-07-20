@@ -13,5 +13,4 @@ COPY . .
 
 EXPOSE 8000
 
-# 기본 명령어
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--timeout", "120", "run:app"] 
+CMD ["python", "run.py"] 

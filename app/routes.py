@@ -242,7 +242,14 @@ def _handle_file_upload_and_analysis(analysis_type):
 
 @bp.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        return f"AnsimTalk is running! Error: {str(e)}", 200
+
+@bp.route('/health')
+def health():
+    return "OK", 200
 
 @bp.route('/analyze_deepfake', methods=['POST'])
 def analyze_deepfake():
