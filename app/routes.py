@@ -240,13 +240,6 @@ def _handle_file_upload_and_analysis(analysis_type):
         flash(f'파일 처리 중 오류: {e}')
         return redirect(url_for('main.index'))
 
-@bp.route('/')
-def index():
-    try:
-        return render_template('index.html')
-    except Exception as e:
-        return f"AnsimTalk is running! Error: {str(e)}", 200
-
 @bp.route('/health')
 def health():
     try:
@@ -255,11 +248,19 @@ def health():
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "service": "AnsimTalk AI Forensic Analysis",
-            "version": "1.0.0"
+            "version": "1.0.0",
+            "environment": "production"
         }
         return status, 200
     except Exception as e:
         return {"status": "unhealthy", "error": str(e)}, 500
+
+@bp.route('/')
+def index():
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        return f"AnsimTalk is running! Error: {str(e)}", 200
 
 @bp.route('/analyze_deepfake', methods=['POST'])
 def analyze_deepfake():
