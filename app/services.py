@@ -122,6 +122,10 @@ def analyze_file(file_path, analysis_type, file_extension):
                 result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
                 result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
                 
+                # 디버깅 로그 추가
+                print(f"Gemini 결과 테이블: {gemini_result.get('table', '')[:200]}...")
+                print(f"Gemini 결과 요약: {gemini_result.get('summary', '')[:200]}...")
+                
                 # 대화 전체 분위기 요약과 잠재적 위험/주의사항 추출
                 summary_text = gemini_result.get('summary', '')
                 result['conversation_atmosphere'] = extract_conversation_atmosphere(summary_text)
@@ -136,6 +140,10 @@ def analyze_file(file_path, analysis_type, file_extension):
             result['cyberbullying_analysis'] = gemini_result.get('table', '')
             result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
             result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
+            
+            # 디버깅 로그 추가
+            print(f"Gemini 결과 테이블: {gemini_result.get('table', '')[:200]}...")
+            print(f"Gemini 결과 요약: {gemini_result.get('summary', '')[:200]}...")
             
             # 대화 전체 분위기 요약과 잠재적 위험/주의사항 추출
             summary_text = gemini_result.get('summary', '')
@@ -973,7 +981,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             
             <h3>상세 분석 결과:</h3>
             <div class="box">
-                {analysis_result.get('cyberbullying_analysis', '분석 중...')}
+                {analysis_result.get('cyberbullying_analysis', '분석 중...') if analysis_result.get('cyberbullying_analysis') else '분석 결과가 없습니다.'}
             </div>
             
             <h3>전체 분석 요약:</h3>
