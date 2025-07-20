@@ -337,6 +337,9 @@ def analyze_text_with_gemini(text_content):
     except Exception as e:
         print(f"Gemini 분석 오류: {e}")
         print("Fallback 분석으로 전환합니다...")
+        print(f"오류 타입: {type(e).__name__}")
+        import traceback
+        print(f"상세 오류: {traceback.format_exc()}")
         # API 오류 시 대체 분석 제공
         return _fallback_cyberbullying_analysis(text_content)
 
@@ -490,6 +493,13 @@ def extract_conversation_atmosphere(summary):
             result = ' '.join(atmosphere_lines)
             return result if result else "분석 중..."
     
+    # fallback 분석 결과에서 직접 추출 시도
+    if '키워드 기반 분석 결과' in summary:
+        lines = summary.split('\n')
+        for line in lines:
+            if '키워드 기반 분석 결과' in line and '위험 요소' in line:
+                return line.strip()
+    
     return "분석 중..."
 
 def extract_potential_risks(summary):
@@ -519,6 +529,13 @@ def extract_potential_risks(summary):
                     risk_lines.append(lines[j].strip())
             result = ' '.join(risk_lines)
             return result if result else "분석 중..."
+    
+    # fallback 분석 결과에서 직접 추출 시도
+    if 'AI 분석 서비스 일시적 오류' in summary:
+        lines = summary.split('\n')
+        for line in lines:
+            if 'AI 분석 서비스 일시적 오류' in line:
+                return line.strip()
     
     return "분석 중..."
 
