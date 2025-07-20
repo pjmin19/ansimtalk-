@@ -516,76 +516,17 @@ def safe_multi_cell(pdf, text, line_height=7, max_width=None):
     return len(lines)
 
 def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
-    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - FPDF 기반"""
+    """법적 요건을 충족하는 전문적인 디지털 증거 분석 보고서 생성 - HTML 기반"""
     try:
-        # FPDF로 PDF 생성
-        pdf = FPDF()
-        pdf.add_page()
+        # HTML 템플릿 생성
+        html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
         
-        # 한글 폰트 설정 (기본 폰트 사용)
-        pdf.set_font("Arial", size=12)
-        
-        # 제목
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="AnsimTalk Digital Evidence Analysis Report", ln=True, align='C')
-        pdf.ln(10)
-        
-        # 기본 정보
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="1. Basic Information", ln=True)
-        pdf.set_font("Arial", size=10)
-        
-        report_id = f"DF-CB-{datetime.now().strftime('%Y')}-001-v1.0"
-        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
-        pdf.cell(200, 8, txt=f"Report ID: {report_id}", ln=True)
-        pdf.cell(200, 8, txt=f"Created: {created_at}", ln=True)
-        pdf.cell(200, 8, txt=f"Analysis Type: {analysis_type or 'N/A'}", ln=True)
-        pdf.ln(5)
-        
-        # 파일 정보
-        original_file = analysis_result.get('file_info', {})
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="2. File Information", ln=True)
-        pdf.set_font("Arial", size=10)
-        
-        pdf.cell(200, 8, txt=f"Filename: {str(original_file.get('filename', 'N/A'))}", ln=True)
-        pdf.cell(200, 8, txt=f"File Size: {original_file.get('size_bytes', 'N/A')} Bytes", ln=True)
-        pdf.cell(200, 8, txt=f"SHA-256: {str(analysis_result.get('sha256', 'N/A'))}", ln=True)
-        pdf.ln(5)
-        
-        # 분석 결과
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="3. Analysis Results", ln=True)
-        pdf.set_font("Arial", size=10)
-        
-        if analysis_type == 'deepfake' and 'deepfake_analysis' in analysis_result:
-            deepfake_analysis = analysis_result['deepfake_analysis']
-            if 'error' not in deepfake_analysis:
-                if deepfake_analysis.get('type', {}).get('deepfake'):
-                    prob = deepfake_analysis['type']['deepfake']
-                    pdf.cell(200, 8, txt=f"Deepfake Probability: {prob:.1%}", ln=True)
-        
-        elif analysis_type == 'cyberbullying' and 'cyberbullying_risk_line' in analysis_result:
-            risk_line = analysis_result['cyberbullying_risk_line']
-            pdf.cell(200, 8, txt=f"Cyberbullying Risk: {risk_line}", ln=True)
-        
-        pdf.ln(5)
-        
-        # 법적 고지
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, txt="4. Legal Disclaimer", ln=True)
-        pdf.set_font("Arial", size=10)
-        
-        legal_disclaimer = "This report provides AI-based analysis results and cannot replace legal expert judgment. Report content should be used for reference only and does not assume legal responsibility."
-        pdf.multi_cell(0, 8, txt=legal_disclaimer)
-        
-        # PDF 저장
-        pdf.output(pdf_path)
+        # WeasyPrint로 PDF 생성
+        HTML(string=html_content).write_pdf(pdf_path)
         return pdf_path
         
     except Exception as e:
-        print(f"FPDF generation failed: {e}")
+        print(f"HTML-based PDF generation failed: {e}")
         # 최후의 수단: 텍스트 파일 생성
         try:
             text_path = pdf_path.replace('.pdf', '.txt')
