@@ -617,8 +617,12 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     # 파일명으로 이미지 찾기
     if not original_image_path and 'filename' in original_file:
         filename = original_file['filename']
-        # 여러 가능한 경로에서 이미지 찾기
+        # Railway 환경을 고려한 절대 경로와 상대 경로 모두 확인
         possible_paths = [
+            # Railway 환경의 절대 경로
+            f'/app/tmp/{filename}',
+            f'/app/static/uploads/{filename}',
+            # 상대 경로
             os.path.join('app', 'static', 'uploads', filename),
             os.path.join('static', 'uploads', filename),
             os.path.join('tmp', filename),
@@ -631,16 +635,22 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 print(f"이미지 경로 찾음: {original_image_path}")
                 break
     
-    # 웹 경로 생성 - 더 간단한 방식
+    # 웹 경로 생성 - Railway 환경 고려
     web_image_path = ""
     if original_image_path and os.path.exists(original_image_path):
         # 파일명만 추출하여 웹 경로 생성
         filename = os.path.basename(original_image_path)
+        # Railway 환경에서는 /app/tmp/ 경로의 파일도 /static/uploads/로 접근 가능
         web_image_path = f'/static/uploads/{filename}'
         print(f"웹 이미지 경로: {web_image_path}")
+        print(f"원본 이미지 경로: {original_image_path}")
     else:
         print(f"이미지 경로를 찾을 수 없음: {original_image_path}")
         print(f"파일명: {original_file.get('filename', 'N/A')}")
+        # 현재 작업 디렉토리와 가능한 경로들 출력
+        print(f"현재 작업 디렉토리: {os.getcwd()}")
+        print(f"tmp 디렉토리 존재: {os.path.exists('/app/tmp')}")
+        print(f"static/uploads 디렉토리 존재: {os.path.exists('/app/static/uploads')}")
 
     # 추가 정보 추출
     uploader_id = analysis_result.get('uploader_id', 'N/A')
