@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>딥페이크 피해 상담/신고 안내</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .help-container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #eee; padding: 32px; }
+        .help-title { font-size: 1.7em; font-weight: bold; color: #b71c1c; margin-bottom: 10px; }
+        .help-desc { font-size: 1.1em; margin-bottom: 24px; }
+        .help-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        .help-table th, .help-table td { border: 1px solid #e0e0e0; padding: 12px 8px; text-align: left; }
+        .help-table th { background: #f5f5f5; color: #333; }
+        .help-table td a { text-decoration: none; font-weight: bold; color: #1976d2; }
+        .help-table td a:hover { text-decoration: underline; }
+        .help-tip { background: #fffde7; border-left: 6px solid #ffd600; padding: 14px 18px; margin-bottom: 18px; font-size: 1.05em; }
+        .help-tip strong { color: #b71c1c; }
+        .help-footer { font-size: 0.98em; color: #666; margin-top: 18px; }
+        @media (max-width: 700px) { .help-container { padding: 10px; } .help-table th, .help-table td { font-size: 0.95em; } }
+    </style>
+</head>
+<body>
+<div class="help-container">
+    <div class="help-title">딥페이크 피해, 어디에 도움을 청할까?</div>
+    <div class="help-desc">
+        내 얼굴이 이상한 사진이나 영상에 합성되어 퍼지고 있다면, 가장 중요한 건 <b>‘빠른 삭제’와 ‘확산 방지’</b>예요.<br>
+        나에게 맞는 기관을 빠르게 선택해 도움을 요청하세요.
+    </div>
+    <table class="help-table">
+        <thead>
+        <tr>
+            <th>기관 이름</th>
+            <th>이런 도움을 줘요!</th>
+            <th>꼭 알아두세요!</th>
+            <th>이런 상황에 딱이에요!</th>
+            <th>바로 가기</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><b>디지털성범죄 피해자 지원센터</b></td>
+            <td>삭제 전문가! 피해 영상 삭제, 유포 현황 실시간 모니터링 지원(무료)</td>
+            <td>삭제 요청만 가능, 해외 사이트는 처리 지연될 수 있음. 증거 제출 필요</td>
+            <td>내 합성 사진/영상이 인터넷에 퍼지고 있을 때 가장 먼저!</td>
+            <td><a href="https://d4u.stop.or.kr/write_consulting" target="_blank">🌐 상담 신청</a><br>02-735-8994</td>
+        </tr>
+        <tr>
+            <td><b>117 학교폭력 신고센터</b></td>
+            <td>강력한 법적 조치! 경찰이 직접 가해자 수사 및 처벌, 긴급 보호 지원</td>
+            <td>경찰 개입으로 부모님이나 학교에 알려질 가능성 있음</td>
+            <td>반드시 가해자를 처벌하거나 신변 위험이 느껴질 때</td>
+            <td><a href="https://www.safe182.go.kr/pot/selectRptList.do?rptTyGubun=09" target="_blank">🌐 온라인 신고</a><br>☎ 117<br>#0117 (문자)</td>
+        </tr>
+        <tr>
+            <td><b>1388 청소년 상담복지센터</b></td>
+            <td>마음의 응급처치! 365일 언제나 익명으로 내 고민/위기 마음 안정 지원</td>
+            <td>상담 중심으로 직접적인 삭제나 처벌 불가, 추가 조치 필요</td>
+            <td>불안하고 힘들 때, 누구하고 즉시 이야기하고 싶을 때</td>
+            <td><a href="https://www.1388.go.kr/cco/YTOSP_SC_CCH_01" target="_blank">🌐 채팅상담</a><br>☎ 1388</td>
+        </tr>
+        <tr>
+            <td><b>방송통신심의위원회</b></td>
+            <td>공식적인 삭제 요청! 명예훼손 게시물 공식 심의 및 삭제/차단 요청 가능</td>
+            <td>처리까지 한 달 이상 소요될 수 있고 긴급 상황엔 적합하지 않음</td>
+            <td>국내 사이트 게시물이 삭제되지 않을 때 공식적 조치 필요</td>
+            <td><a href="https://report.kocsc.or.kr/report/auth/digitalSexualAssault" target="_blank">🌐 딥페이크 신고</a><br>☎ 1377</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="help-tip">
+        <strong>딥페이크 피해 대응 TIP!</strong><br>
+        • <b>증거 확보 필수!</b> 피해 영상, 사진, URL을 꼭 저장해두세요.<br>
+        • <b>SNS 자체 신고 활용!</b> 인스타그램, 틱톡 등 SNS의 신고 기능도 즉시 사용하세요.
+    </div>
+    <div class="help-footer">
+        각 기관명 옆의 <b>🌐</b> 버튼을 클릭하면 해당 기관의 공식 홈페이지/상담/신고 페이지로 바로 이동합니다.<br>
+        상담/신고 전, 증거(영상, 사진, URL 등)를 미리 확보해두면 더욱 신속한 처리가 가능합니다.
+    </div>
+    <div style="margin-top:30px; text-align:right;">
+        <a href="{{ url_for('main.index') }}" style="color:#1976d2; font-weight:bold;">← 메인으로 돌아가기</a>
+    </div>
+</div>
+</body>
+</html> 

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>안심톡 디지털 증거 분석 보고서</title>
+  <style>
+    @font-face {
+      font-family: 'NanumGothic';
+      src: url('{{ url_for("static", filename="fonts/NanumGothic.ttf") }}') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    
+    body { 
+      font-family: 'NanumGothic', 'Malgun Gothic', 'Arial', sans-serif; 
+      margin: 40px; 
+      line-height: 1.6;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    
+    h1, h2, h3 { 
+      color: #1976d2; 
+      page-break-after: avoid;
+      page-break-inside: avoid;
+    }
+    
+    .code-block { 
+      font-family: 'Consolas', 'Monaco', monospace; 
+      background: #eee; 
+      padding: 8px; 
+      border-radius: 4px; 
+      word-break: break-all;
+      font-size: 11px;
+    }
+    
+    .highlight { 
+      color: #fff; 
+      background: #1976d2; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+    }
+    
+    table { 
+      border-collapse: collapse; 
+      width: 100%; 
+      margin: 10px 0; 
+      font-size: 11px;
+      page-break-inside: avoid;
+    }
+    
+    th, td { 
+      border: 1px solid #bbb; 
+      padding: 6px 8px; 
+      word-wrap: break-word;
+      max-width: 200px;
+    }
+    
+    th { 
+      background: #f5f5f5; 
+      font-weight: bold;
+    }
+    
+    img.evidence { 
+      max-width: 400px; 
+      margin: 10px 0; 
+      page-break-inside: avoid;
+    }
+    
+    .section { 
+      margin-bottom: 30px; 
+      page-break-inside: avoid; 
+    }
+    
+    ul { 
+      margin: 0 0 0 20px; 
+      page-break-inside: avoid;
+    }
+    
+    li {
+      margin-bottom: 5px;
+      word-wrap: break-word;
+    }
+    
+    .box { 
+      background: #f0f4ff; 
+      border-radius: 8px; 
+      padding: 12px; 
+      margin: 10px 0; 
+      page-break-inside: avoid;
+      word-wrap: break-word;
+    }
+    
+    .emph { 
+      font-weight: bold; 
+      color: #d32f2f; 
+    }
+    
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 10px;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    
+    /* 긴 텍스트 처리 */
+    .long-text {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+    }
+    
+    /* WeasyPrint footer for every page */
+    @page {
+      size: A4;
+      margin: 40px 40px 50px 40px;
+      @bottom-center {
+        content: element(report-footer);
+      }
+    }
+    
+    #report-footer {
+      position: running(report-footer);
+      font-size: 10px;
+      color: #888;
+      text-align: right;
+      width: 100%;
+    }
+    
+    /* 표 내용이 길 때 처리 */
+    .md-table {
+      font-size: 10px;
+    }
+    
+    .md-table th,
+    .md-table td {
+      max-width: 150px;
+      word-wrap: break-word;
+      vertical-align: top;
+    }
+  </style>
+</head>
+<body>
+  <div id="report-footer">
+    보고서ID: {{ report_id }} | 생성일시: {{ created_at }} | 플랫폼: {{ software_info.platform }} | 배포일: {{ software_info.release_date }}
+  </div>
+  <h1>안심톡 디지털 증거 분석 보고서</h1>
+  <div class="section">
+    <h2>1. 기본 정보</h2>
+    <ul>
+      <li><b>보고서 ID:</b> {{ report_id }}</li>
+      <li><b>생성일시:</b> {{ created_at }}</li>
+      <li><b>플랫폼 버전:</b> {{ software_info.platform }}</li>
+      <li><b>배포일:</b> {{ software_info.release_date }}</li>
+      <li><b>마지막 업데이트:</b> {{ software_info.last_updated }}</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h2>2. 분석에 사용된 AI 모델 전체 목록</h2>
+    <table>
+      <tr><th>분석 Task</th><th>모델명</th><th>버전</th><th>정확도</th></tr>
+      {% for m in ai_models %}
+      <tr>
+        <td>{{ m.task }}</td>
+        <td>{{ m.model }}</td>
+        <td>{{ m.version }}</td>
+        <td>{{ m.정확도 }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="section">
+    <h2>3. 분석 결과 요약</h2>
+    <div class="box" style="font-size: 1.1em;">
+      {% if analysis_type == 'chat' %}
+        <span style="color:#1976d2; font-weight:bold;">사이버폭력 분석 결과 요약</span><br>
+        <span style="color:#d32f2f; font-weight:bold; font-size:1.2em;">{{ ai_results.gemini.cyberbullying_label or '분석 결과 없음' }}</span>
+      {% elif analysis_type == 'deepfake' %}
+        <span style="color:#1976d2; font-weight:bold;">AI 딥페이크 분석 요약</span><br>
+        {% if ai_results.deepfake.score is defined and ai_results.deepfake.score is not none %}
+          <span>딥페이크일 확률: <b>{{ (ai_results.deepfake.score * 100) | round(1) }}%</b></span>
+        {% elif ai_results.deepfake.raw is defined and 'score' in ai_results.deepfake.raw and ai_results.deepfake.raw['score'] is not none %}
+          <span>딥페이크일 확률: <b>{{ (ai_results.deepfake.raw['score'] * 100) | round(1) }}%</b></span>
+        {% elif ai_results.deepfake.raw is defined and 'type' in ai_results.deepfake.raw and 'deepfake' in ai_results.deepfake.raw['type'] and ai_results.deepfake.raw['type']['deepfake'] is not none %}
+          <span>딥페이크일 확률: <b>{{ (ai_results.deepfake.raw['type']['deepfake'] * 100) | round(1) }}%</b></span>
+        {% else %}
+          <span>딥페이크일 확률: <b>N/A%</b></span>
+        {% endif %}
+      {% else %}
+        <div class="long-text">{{ analysis_summary or '분석 결과 요약이 제공되지 않았습니다.' }}</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="section">
+    <h2>4. 증거 파일 정보</h2>
+    <ul>
+      <li><b>파일명:</b> <span class="long-text">{{ original_file.filename }}</span></li>
+      <li><b>파일 유형:</b> {{ original_file.filetype }}</li>
+      <li><b>파일 크기:</b> {{ original_file.filesize }} Bytes</li>
+      <li><b>업로드 일시:</b> {{ original_file.uploaded_at }}</li>
+      <li><b>업로더 ID:</b> {{ original_file.uploader_id }}</li>
+      <li><b>업로드 IP:</b> {{ original_file.uploader_ip }}</li>
+      <li><b>원본 해시값 (SHA-256):</b> <span class="code-block">{{ original_file.sha256 }}</span></li>
+    </ul>
+    <h3>원본 파일 메타데이터</h3>
+    <ul>
+      {% for k, v in original_file.metadata.items() %}
+        <li><b>{{ k }}:</b> <span class="long-text">{{ v }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="section">
+    <h2>5. 연계 보관성(Chain of Custody)</h2>
+    <table>
+      <tr>
+        <th>단계</th>
+        <th>시각</th>
+        <th>서버/AI 정보</th>
+      </tr>
+      {% for log in analysis_log %}
+      <tr>
+        <td>{{ log.step }}</td>
+        <td>{{ log.timestamp }}</td>
+        <td class="long-text">
+          {{ log.server }}
+          {% if log.ai_model %} ({{ log.ai_model }} {{ log.version }}){% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="section">
+    <h2>6. AI 분석 결과</h2>
+    {% if analysis_type == 'deepfake' %}
+      <div class="box">
+        <b>딥페이크 분석 결과 (Deepfake-Detector):</b><br>
+        <div style="white-space:pre-line; background:#f0f0ff; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">
+          {{ ai_results.deepfake.analysis_summary or '분석 결과 없음' }}
+        </div>
+        <div style="margin-top:10px; font-size:11px; color:#555;">
+          <b>원본 분석 데이터:</b><br>
+          <pre style="background:#f8f8f8; border-radius:6px; padding:0.5em;">{{ ai_results.deepfake.raw | tojson(indent=2) }}</pre>
+        </div>
+      </div>
+    {% elif analysis_type == 'chat' %}
+      <div class="box">
+        <b>추출 텍스트(OCR):</b><br>
+        <div style="white-space:pre-line; background:#f8f8f8; padding:0.5em; border-radius:6px; font-size: 11px;" class="long-text">{{ ai_results.ocr.extracted_text or '없음' }}</div>
+      </div>
+      <div class="box">
+        <b>사이버폭력 분석 결과(Gemini):</b><br>
+        <div style="white-space:pre-line; line-height:1.6; font-size: 11px;" class="long-text">
+          {{ ai_results.gemini.cyberbullying_analysis | pipe_table_to_html | safe }}
+        </div>
+      </div>
+      <div class="box" style="margin-top:10px; white-space:pre-line; line-height:1.6; font-size: 11px;" class="long-text">
+        {{ ai_results.gemini.cyberbullying_analysis_summary }}
+      </div>
+    {% endif %}
+  </div>
+  <div class="section">
+    <h2>7. 원본 증거 이미지</h2>
+    {% if image_path %}
+      <img class="evidence" src="{{ image_path }}" alt="증거 이미지"/>
+      {% if highlight_regions %}
+        <div style="color:#1976d2; font-size:12px;">* 하이라이트: 
+          {% for region in highlight_regions %}
+            [{{ region.label }}: x={{ region.x }}, y={{ region.y }}, w={{ region.width }}, h={{ region.height }}]
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% else %}
+      <p>이미지 없음</p>
+    {% endif %}
+  </div>
+  <div class="section">
+    <h2>8. 무결성 및 법적 검증</h2>
+    <ul>
+      <li><b>원본(이미지) 해시값:</b> <span class="code-block">{{ original_file.sha256 }}</span></li>
+      <br><br>
+      <li><b>PDF 해시값:</b> <span class="code-block">{{ pdf_sha256 }}</span></li>
+      <br>
+      <li><b>법적 책임 선언:</b> <span class="long-text">{{ legal_disclaimer }}</span></li>
+    </ul>
+  </div>
+</body>
+</html> 
