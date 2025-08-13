@@ -1,7 +1,7 @@
 import os
 import uuid
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, flash, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, flash, send_file, jsonify
 from werkzeug.utils import secure_filename
 from .services import analyze_file, generate_pdf_report
 import shutil
@@ -331,3 +331,104 @@ def reset():
     # 세션 클리어
     session.clear()
     return redirect(url_for('main.index'))
+
+# =============================
+# JSON API (for Mobile clients)
+# =============================
+
+@bp.route('/api/health', methods=['GET'])
+def api_health():
+    try:
+        status = {
+            "environment": "production",
+            "service": "AnsimTalk AI Forensic Analysis",
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+        }
+        return jsonify(status), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+
+
+def _save_upload_to_tmp(upload_file):
+    original_filename = secure_filename(upload_file.filename)
+    file_extension = original_filename.rsplit('.', 1)[1].lower()
+    unique_filename = f"{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file_extension}"
+    tmp_dir = os.path.join(os.getcwd(), 'tmp')
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+    file_path = os.path.join(tmp_dir, unique_filename)
+    upload_file.save(file_path)
+    return file_path, original_filename, file_extension
+
+
+def _json_error(message: str, code: int = 400):
+    return jsonify({"success": False, "error": message}), code
+
+
+@bp.route('/api/analyze_deepfake', methods=['POST'])
+def api_analyze_deepfake():
+    try:
+        if 'file' not in request.files:
+            return _json_error('file 필드가 필요합니다.', 400)
+        file = request.files['file']
+        if file.filename == '':
+            return _json_error('파일명이 비어있습니다.', 400)
+        if not allowed_file(file.filename):
+            return _json_error('허용되지 않는 파일 형식입니다. (png, jpg, jpeg, txt)', 400)
+
+        # 크기 제한 확인 (5MB)
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)
+        if file_size > MAX_FILE_SIZE:
+            return _json_error('파일 크기가 5MB를 초과합니다.', 413)
+
+        file_path, original_filename, file_extension = _save_upload_to_tmp(file)
+        result = analyze_file(file_path, 'deepfake', file_extension)
+
+        # 앱의 데이터 모델과 호환되는 필드 보강
+        result.setdefault('extracted_text', None)
+        result.setdefault('cyberbullying_analysis', None)
+        result.setdefault('cyberbullying_analysis_summary', None)
+        result.setdefault('cyberbullying_risk_line', None)
+        result.setdefault('error', None)
+        result['success'] = 'error' not in result
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.exception(e)
+        return _json_error(str(e), 500)
+
+
+@bp.route('/api/analyze_cyberbullying', methods=['POST'])
+def api_analyze_cyberbullying():
+    try:
+        if 'file' not in request.files:
+            return _json_error('file 필드가 필요합니다.', 400)
+        file = request.files['file']
+        if file.filename == '':
+            return _json_error('파일명이 비어있습니다.', 400)
+        if not allowed_file(file.filename):
+            return _json_error('허용되지 않는 파일 형식입니다. (png, jpg, jpeg, txt)', 400)
+
+        # 크기 제한 확인 (5MB)
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)
+        if file_size > MAX_FILE_SIZE:
+            return _json_error('파일 크기가 5MB를 초과합니다.', 413)
+
+        file_path, original_filename, file_extension = _save_upload_to_tmp(file)
+        result = analyze_file(file_path, 'cyberbullying', file_extension)
+
+        result.setdefault('extracted_text', None)
+        result.setdefault('cyberbullying_analysis', None)
+        result.setdefault('cyberbullying_analysis_summary', None)
+        result.setdefault('cyberbullying_risk_line', None)
+        result.setdefault('error', None)
+        result['success'] = 'error' not in result
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.exception(e)
+        return _json_error(str(e), 500)
