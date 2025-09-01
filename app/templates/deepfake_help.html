@@ -2,82 +2,388 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>딥페이크 피해 상담/신고 안내</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>딥페이크 피해, '속도'가 생명입니다</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        .help-container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #eee; padding: 32px; }
-        .help-title { font-size: 1.7em; font-weight: bold; color: #b71c1c; margin-bottom: 10px; }
-        .help-desc { font-size: 1.1em; margin-bottom: 24px; }
-        .help-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-        .help-table th, .help-table td { border: 1px solid #e0e0e0; padding: 12px 8px; text-align: left; }
-        .help-table th { background: #f5f5f5; color: #333; }
-        .help-table td a { text-decoration: none; font-weight: bold; color: #1976d2; }
-        .help-table td a:hover { text-decoration: underline; }
-        .help-tip { background: #fffde7; border-left: 6px solid #ffd600; padding: 14px 18px; margin-bottom: 18px; font-size: 1.05em; }
-        .help-tip strong { color: #b71c1c; }
-        .help-footer { font-size: 0.98em; color: #666; margin-top: 18px; }
-        @media (max-width: 700px) { .help-container { padding: 10px; } .help-table th, .help-table td { font-size: 0.95em; } }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .help-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 40px;
+            position: relative;
+        }
+        
+        .main-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .intro-text {
+            font-size: 1.2em;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .encouragement-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 35px;
+            border-left: 5px solid #ff9800;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .encouragement-text {
+            font-size: 1.1em;
+            color: #e65100;
+            text-align: center;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .help-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .help-table th {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .help-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+            line-height: 1.5;
+        }
+        
+        .help-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .help-table tr:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .org-name {
+            font-weight: bold;
+            color: #1976d2;
+            font-size: 1.1em;
+        }
+        
+        .priority-label {
+            background: #f44336;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+        
+        .contact-icon {
+            width: 20px;
+            height: 20px;
+            background: #1976d2;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+        }
+        
+        .help-tips {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #ff9800;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .help-tips h3 {
+            color: #e65100;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .help-tips ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .help-tips li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .help-tips strong {
+            color: #e65100;
+        }
+        
+        .preparation {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid #9c27b0;
+        }
+        
+        .preparation h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .preparation ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .preparation li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .back-button {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .help-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .main-title {
+                font-size: 2em;
+            }
+            
+            .help-table {
+                font-size: 0.9em;
+            }
+            
+            .help-table th,
+            .help-table td {
+                padding: 12px 8px;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="help-container">
-    <div class="help-title">딥페이크 피해, 어디에 도움을 청할까?</div>
-    <div class="help-desc">
-        내 얼굴이 이상한 사진이나 영상에 합성되어 퍼지고 있다면, 가장 중요한 건 <b>‘빠른 삭제’와 ‘확산 방지’</b>예요.<br>
-        나에게 맞는 기관을 빠르게 선택해 도움을 요청하세요.
-    </div>
+    <h1 class="main-title">딥페이크 피해, '속도'가 생명입니다</h1>
+    
+    <p class="intro-text">
+        내 얼굴이 합성된 사진·영상이 퍼지고 있다면, 단 1초라도 빨리 삭제하고 확산을 막는 것이 가장 중요합니다. 골든타임을 놓치지 않도록, 지금 바로 도움을 요청하세요.
+    </p>
+    
     <table class="help-table">
         <thead>
-        <tr>
-            <th>기관 이름</th>
-            <th>이런 도움을 줘요!</th>
-            <th>꼭 알아두세요!</th>
-            <th>이런 상황에 딱이에요!</th>
-            <th>바로 가기</th>
-        </tr>
+            <tr>
+                <th>기관 이름</th>
+                <th>이런 도움을 줘요! (What)</th>
+                <th>이런 상황에 가장 먼저! (When)</th>
+                <th>바로 가기</th>
+            </tr>
         </thead>
         <tbody>
-        <tr>
-            <td><b>디지털성범죄 피해자 지원센터</b></td>
-            <td>삭제 전문가! 피해 영상 삭제, 유포 현황 실시간 모니터링 지원(무료)</td>
-            <td>삭제 요청만 가능, 해외 사이트는 처리 지연될 수 있음. 증거 제출 필요</td>
-            <td>내 합성 사진/영상이 인터넷에 퍼지고 있을 때 가장 먼저!</td>
-            <td><a href="https://d4u.stop.or.kr/write_consulting" target="_blank">🌐 상담 신청</a><br>02-735-8994</td>
-        </tr>
-        <tr>
-            <td><b>117 학교폭력 신고센터</b></td>
-            <td>강력한 법적 조치! 경찰이 직접 가해자 수사 및 처벌, 긴급 보호 지원</td>
-            <td>경찰 개입으로 부모님이나 학교에 알려질 가능성 있음</td>
-            <td>반드시 가해자를 처벌하거나 신변 위험이 느껴질 때</td>
-            <td><a href="https://www.safe182.go.kr/pot/selectRptList.do?rptTyGubun=09" target="_blank">🌐 온라인 신고</a><br>☎ 117<br>#0117 (문자)</td>
-        </tr>
-        <tr>
-            <td><b>1388 청소년 상담복지센터</b></td>
-            <td>마음의 응급처치! 365일 언제나 익명으로 내 고민/위기 마음 안정 지원</td>
-            <td>상담 중심으로 직접적인 삭제나 처벌 불가, 추가 조치 필요</td>
-            <td>불안하고 힘들 때, 누구하고 즉시 이야기하고 싶을 때</td>
-            <td><a href="https://www.1388.go.kr/cco/YTOSP_SC_CCH_01" target="_blank">🌐 채팅상담</a><br>☎ 1388</td>
-        </tr>
-        <tr>
-            <td><b>방송통신심의위원회</b></td>
-            <td>공식적인 삭제 요청! 명예훼손 게시물 공식 심의 및 삭제/차단 요청 가능</td>
-            <td>처리까지 한 달 이상 소요될 수 있고 긴급 상황엔 적합하지 않음</td>
-            <td>국내 사이트 게시물이 삭제되지 않을 때 공식적 조치 필요</td>
-            <td><a href="https://report.kocsc.or.kr/report/auth/digitalSexualAssault" target="_blank">🌐 딥페이크 신고</a><br>☎ 1377</td>
-        </tr>
+            <tr>
+                <td class="org-name">디지털성범죄<br>피해자 지원센터</td>
+                <td>
+                    <strong>AI가 못 찾는 곳까지! 24시간 삭제/유포 추적</strong><br>
+                    • 피해 영상물 삭제 및 유포 현황 모니터링 (무료)<br>
+                    • 심리 상담, 법률·의료 지원 연계
+                </td>
+                <td>
+                    내 영상이 인터넷에 퍼지기 시작했을 때<br>
+                    주저 말고 가장 먼저 연락해야 할 곳
+                    <div class="priority-label">최우선</div>
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <span>상담 신청</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>02-735-8994</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="org-name">117 학교폭력<br>신고센터</td>
+                <td>
+                    <strong>가해자 추적 및 처벌! 경찰이 즉시 수사에 착수해요</strong><br>
+                    • 경찰의 직접 수사 및 가해자 처벌<br>
+                    • 긴급보호, 접근금지 등 신변 보호 조치
+                </td>
+                <td>
+                    가해자를 반드시 처벌하고 싶거나,<br>
+                    신변에 위협을 느낄 때
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <span>온라인 신고</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>117</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📱</span>
+                            <span>#0117 (문자)</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="org-name">1388 청소년<br>상담복지센터</td>
+                <td>
+                    <strong>괜찮아, 네 잘못이 아니야. 365일 비밀 상담</strong><br>
+                    • 24시간 익명 보장, 심리적 응급처치<br>
+                    • 불안감 해소 및 마음 안정 지원
+                </td>
+                <td>
+                    너무 불안하고 무서워서<br>
+                    누구와든 즉시 이야기하고 싶을 때
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <span>채팅 상담</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>1388</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="org-name">방송통신<br>심의위원회</td>
+                <td>
+                    <strong>삭제되지 않는 게시물, 국가가 직접 차단!</strong><br>
+                    • 국내 사이트 대상 공식 심의 및 차단/삭제 요청<br>
+                    • (*처리 기간이 길어 긴급 대응에는 부적합)
+                </td>
+                <td>
+                    개인적으로 삭제 요청을 했지만<br>
+                    사이트에서 삭제해주지 않을 때
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📄</span>
+                            <span>딥페이크 신고</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>1377</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
         </tbody>
     </table>
-    <div class="help-tip">
-        <strong>딥페이크 피해 대응 TIP!</strong><br>
-        • <b>증거 확보 필수!</b> 피해 영상, 사진, URL을 꼭 저장해두세요.<br>
-        • <b>SNS 자체 신고 활용!</b> 인스타그램, 틱톡 등 SNS의 신고 기능도 즉시 사용하세요.
+    
+    <div class="help-tips">
+        <h3>⚡️ 딥페이크 대응, 이것만은 꼭!</h3>
+        <ul>
+            <li><strong>원본 증거는 생명!</strong> 절대 삭제하지 말고, 화면 전체가 나오게 URL 주소와 함께 캡처·녹화해서 원본 파일을 꼭 저장하세요.</li>
+            <li><strong>플랫폼 자체 신고는 기본!</strong> 인스타그램, 틱톡 등 SNS의 자체 신고 기능을 가장 먼저 활용하는 것이 효과적일 수 있습니다.</li>
+            <li><strong>가해자에게 절대 반응하지 마세요!</strong> 협박이나 회유에 응하면 더 큰 피해로 이어질 수 있습니다. 즉시 전문가와 상의하세요.</li>
+        </ul>
     </div>
-    <div class="help-footer">
-        각 기관명 옆의 <b>🌐</b> 버튼을 클릭하면 해당 기관의 공식 홈페이지/상담/신고 페이지로 바로 이동합니다.<br>
-        상담/신고 전, 증거(영상, 사진, URL 등)를 미리 확보해두면 더욱 신속한 처리가 가능합니다.
+    
+    <div class="preparation">
+        <h3>💡 상담/신고 전 준비사항:</h3>
+        <ul>
+            <li>증거(영상, 사진, URL 등)를 미리 확보해두면 더욱 신속한 처리가 가능합니다</li>
+            <li>각 기관명 옆의 🌐 버튼을 클릭하면 해당 기관의 공식 홈페이지로 바로 이동합니다</li>
+            <li>상담은 24시간 가능하니, 너무 늦었다고 생각하지 마세요</li>
+        </ul>
     </div>
-    <div style="margin-top:30px; text-align:right;">
-        <a href="{{ url_for('main.index') }}" style="color:#1976d2; font-weight:bold;">← 메인으로 돌아가기</a>
+    
+    <div class="back-button">
+        <a href="{{ url_for('main.index') }}" class="back-btn">메인으로 돌아가기</a>
     </div>
 </div>
 </body>
