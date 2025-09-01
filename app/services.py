@@ -687,7 +687,14 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     # 원본 이미지 경로 찾기 - 개선된 방식
     original_image_path = analysis_result.get('original_image_path', '')
     
-    # 파일명으로 이미지 찾기
+    # 세션에서 저장된 경로 정보 활용
+    if not original_image_path:
+        # 분석 결과에서 직접 경로 정보 확인
+        original_image_path = analysis_result.get('static_file_path', '')
+        if not original_image_path:
+            original_image_path = analysis_result.get('uploaded_file_path', '')
+    
+    # 파일명으로 이미지 찾기 (fallback)
     if not original_image_path and 'filename' in original_file:
         filename = original_file['filename']
         # Railway 환경을 고려한 절대 경로와 상대 경로 모두 확인
@@ -1154,7 +1161,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         
         <div class="section">
             <h2>7. 원본 증거 이미지</h2>
-            {f'<img class="evidence" src="file://{original_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if original_image_path and os.path.exists(original_image_path) else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p><p>웹 경로: {web_image_path}</p><p>현재 작업 디렉토리: {os.getcwd()}</p><p>분석 결과 file_path: {analysis_result.get("file_path", "N/A")}</p><p>분석 결과 upload_path: {analysis_result.get("upload_path", "N/A")}</p></div>'}
+            {f'<img class="evidence" src="file://{original_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if original_image_path and os.path.exists(original_image_path) else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p><p>웹 경로: {web_image_path}</p><p>현재 작업 디렉토리: {os.getcwd()}</p><p>분석 결과 file_path: {analysis_result.get("file_path", "N/A")}</p><p>분석 결과 upload_path: {analysis_result.get("upload_path", "N/A")}</p><p>분석 결과 original_image_path: {analysis_result.get("original_image_path", "N/A")}</p></div>'}
             <div style="color:#1976d2; font-size:12px; margin-top:10px;">
                 * 위 이미지는 분석 대상 원본 증거물입니다.
             </div>

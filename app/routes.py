@@ -190,6 +190,11 @@ def _handle_file_upload_and_analysis(analysis_type):
             analysis_result['file_size_bytes'] = file_stat.st_size
             analysis_result['file_size_mb'] = round(file_stat.st_size / (1024 * 1024), 2)
             
+            # 파일 경로 정보 추가 (PDF 생성용)
+            analysis_result['file_path'] = file_path
+            analysis_result['upload_path'] = static_file_path
+            analysis_result['original_image_path'] = static_file_path
+            
             # 이미지 크기 정보 추가
             if file_extension in {'jpg', 'jpeg', 'png'}:
                 try:
