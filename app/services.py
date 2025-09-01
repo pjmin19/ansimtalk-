@@ -799,13 +799,13 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important;
             }}
             
-            h1, h2, h3 {{ 
-                color: #1976d2; 
-                page-break-after: avoid; 
-                page-break-inside: avoid; 
-                margin-top: 30px;
-                margin-bottom: 15px;
-            }}
+                         h1, h2, h3 {{ 
+                 color: #1976d2; 
+                 page-break-after: auto; 
+                 page-break-inside: auto; 
+                 margin-top: 30px;
+                 margin-bottom: 15px;
+             }}
             
             .code-block {{ 
                 font-family: 'Consolas', 'Monaco', monospace; 
@@ -817,13 +817,13 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 border: 1px solid #ddd;
             }}
             
-            table {{ 
-                border-collapse: collapse; 
-                width: 100%; 
-                margin: 15px 0; 
-                font-size: 12px; 
-                page-break-inside: avoid; 
-            }}
+                         table {{ 
+                 border-collapse: collapse; 
+                 width: 100%; 
+                 margin: 15px 0; 
+                 font-size: 12px; 
+                 page-break-inside: auto; 
+             }}
             
             th, td {{ 
                 border: 1px solid #ddd; 
@@ -838,50 +838,49 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 color: #495057;
             }}
             
-            img.evidence {{ 
-                max-width: 400px; 
-                max-height: 500px; 
-                margin: 15px 0; 
-                page-break-inside: avoid; 
-                border: 1px solid #ddd; 
-                border-radius: 4px; 
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }}
+                         img.evidence {{ 
+                 max-width: 400px; 
+                 max-height: 500px; 
+                 margin: 15px 0; 
+                 page-break-inside: auto; 
+                 border: 1px solid #ddd; 
+                 border-radius: 4px; 
+                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+             }}
             
-            .section {{ 
-                margin-bottom: 40px; 
-                page-break-inside: avoid; 
-            }}
+                         .section {{ 
+                 margin-bottom: 40px; 
+                 page-break-inside: auto; 
+             }}
             
-            .box {{ 
-                background: #f0f4ff; 
-                border-radius: 8px; 
-                padding: 15px; 
-                margin: 15px 0; 
-                page-break-inside: avoid; 
-                word-wrap: break-word; 
-                border-left: 4px solid #1976d2;
-            }}
+                         .box {{ 
+                 background: #f0f4ff; 
+                 border-radius: 8px; 
+                 padding: 15px; 
+                 margin: 15px 0; 
+                 page-break-inside: auto; 
+                 word-wrap: break-word; 
+                 border-left: 4px solid #1976d2;
+             }}
             
-            .extracted-text {{
-                background: #f8f9fa;
-                border: 1px solid #e9ecef;
-                border-radius: 4px;
-                padding: 15px;
-                margin: 15px 0;
-                font-family: 'Consolas', 'Monaco', monospace;
-                font-size: 13px;
-                line-height: 1.4;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                word-break: break-all;
-                max-height: 300px;
-                overflow-y: auto;
-                overflow-x: hidden;
-                column-count: 2;
-                column-gap: 20px;
-                column-fill: balance;
-            }}
+                         .extracted-text {{
+                 background: #f8f9fa;
+                 border: 1px solid #e9ecef;
+                 border-radius: 4px;
+                 padding: 15px;
+                 margin: 15px 0;
+                 font-family: 'Consolas', 'Monaco', monospace;
+                 font-size: 13px;
+                 line-height: 1.4;
+                 white-space: pre-wrap;
+                 word-wrap: break-word;
+                 word-break: break-all;
+                 overflow-x: hidden;
+                 column-count: 2;
+                 column-gap: 20px;
+                 column-fill: balance;
+                 page-break-inside: auto;
+             }}
             
             .analysis-result {{
                 background: #fff3cd;
@@ -893,13 +892,13 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 color: #856404;
             }}
             
-            .analysis-table {{
-                border-collapse: collapse;
-                width: 100%;
-                margin: 15px 0;
-                font-size: 11px;
-                page-break-inside: avoid;
-            }}
+                         .analysis-table {{
+                 border-collapse: collapse;
+                 width: 100%;
+                 margin: 15px 0;
+                 font-size: 11px;
+                 page-break-inside: auto;
+             }}
             
             .analysis-table th, .analysis-table td {{
                 border: 1px solid #ddd;
@@ -1147,15 +1146,15 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', 'N/A')}
             </div>
             
-            <h3>상세 분석 결과:</h3>
-            <div class="box" style="font-size: 13px; line-height: 1.4; max-height: 300px; overflow-y: auto;">
-                {cyberbullying_analysis if cyberbullying_analysis else '분석 결과가 없습니다.'}
-            </div>
-            
-            <h3>전체 분석 요약:</h3>
-            <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745; font-size: 13px; line-height: 1.4;">
-                {cyberbullying_summary.replace('\n', '<br>') if cyberbullying_summary else '분석 결과가 없습니다.'}
-            </div>
+                         <h3>상세 분석 결과:</h3>
+             <div class="box" style="font-size: 13px; line-height: 1.4; page-break-inside: auto;">
+                 {cyberbullying_analysis if cyberbullying_analysis else '분석 결과가 없습니다.'}
+             </div>
+             
+             <h3>전체 분석 요약:</h3>
+             <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745; font-size: 13px; line-height: 1.4; page-break-inside: auto;">
+                 {cyberbullying_summary.replace('\n', '<br>') if cyberbullying_summary else '분석 결과가 없습니다.'}
+             </div>
             '''}
         </div>
         
