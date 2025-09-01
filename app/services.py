@@ -1018,7 +1018,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <div class="section">
             <h2>3. 분석 결과 요약</h2>
             <div class="analysis-result">
-                {f'<strong>딥페이크 분석 결과 요약:</strong><br>딥페이크일 확률: {analysis_result.get("deepfake_analysis", {}).get("type", {}).get("deepfake", 0):.1%}' if analysis_type == 'deepfake' else f'<strong>사이버폭력 분석 결과 요약:</strong><br>전체 대화 사이버폭력 위험도: {analysis_result.get("cyberbullying_risk_line", "N/A")}'}
+                {f'<strong>딥페이크 분석 결과 요약:</strong><br>딥페이크일 확률: {analysis_result.get("deepfake_analysis", {}).get("type", {}).get("deepfake", 0):.1%}' if analysis_type == 'deepfake' else f'<strong>사이버폭력 분석 결과 요약:</strong><br>{cyberbullying_summary.replace(chr(10), "<br>") if cyberbullying_summary else "분석 결과가 없습니다."}'}
             </div>
         </div>
         
