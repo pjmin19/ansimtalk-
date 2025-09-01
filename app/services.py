@@ -1117,12 +1117,12 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             
             <h3>상세 분석 결과:</h3>
             <div class="box">
-                {analysis_result.get('cyberbullying_analysis', '분석 중...') if analysis_result.get('cyberbullying_analysis') else '분석 결과가 없습니다.'}
+                {cyberbullying_analysis if cyberbullying_analysis else '분석 결과가 없습니다.'}
             </div>
             
             <h3>전체 분석 요약:</h3>
             <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745;">
-                {analysis_result.get('cyberbullying_analysis_summary', '분석 결과가 없습니다.').replace('\n', '<br>')}
+                {cyberbullying_summary.replace('\n', '<br>') if cyberbullying_summary else '분석 결과가 없습니다.'}
             </div>
             '''}
         </div>
