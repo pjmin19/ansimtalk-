@@ -2,77 +2,367 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>사이버폭력·따돌림, 어떻게 대처할까?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사이버폭력, '기록'이 무기입니다</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        .help-container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #eee; padding: 32px; }
-        .help-title { font-size: 1.7em; font-weight: bold; color: #b71c1c; margin-bottom: 10px; }
-        .help-desc { font-size: 1.1em; margin-bottom: 24px; }
-        .help-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-        .help-table th, .help-table td { border: 1px solid #e0e0e0; padding: 12px 8px; text-align: left; }
-        .help-table th { background: #f5f5f5; color: #333; }
-        .help-table td a { text-decoration: none; font-weight: bold; color: #1976d2; }
-        .help-table td a:hover { text-decoration: underline; }
-        .help-tip { background: #fffde7; border-left: 6px solid #ffd600; padding: 14px 18px; margin-bottom: 18px; font-size: 1.05em; }
-        .help-tip strong { color: #b71c1c; }
-        .help-footer { font-size: 0.98em; color: #666; margin-top: 18px; }
-        @media (max-width: 700px) { .help-container { padding: 10px; } .help-table th, .help-table td { font-size: 0.95em; } }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .help-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 40px;
+            position: relative;
+        }
+        
+        .main-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .intro-text {
+            font-size: 1.2em;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .encouragement-box {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 35px;
+            border-left: 5px solid #4caf50;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .encouragement-text {
+            font-size: 1.1em;
+            color: #2e7d32;
+            text-align: center;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .help-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .help-table th {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .help-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+            line-height: 1.5;
+        }
+        
+        .help-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .help-table tr:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .org-name {
+            font-weight: bold;
+            color: #1976d2;
+            font-size: 1.1em;
+        }
+        
+        .priority-label {
+            background: #f44336;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+        
+        .contact-icon {
+            width: 20px;
+            height: 20px;
+            background: #1976d2;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+        }
+        
+        .help-tips {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #ff9800;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .help-tips h3 {
+            color: #e65100;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .help-tips ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .help-tips li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .help-tips strong {
+            color: #e65100;
+        }
+        
+        .preparation {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid #9c27b0;
+        }
+        
+        .preparation h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .preparation ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .preparation li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .back-button {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .help-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .main-title {
+                font-size: 2em;
+            }
+            
+            .help-table {
+                font-size: 0.9em;
+            }
+            
+            .help-table th,
+            .help-table td {
+                padding: 12px 8px;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="help-container">
-    <div class="help-title">사이버폭력·따돌림, 어떻게 대처할까?</div>
-    <div class="help-desc">
-        온라인에서 욕설, 따돌림 등 괴롭힘을 당했다면, 가장 중요한 건 <b>'내 마음 챙기기'</b>와 <b>'확실한 증거 확보하기'</b>예요.<br>
-        참지 말고 바로 도움을 요청해 보세요.
+    <h1 class="main-title">사이버폭력, '기록'이 무기입니다</h1>
+    
+    <p class="intro-text">
+        온라인에서 욕설, 따돌림을 당했다면, 감정적인 대응보다 모든 상황을 빠짐없이 기록하여 나를 지킬 증거를 확보하는 것이 가장 중요합니다
+    </p>
+    
+    <div class="encouragement-box">
+        <p class="encouragement-text">
+            혼자 참지 말고, 안전한 방법으로 도움을 요청하세요. 괜찮아요, 당신의 잘못이 아니에요. 함께 해결해 나갈 방법을 찾아보아요.
+        </p>
     </div>
+    
     <table class="help-table">
         <thead>
-        <tr>
-            <th>기관 이름</th>
-            <th>이런 도움을 줘요!</th>
-            <th>꼭 알아두세요!</th>
-            <th>이런 상황에 딱이에요!</th>
-            <th>바로 가기</th>
-        </tr>
+            <tr>
+                <th>기관 이름</th>
+                <th>이런 도움을 줘요! (What)</th>
+                <th>이런 상황에 가장 먼저! (When)</th>
+                <th>바로 가기</th>
+            </tr>
         </thead>
         <tbody>
-        <tr>
-            <td><b>1388 청소년 상담복지센터</b></td>
-            <td>✅ 익명 상담! 365일 언제든 내 고민 듣고 마음 안정 도와줌</td>
-            <td>⚠️ 가해자 처벌이나 직접적 조치는 불가능, 추가 신고 필요</td>
-            <td>마음이 힘들고 어떻게 할지 모르겠을 때 가장 먼저!</td>
-            <td>📞 1388<br>📱 #1388 (문자)<br>💬 <a href="https://www.1388.go.kr/cco/YTOSP_SC_CCH_01" target="_blank">채팅 상담</a></td>
-        </tr>
-        <tr>
-            <td><b>117 학교폭력 신고센터</b></td>
-            <td>✅ 즉시 중단 가능! 경찰이 즉각 개입해 괴롭힘 중단 및 보호 지원</td>
-            <td>⚠️ 경찰 개입으로 학교에 알려질 수 있음, 친구 관계가 신경 쓰인다면 신중하게 결정</td>
-            <td>지속적인 괴롭힘을 당장 멈추고 싶은 긴급 상황일 때</td>
-            <td>📞 117<br>📱 #0117 (문자)<br>🌐 <a href="https://www.safe182.go.kr/pot/selectRptList.do?rptTyGubun=09" target="_blank">온라인 신고</a></td>
-        </tr>
-
-        <tr>
-            <td><b>경찰청 사이버범죄 신고시스템(ECRM)</b></td>
-            <td>✅ 정식 수사 가능! 온라인으로 협박, 명예훼손 등 법적 조치 가능</td>
-            <td>⚠️ 신고서 작성 및 증거 필요, 법적 절차가 부담될 수 있음</td>
-            <td>법적 처벌이 필요할 만큼 심각한 피해를 입었을 때</td>
-            <td>🌐 <a href="https://ecrm.police.go.kr/sci/pcc_V3_send?rp=c" target="_blank">온라인 신고</a></td>
-        </tr>
+            <tr>
+                <td class="org-name">1388 청소년 상담복지센터</td>
+                <td>
+                    <strong>네 편이 되어줄게. 365일 익명 고민상담소</strong><br>
+                    • 전문가의 심리 상담 및 마음 안정 지원<br>
+                    • 어떻게 대처할지 함께 계획 수립
+                </td>
+                <td>
+                    마음이 너무 힘들고, 어떻게 시작해야 할지 막막할 때
+                    <div class="priority-label">최우선</div>
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>1388</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">💬</span>
+                            <span>#1388 (문자)</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">💬</span>
+                            <span>채팅 상담</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="org-name">117 학교폭력 신고센터</td>
+                <td>
+                    <strong>괴롭힘, 경찰이 즉시 멈춰줘요!</strong><br>
+                    • 경찰의 즉각적인 개입으로 폭력 중단 및 보호<br>
+                    • (*학교/부모님께 알려질 수 있으니 신중히 결정)
+                </td>
+                <td>
+                    지속적인 괴롭힘을 당장 멈추고 싶을 때 (긴급 상황)
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>117</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">💬</span>
+                            <span>#0117 (문자)</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <span>온라인 신고</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="org-name">경찰청 사이버범죄 신고시스템 (ECRM)</td>
+                <td>
+                    <strong>법적으로 끝내고 싶을 때, 확실한 증거로 신고!</strong><br>
+                    • 온라인 명예훼손, 협박 등 정식 수사 요청<br>
+                    • (*법적 절차가 부담될 수 있음)
+                </td>
+                <td>
+                    모욕, 협박의 수위가 심각하여 가해자의 법적 처벌을 원할 때
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <span>온라인 신고</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
         </tbody>
     </table>
-    <div class="help-tip">
-        <strong>사이버폭력 대응 TIP!</strong><br>
-        • <b>확실한 증거 필수!</b> 욕설이나 따돌림 화면을 날짜와 함께 캡처해 보관하세요.<br>
-        • <b>학교에도 알리기!</b> 담임 선생님이나 학교전담경찰관(SPO)에게도 알려 도움을 요청하세요.<br>
-        • <b>플랫폼 신고 꼭 활용!</b> SNS, 게임 채팅 내 신고 기능도 즉시 사용하면 신속한 조치가 가능합니다.
+    
+    <div class="help-tips">
+        <h3>💡 Cyberbullying Response, This is a Must!</h3>
+        <ul>
+            <li><strong>증거는 완벽하게!</strong> 누가, 언제, 어디서, 어떤 말을 했는지 명확히 보이도록 전체 대화 내용과 상대방 프로필, 날짜와 시간이 모두 나오게 캡처하세요.</li>
+            <li><strong>학교에 알려 도움받기!</strong> 혼자 해결하기 어렵다면, 담임 선생님이나 가장 신뢰하는 선생님, 학교전담경찰관 (SPO)에게 알려 공식적인 도움을 받으세요.</li>
+            <li><strong>플랫폼 신고 기능 활용!</strong> SNS, 게임 채팅의 신고/차단 기능을 활용해 가해자가 더 이상 접근하지 못하도록 즉시 조치하세요.</li>
+        </ul>
     </div>
-    <div class="help-footer">
-        각 기관명 옆의 <b>🌐</b> 버튼을 클릭하면 해당 기관의 공식 홈페이지/상담/신고 페이지로 바로 이동합니다.<br>
-        상담/신고 전, 증거(화면 캡처 등)를 미리 확보해두면 더욱 신속한 처리가 가능합니다.
+    
+    <div class="preparation">
+        <h3>💡 Preparation before counseling/reporting:</h3>
+        <ul>
+            <li>증거(화면 캡처 등)를 미리 확보해두면 더욱 신속한 처리가 가능합니다</li>
+            <li>각 기관명 옆의 🌐 버튼을 클릭하면 해당 기관의 공식 홈페이지로 바로 이동합니다</li>
+            <li>상담은 24시간 가능하니, 너무 늦었다고 생각하지 마세요</li>
+        </ul>
     </div>
-    <div style="margin-top:30px; text-align:right;">
-        <a href="{{ url_for('main.index') }}" style="color:#1976d2; font-weight:bold;">← 메인으로 돌아가기</a>
+    
+    <div class="back-button">
+        <a href="{{ url_for('main.index') }}" class="back-btn">← 메인으로 돌아가기</a>
     </div>
 </div>
 </body>
