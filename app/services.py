@@ -684,7 +684,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     file_size = str(original_file.get('size_bytes', 'N/A'))
     sha256 = str(analysis_result.get('sha256', 'N/A'))
     
-    # 원본 이미지 경로 찾기 - 간단한 방식으로 수정
+    # 원본 이미지 경로 찾기 - 개선된 방식
     original_image_path = analysis_result.get('original_image_path', '')
     
     # 파일명으로 이미지 찾기
@@ -699,7 +699,12 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             os.path.join('app', 'static', 'uploads', filename),
             os.path.join('static', 'uploads', filename),
             os.path.join('tmp', filename),
-            os.path.join('uploads', filename)
+            os.path.join('uploads', filename),
+            # 현재 작업 디렉토리 기준
+            os.path.join(os.getcwd(), 'app', 'static', 'uploads', filename),
+            os.path.join(os.getcwd(), 'static', 'uploads', filename),
+            os.path.join(os.getcwd(), 'tmp', filename),
+            os.path.join(os.getcwd(), 'uploads', filename)
         ]
         
         for path in possible_paths:
@@ -724,6 +729,10 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         print(f"현재 작업 디렉토리: {os.getcwd()}")
         print(f"tmp 디렉토리 존재: {os.path.exists('/app/tmp')}")
         print(f"static/uploads 디렉토리 존재: {os.path.exists('/app/static/uploads')}")
+        
+        # 파일명만으로도 웹 경로 생성 시도
+        if 'filename' in original_file:
+            web_image_path = f'/static/uploads/{original_file["filename"]}'
 
     # 추가 정보 추출
     uploader_id = analysis_result.get('uploader_id', 'N/A')
@@ -844,14 +853,17 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 padding: 15px;
                 margin: 15px 0;
                 font-family: 'Consolas', 'Monaco', monospace;
-                font-size: 9px;
-                line-height: 1.2;
+                font-size: 11px;
+                line-height: 1.4;
                 white-space: pre-wrap;
                 word-wrap: break-word;
                 word-break: break-all;
-                max-height: 200px;
+                max-height: 300px;
                 overflow-y: auto;
                 overflow-x: hidden;
+                column-count: 2;
+                column-gap: 20px;
+                column-fill: balance;
             }}
             
             .analysis-result {{
@@ -1119,12 +1131,12 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             </div>
             
             <h3>상세 분석 결과:</h3>
-            <div class="box" style="font-size: 10px; line-height: 1.3; max-height: 250px; overflow-y: auto;">
+            <div class="box" style="font-size: 11px; line-height: 1.4; max-height: 300px; overflow-y: auto;">
                 {cyberbullying_analysis if cyberbullying_analysis else '분석 결과가 없습니다.'}
             </div>
             
             <h3>전체 분석 요약:</h3>
-            <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745; font-size: 10px; line-height: 1.3;">
+            <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745; font-size: 11px; line-height: 1.4;">
                 {cyberbullying_summary.replace('\n', '<br>') if cyberbullying_summary else '분석 결과가 없습니다.'}
             </div>
             '''}
@@ -1132,7 +1144,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         
         <div class="section">
             <h2>7. 원본 증거 이미지</h2>
-            {f'<img class="evidence" src="file://{original_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if original_image_path and os.path.exists(original_image_path) else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p><p>웹 경로: {web_image_path}</p></div>'}
+            {f'<img class="evidence" src="file://{original_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if original_image_path and os.path.exists(original_image_path) else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p><p>웹 경로: {web_image_path}</p><p>현재 작업 디렉토리: {os.getcwd()}</p></div>'}
             <div style="color:#1976d2; font-size:12px; margin-top:10px;">
                 * 위 이미지는 분석 대상 원본 증거물입니다.
             </div>
