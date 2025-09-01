@@ -23,7 +23,7 @@
 /* General Body Styles */
 body {
     font-family: 'NanumGothic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
     color: #333;
     display: flex;
     justify-content: center;
@@ -37,17 +37,17 @@ body {
 
 /* Container for the main content */
 .container {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
     padding: 40px 50px;
     border-radius: 25px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15), 0 10px 20px rgba(139, 92, 246, 0.1);
     text-align: center;
     max-width: 700px;
     width: 100%;
     box-sizing: border-box;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(139, 92, 246, 0.2);
     backdrop-filter: blur(10px);
 }
 
@@ -57,7 +57,7 @@ body {
 }
 
 .header h1 {
-    color: #2c3e50; /* Darker, professional blue */
+    color: #581c87; /* Dark purple */
     margin-bottom: 10px;
     font-size: 2.8em;
     font-weight: 700;
@@ -84,25 +84,25 @@ body {
 }
 
 .analysis-card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
     padding: 30px;
     border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.08), 0 3px 10px rgba(139, 92, 246, 0.03);
     text-align: left;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(139, 92, 246, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .analysis-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 12px 35px rgba(139, 92, 246, 0.15), 0 5px 15px rgba(139, 92, 246, 0.08);
 }
 
 .analysis-card h2 {
-    color: #34495e;
+    color: #581c87;
     font-size: 1.8em;
     margin-bottom: 15px;
-    border-bottom: 2px solid #eceff1;
+    border-bottom: 2px solid #e9d5ff;
     padding-bottom: 10px;
 }
 
@@ -130,7 +130,7 @@ body {
 }
 
 .file-select-btn {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
     color: white;
     padding: 12px 24px;
     border: none;
@@ -140,13 +140,13 @@ body {
     font-weight: 600;
     transition: all 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
 .file-select-btn:hover {
-    background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
 
 .file-name {
@@ -163,7 +163,7 @@ body {
 }
 
 .analyze-btn {
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
     color: white;
     padding: 12px 24px;
     border: none;
@@ -173,30 +173,30 @@ body {
     font-weight: 600;
     transition: all 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
 }
 
 .analyze-btn:hover {
-    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
 }
 
 /* Result Section Styling */
 .result-section {
     margin-bottom: 30px;
     text-align: left;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
     padding: 25px;
     border-radius: 16px;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9d5ff;
+    box-shadow: 0 5px 20px rgba(139, 92, 246, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .result-section:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.08);
 }
 
 .result-section h2 {
