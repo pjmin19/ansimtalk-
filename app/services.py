@@ -574,8 +574,43 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         # HTML 템플릿 생성
         html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
         
-        # WeasyPrint로 PDF 생성
-        HTML(string=html_content).write_pdf(pdf_path)
+        # FontConfiguration 생성 (한글 폰트 지원)
+        from weasyprint import HTML, CSS
+        from weasyprint.text.fonts import FontConfiguration
+        
+        font_config = FontConfiguration()
+        
+        # CSS 스타일 추가 (한글 폰트 우선순위)
+        css_content = """
+        @font-face {
+            font-family: 'Noto Sans KR';
+            src: local('Noto Sans KR'), local('NotoSansKR-Regular');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        @font-face {
+            font-family: 'Malgun Gothic';
+            src: local('Malgun Gothic'), local('맑은 고딕');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important;
+        }
+        
+        * {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important;
+        }
+        """
+        
+        # WeasyPrint로 PDF 생성 (폰트 설정 포함)
+        HTML(string=html_content).write_pdf(
+            pdf_path,
+            font_config=font_config,
+            stylesheets=[CSS(string=css_content)]
+        )
         return pdf_path
         
     except Exception as e:
@@ -712,20 +747,30 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <title>안심톡 디지털 증거 분석 보고서</title>
         <style>
             @font-face {{
-                font-family: 'NanumGothic';
-                src: url('/static/fonts/NanumGothic.ttf') format('truetype');
+                font-family: 'Noto Sans KR';
+                src: local('Noto Sans KR'), local('NotoSansKR-Regular');
                 font-weight: normal;
                 font-style: normal;
-                font-display: swap;
+            }}
+            
+            @font-face {{
+                font-family: 'Malgun Gothic';
+                src: local('Malgun Gothic'), local('맑은 고딕');
+                font-weight: normal;
+                font-style: normal;
             }}
             
             body {{ 
-                font-family: 'NanumGothic', 'Malgun Gothic', '맑은 고딕', 'Arial', sans-serif; 
+                font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important; 
                 margin: 40px; 
                 line-height: 1.6;
                 word-wrap: break-word;
                 overflow-wrap: break-word;
                 color: #333;
+            }}
+            
+            * {{
+                font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important;
             }}
             
             h1, h2, h3 {{ 
