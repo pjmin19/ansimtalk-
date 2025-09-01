@@ -844,11 +844,14 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 padding: 15px;
                 margin: 15px 0;
                 font-family: 'Consolas', 'Monaco', monospace;
-                font-size: 11px;
+                font-size: 9px;
+                line-height: 1.2;
                 white-space: pre-wrap;
                 word-wrap: break-word;
-                max-height: 300px;
+                word-break: break-all;
+                max-height: 200px;
                 overflow-y: auto;
+                overflow-x: hidden;
             }}
             
             .analysis-result {{
@@ -1116,12 +1119,12 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             </div>
             
             <h3>상세 분석 결과:</h3>
-            <div class="box">
+            <div class="box" style="font-size: 10px; line-height: 1.3; max-height: 250px; overflow-y: auto;">
                 {cyberbullying_analysis if cyberbullying_analysis else '분석 결과가 없습니다.'}
             </div>
             
             <h3>전체 분석 요약:</h3>
-            <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745;">
+            <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745; font-size: 10px; line-height: 1.3;">
                 {cyberbullying_summary.replace('\n', '<br>') if cyberbullying_summary else '분석 결과가 없습니다.'}
             </div>
             '''}
