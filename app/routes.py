@@ -7,11 +7,49 @@ from .services import analyze_file, generate_pdf_report
 import shutil
 from PIL import Image, ExifTags
 import hashlib
+import re
+import unicodedata
 
 bp = Blueprint('main', __name__)
 
 ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg'}
 MAX_FILE_SIZE = 5 * 1024 * 1024
+
+# 한글 파일명을 안전하게 처리하는 함수
+def secure_korean_filename(filename):
+    """
+    한글 파일명을 안전하게 처리하는 함수
+    - 한글 문자는 유니코드 정규화 후 유지
+    - 특수문자는 제거하거나 안전한 문자로 변환
+    - 파일 시스템에서 안전한 파일명 생성
+    """
+    if not filename:
+        return ""
+    
+    # 파일명과 확장자 분리
+    name, ext = os.path.splitext(filename)
+    
+    # 유니코드 정규화 (NFC)
+    name = unicodedata.normalize('NFC', name)
+    
+    # 한글, 영문, 숫자, 일부 특수문자만 허용
+    # 허용할 문자: 한글, 영문, 숫자, 공백, 하이픈, 언더스코어, 점
+    safe_chars = re.sub(r'[^\w\s\-\.가-힣]', '', name)
+    
+    # 연속된 공백을 하나로 변환
+    safe_chars = re.sub(r'\s+', ' ', safe_chars)
+    
+    # 앞뒤 공백 제거
+    safe_chars = safe_chars.strip()
+    
+    # 빈 문자열이면 기본값 사용
+    if not safe_chars:
+        safe_chars = "uploaded_file"
+    
+    # 확장자는 소문자로 변환하고 안전한 문자만 허용
+    safe_ext = re.sub(r'[^a-zA-Z0-9\.]', '', ext.lower())
+    
+    return safe_chars + safe_ext
 
 # 파일 확장자 체크
 def allowed_file(filename):
@@ -55,8 +93,15 @@ def _handle_file_upload_and_analysis(analysis_type):
             return redirect(url_for('main.index'))
         
         file = request.files['file']
-        current_app.logger.info(f"업로드된 파일명: {file.filename}")
-        print(f"업로드된 파일명: {file.filename}")
+        # 한글 파일명 로깅 개선
+        try:
+            current_app.logger.info(f"업로드된 파일명: {file.filename}")
+            print(f"업로드된 파일명: {file.filename}")
+        except UnicodeEncodeError:
+            # 한글 파일명 로깅 오류 시 대체 방법
+            safe_filename = file.filename.encode('utf-8', errors='replace').decode('utf-8')
+            current_app.logger.info(f"업로드된 파일명 (안전): {safe_filename}")
+            print(f"업로드된 파일명 (안전): {safe_filename}")
         
         if file.filename == '':
             current_app.logger.error("오류: 파일명이 비어있습니다.")
@@ -83,16 +128,27 @@ def _handle_file_upload_and_analysis(analysis_type):
             flash('파일 크기가 너무 큽니다.')
             return redirect(url_for('main.index'))
 
-        original_filename = secure_filename(file.filename)
+        original_filename = secure_korean_filename(file.filename)
         file_extension = original_filename.rsplit('.', 1)[1].lower()
         unique_filename = f"{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file_extension}"
         
-        current_app.logger.info(f"원본 파일명: {original_filename}")
-        current_app.logger.info(f"고유 파일명: {unique_filename}")
-        current_app.logger.info(f"파일 확장자: {file_extension}")
-        print(f"원본 파일명: {original_filename}")
-        print(f"고유 파일명: {unique_filename}")
-        print(f"파일 확장자: {file_extension}")
+        # 파일명 정보 로깅 (한글 지원)
+        try:
+            current_app.logger.info(f"원본 파일명: {original_filename}")
+            current_app.logger.info(f"고유 파일명: {unique_filename}")
+            current_app.logger.info(f"파일 확장자: {file_extension}")
+            print(f"원본 파일명: {original_filename}")
+            print(f"고유 파일명: {unique_filename}")
+            print(f"파일 확장자: {file_extension}")
+        except UnicodeEncodeError:
+            # 한글 파일명 로깅 오류 시 대체 방법
+            safe_original = original_filename.encode('utf-8', errors='replace').decode('utf-8')
+            current_app.logger.info(f"원본 파일명 (안전): {safe_original}")
+            current_app.logger.info(f"고유 파일명: {unique_filename}")
+            current_app.logger.info(f"파일 확장자: {file_extension}")
+            print(f"원본 파일명 (안전): {safe_original}")
+            print(f"고유 파일명: {unique_filename}")
+            print(f"파일 확장자: {file_extension}")
         
         # 현재 작업 디렉토리 확인
         current_dir = os.getcwd()
@@ -110,10 +166,28 @@ def _handle_file_upload_and_analysis(analysis_type):
         current_app.logger.info(f"파일 저장 경로: {file_path}")
         print(f"파일 저장 경로: {file_path}")
         
-        # 파일 저장
-        file.save(file_path)
-        current_app.logger.info(f"파일 저장 완료: {file_path}")
-        print(f"파일 저장 완료: {file_path}")
+        # 파일 저장 (한글 파일명 지원)
+        try:
+            file.save(file_path)
+            current_app.logger.info(f"파일 저장 완료: {file_path}")
+            print(f"파일 저장 완료: {file_path}")
+        except Exception as save_error:
+            current_app.logger.error(f"파일 저장 오류: {save_error}")
+            print(f"파일 저장 오류: {save_error}")
+            # 한글 파일명으로 인한 오류 시 대체 방법 시도
+            try:
+                # 임시 파일명으로 저장 후 이름 변경
+                temp_filename = f"temp_{uuid.uuid4().hex}.{file_extension}"
+                temp_file_path = os.path.join(upload_folder, temp_filename)
+                file.save(temp_file_path)
+                os.rename(temp_file_path, file_path)
+                current_app.logger.info(f"대체 방법으로 파일 저장 완료: {file_path}")
+                print(f"대체 방법으로 파일 저장 완료: {file_path}")
+            except Exception as rename_error:
+                current_app.logger.error(f"대체 저장 방법도 실패: {rename_error}")
+                print(f"대체 저장 방법도 실패: {rename_error}")
+                flash('파일 저장에 실패했습니다.')
+                return redirect(url_for('main.index'))
         
         # 파일 존재 확인
         if not os.path.exists(file_path):
@@ -135,9 +209,15 @@ def _handle_file_upload_and_analysis(analysis_type):
             print(f"static 업로드 폴더 생성: {static_uploads}")
         
         static_file_path = os.path.join(static_uploads, unique_filename)
-        shutil.copy(file_path, static_file_path)
-        current_app.logger.info(f"static 폴더로 복사 완료: {static_file_path}")
-        print(f"static 폴더로 복사 완료: {static_file_path}")
+        try:
+            shutil.copy(file_path, static_file_path)
+            current_app.logger.info(f"static 폴더로 복사 완료: {static_file_path}")
+            print(f"static 폴더로 복사 완료: {static_file_path}")
+        except Exception as copy_error:
+            current_app.logger.error(f"static 폴더 복사 오류: {copy_error}")
+            print(f"static 폴더 복사 오류: {copy_error}")
+            # 복사 실패 시에도 계속 진행 (분석은 가능)
+            static_file_path = file_path
 
         # 파일 정보 추출
         file_stat = os.stat(file_path)
@@ -149,10 +229,11 @@ def _handle_file_upload_and_analysis(analysis_type):
         print(f"파일 메타데이터: {metadata}")
         print(f"SHA-256: {sha256}")
 
-        # 세션에 저장
+        # 세션에 저장 (한글 파일명 정보 포함)
         session['uploaded_file_path'] = file_path
         session['static_file_path'] = static_file_path
         session['original_filename'] = original_filename
+        session['original_uploaded_filename'] = file.filename  # 원본 업로드 파일명 보존
         session['file_extension'] = file_extension
         session['file_stat'] = {'st_size': file_stat.st_size}
         session['metadata'] = metadata

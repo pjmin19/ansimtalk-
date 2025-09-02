@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오류 - 안심톡</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 50px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .error-icon {
+            font-size: 4em;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            font-size: 2em;
+            color: #101828;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 1.2em;
+            color: #475467;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563EB;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #1D4ED8;
+        }
+        .mobile-tips {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #F8FAFC;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .mobile-tips h3 {
+            color: #101828;
+            margin-bottom: 15px;
+        }
+        .mobile-tips ul {
+            color: #666;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-container">
+            <div class="error-icon">⚠️</div>
+            <h1 class="error-title">오류가 발생했습니다</h1>
+            <p class="error-message">{{ error }}</p>
+            
+            <a href="{{ url_for('main.index') }}" class="back-button">홈으로 돌아가기</a>
+            
+            <div class="mobile-tips">
+                <h3>모바일 사용 시 문제 해결 방법:</h3>
+                <ul>
+                    <li>브라우저를 최신 버전으로 업데이트해주세요</li>
+                    <li>파일 크기가 5MB 이하인지 확인해주세요</li>
+                    <li>지원되는 파일 형식(PNG, JPG, JPEG, TXT)인지 확인해주세요</li>
+                    <li>인터넷 연결이 안정적인지 확인해주세요</li>
+                    <li>브라우저 캐시를 삭제하고 다시 시도해보세요</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

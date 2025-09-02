@@ -92,9 +92,17 @@ def get_image_metadata(filepath):
 def analyze_file(file_path, analysis_type, file_extension):
     with open(file_path, 'rb') as f:
         sha256 = hashlib.sha256(f.read()).hexdigest()
+    
+    # 파일명 처리 (한글 지원)
+    try:
+        filename = os.path.basename(file_path)
+    except UnicodeDecodeError:
+        # 한글 파일명 처리 오류 시 대체 방법
+        filename = os.path.basename(file_path).encode('utf-8', errors='replace').decode('utf-8')
+    
     result = {
         'file_info': {
-            'filename': os.path.basename(file_path),
+            'filename': filename,
             'type': file_extension,
             'size_bytes': os.path.getsize(file_path),
             'sha256': sha256
@@ -126,8 +134,18 @@ def analyze_file(file_path, analysis_type, file_extension):
             else:
                 result['error'] = '이미지에서 텍스트를 추출할 수 없습니다.'
         elif file_extension == 'txt':
-            with open(file_path, 'r', encoding='utf-8') as f:
-                text = f.read()
+            # 한글 텍스트 파일 읽기 (다양한 인코딩 지원)
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+            except UnicodeDecodeError:
+                # UTF-8 실패 시 다른 인코딩 시도
+                try:
+                    with open(file_path, 'r', encoding='cp949') as f:
+                        text = f.read()
+                except UnicodeDecodeError:
+                    with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                        text = f.read()
             gemini_result = analyze_text_with_gemini(text)
             result['extracted_text'] = text
             result['cyberbullying_analysis'] = gemini_result.get('table', '')
