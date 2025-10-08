@@ -839,6 +839,66 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
             print(f"Text file generation also failed: {e2}")
             raise e
 
+def generate_image_html(original_image_path, analysis_result, original_file):
+    """이미지를 Base64로 인코딩하여 HTML에 임베드"""
+    import base64
+    
+    # 이미지 경로 찾기
+    if not original_image_path or not os.path.exists(original_image_path):
+        # 다양한 경로에서 이미지 찾기 시도
+        filename = original_file.get('filename', '')
+        possible_paths = [
+            analysis_result.get('file_path', ''),
+            analysis_result.get('upload_path', ''),
+            analysis_result.get('original_image_path', ''),
+            f'/app/tmp/{filename}',
+            f'/app/static/uploads/{filename}',
+            f'/app/app/static/uploads/{filename}',
+            os.path.join('app', 'static', 'uploads', filename),
+            os.path.join('static', 'uploads', filename),
+            os.path.join('tmp', filename),
+            os.path.join(os.getcwd(), 'app', 'static', 'uploads', filename),
+            os.path.join(os.getcwd(), 'static', 'uploads', filename),
+            os.path.join(os.getcwd(), 'tmp', filename),
+        ]
+        
+        for path in possible_paths:
+            if path and os.path.exists(path):
+                original_image_path = path
+                print(f"✅ 이미지 파일 찾음: {original_image_path}")
+                break
+    
+    # 이미지를 Base64로 인코딩
+    if original_image_path and os.path.exists(original_image_path):
+        try:
+            with open(original_image_path, 'rb') as img_file:
+                img_data = img_file.read()
+                base64_img = base64.b64encode(img_data).decode('utf-8')
+                
+                # 이미지 확장자 확인
+                ext = os.path.splitext(original_image_path)[1].lower()
+                mime_type = {
+                    '.jpg': 'image/jpeg',
+                    '.jpeg': 'image/jpeg',
+                    '.png': 'image/png',
+                    '.gif': 'image/gif',
+                    '.webp': 'image/webp'
+                }.get(ext, 'image/jpeg')
+                
+                print(f"✅ 이미지 Base64 인코딩 완료: {len(base64_img)} bytes, MIME: {mime_type}")
+                
+                return f'<img class="evidence" src="data:{mime_type};base64,{base64_img}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>'
+        except Exception as e:
+            print(f"❌ 이미지 인코딩 실패: {e}")
+    
+    # 이미지를 찾을 수 없을 때
+    return f'''<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;">
+        <p><strong>⚠️ 원본 이미지를 찾을 수 없습니다</strong></p>
+        <p>파일명: {original_file.get("filename", "N/A")}</p>
+        <p>시도한 경로: {original_image_path if original_image_path else "없음"}</p>
+        <p>현재 작업 디렉토리: {os.getcwd()}</p>
+    </div>'''
+
 def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     """보고서 HTML 템플릿 생성"""
     original_file = analysis_result.get('file_info', {})
@@ -1345,7 +1405,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         
         <div class="section">
             <h2>7. 원본 증거 이미지</h2>
-            {f'<img class="evidence" src="file://{original_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if original_image_path and os.path.exists(original_image_path) else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p><p>웹 경로: {web_image_path}</p><p>현재 작업 디렉토리: {os.getcwd()}</p><p>분석 결과 file_path: {analysis_result.get("file_path", "N/A")}</p><p>분석 결과 upload_path: {analysis_result.get("upload_path", "N/A")}</p><p>분석 결과 original_image_path: {analysis_result.get("original_image_path", "N/A")}</p></div>'}
+            {generate_image_html(original_image_path, analysis_result, original_file)}
             <div style="color:#1976d2; font-size:12px; margin-top:10px;">
                 * 위 이미지는 분석 대상 원본 증거물입니다.
             </div>
