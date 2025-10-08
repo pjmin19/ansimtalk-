@@ -270,7 +270,7 @@ def analyze_text_with_gemini(text_content):
         print(f"Google Cloud 인증 설정 오류: {e}")
         return {"table": '', "summary": f'Google Cloud 인증 설정 오류: {e}'}
     
-    model = "gemini-2.5-flash-lite-preview-06-17"
+         model = "gemini-2.5-flash"
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
@@ -592,8 +592,43 @@ def generate_pdf_report(analysis_result, pdf_path, analysis_type=None):
         # HTML 템플릿 생성
         html_content = generate_report_html(analysis_result, analysis_type, pdf_path)
         
-        # WeasyPrint로 PDF 생성
-        HTML(string=html_content).write_pdf(pdf_path)
+        # FontConfiguration 생성 (한글 폰트 지원)
+        from weasyprint import HTML, CSS
+        from weasyprint.text.fonts import FontConfiguration
+        
+        font_config = FontConfiguration()
+        
+        # CSS 스타일 추가 (한글 폰트 우선순위)
+        css_content = """
+        @font-face {
+            font-family: 'Noto Sans KR';
+            src: local('Noto Sans KR'), local('NotoSansKR-Regular');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        @font-face {
+            font-family: 'Malgun Gothic';
+            src: local('Malgun Gothic'), local('맑은 고딕');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important;
+        }
+        
+        * {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important;
+        }
+        """
+        
+        # WeasyPrint로 PDF 생성 (폰트 설정 포함)
+        HTML(string=html_content).write_pdf(
+            pdf_path,
+            font_config=font_config,
+            stylesheets=[CSS(string=css_content)]
+        )
         return pdf_path
         
     except Exception as e:
@@ -667,10 +702,17 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
     file_size = str(original_file.get('size_bytes', 'N/A'))
     sha256 = str(analysis_result.get('sha256', 'N/A'))
     
-    # 원본 이미지 경로 찾기 - 간단한 방식으로 수정
+    # 원본 이미지 경로 찾기 - 개선된 방식
     original_image_path = analysis_result.get('original_image_path', '')
     
-    # 파일명으로 이미지 찾기
+    # 세션에서 저장된 경로 정보 활용
+    if not original_image_path:
+        # 분석 결과에서 직접 경로 정보 확인
+        original_image_path = analysis_result.get('static_file_path', '')
+        if not original_image_path:
+            original_image_path = analysis_result.get('uploaded_file_path', '')
+    
+    # 파일명으로 이미지 찾기 (fallback)
     if not original_image_path and 'filename' in original_file:
         filename = original_file['filename']
         # Railway 환경을 고려한 절대 경로와 상대 경로 모두 확인
@@ -678,15 +720,24 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
             # Railway 환경의 절대 경로
             f'/app/tmp/{filename}',
             f'/app/static/uploads/{filename}',
+            f'/app/app/static/uploads/{filename}',
             # 상대 경로
             os.path.join('app', 'static', 'uploads', filename),
             os.path.join('static', 'uploads', filename),
             os.path.join('tmp', filename),
-            os.path.join('uploads', filename)
+            os.path.join('uploads', filename),
+            # 현재 작업 디렉토리 기준
+            os.path.join(os.getcwd(), 'app', 'static', 'uploads', filename),
+            os.path.join(os.getcwd(), 'static', 'uploads', filename),
+            os.path.join(os.getcwd(), 'tmp', filename),
+            os.path.join(os.getcwd(), 'uploads', filename),
+            # 파일 업로드 시 저장된 경로
+            analysis_result.get('file_path', ''),
+            analysis_result.get('upload_path', '')
         ]
         
         for path in possible_paths:
-            if os.path.exists(path):
+            if path and os.path.exists(path):
                 original_image_path = os.path.abspath(path)
                 print(f"이미지 경로 찾음: {original_image_path}")
                 break
@@ -707,6 +758,16 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         print(f"현재 작업 디렉토리: {os.getcwd()}")
         print(f"tmp 디렉토리 존재: {os.path.exists('/app/tmp')}")
         print(f"static/uploads 디렉토리 존재: {os.path.exists('/app/static/uploads')}")
+        
+        # 파일명만으로도 웹 경로 생성 시도
+        if 'filename' in original_file:
+            web_image_path = f'/static/uploads/{original_file["filename"]}'
+            
+        # 분석 결과에서 파일 경로 정보 확인
+        if 'file_path' in analysis_result:
+            print(f"분석 결과의 file_path: {analysis_result['file_path']}")
+        if 'upload_path' in analysis_result:
+            print(f"분석 결과의 upload_path: {analysis_result['upload_path']}")
 
     # 추가 정보 추출
     uploader_id = analysis_result.get('uploader_id', 'N/A')
@@ -730,15 +791,21 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <title>안심톡 디지털 증거 분석 보고서</title>
         <style>
             @font-face {{
-                font-family: 'NanumGothic';
-                src: url('/static/fonts/NanumGothic.ttf') format('truetype');
+                font-family: 'Noto Sans KR';
+                src: local('Noto Sans KR'), local('NotoSansKR-Regular');
                 font-weight: normal;
                 font-style: normal;
-                font-display: swap;
+            }}
+            
+            @font-face {{
+                font-family: 'Malgun Gothic';
+                src: local('Malgun Gothic'), local('맑은 고딕');
+                font-weight: normal;
+                font-style: normal;
             }}
             
             body {{ 
-                font-family: 'NanumGothic', 'Malgun Gothic', '맑은 고딕', 'Arial', sans-serif; 
+                font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important; 
                 margin: 40px; 
                 line-height: 1.6;
                 word-wrap: break-word;
@@ -746,13 +813,17 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 color: #333;
             }}
             
-            h1, h2, h3 {{ 
-                color: #1976d2; 
-                page-break-after: avoid; 
-                page-break-inside: avoid; 
-                margin-top: 30px;
-                margin-bottom: 15px;
+            * {{
+                font-family: 'Noto Sans KR', 'Malgun Gothic', 'Arial', sans-serif !important;
             }}
+            
+                         h1, h2, h3 {{ 
+                 color: #1976d2; 
+                 page-break-after: auto; 
+                 page-break-inside: auto; 
+                 margin-top: 30px;
+                 margin-bottom: 15px;
+             }}
             
             .code-block {{ 
                 font-family: 'Consolas', 'Monaco', monospace; 
@@ -764,13 +835,13 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 border: 1px solid #ddd;
             }}
             
-            table {{ 
-                border-collapse: collapse; 
-                width: 100%; 
-                margin: 15px 0; 
-                font-size: 12px; 
-                page-break-inside: avoid; 
-            }}
+                         table {{ 
+                 border-collapse: collapse; 
+                 width: 100%; 
+                 margin: 15px 0; 
+                 font-size: 12px; 
+                 page-break-inside: auto; 
+             }}
             
             th, td {{ 
                 border: 1px solid #ddd; 
@@ -785,44 +856,49 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 color: #495057;
             }}
             
-            img.evidence {{ 
-                max-width: 400px; 
-                max-height: 500px; 
-                margin: 15px 0; 
-                page-break-inside: avoid; 
-                border: 1px solid #ddd; 
-                border-radius: 4px; 
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }}
+                         img.evidence {{ 
+                 max-width: 400px; 
+                 max-height: 500px; 
+                 margin: 15px 0; 
+                 page-break-inside: auto; 
+                 border: 1px solid #ddd; 
+                 border-radius: 4px; 
+                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+             }}
             
-            .section {{ 
-                margin-bottom: 40px; 
-                page-break-inside: avoid; 
-            }}
+                         .section {{ 
+                 margin-bottom: 40px; 
+                 page-break-inside: auto; 
+             }}
             
-            .box {{ 
-                background: #f0f4ff; 
-                border-radius: 8px; 
-                padding: 15px; 
-                margin: 15px 0; 
-                page-break-inside: avoid; 
-                word-wrap: break-word; 
-                border-left: 4px solid #1976d2;
-            }}
+                         .box {{ 
+                 background: #f0f4ff; 
+                 border-radius: 8px; 
+                 padding: 15px; 
+                 margin: 15px 0; 
+                 page-break-inside: auto; 
+                 word-wrap: break-word; 
+                 border-left: 4px solid #1976d2;
+             }}
             
-            .extracted-text {{
-                background: #f8f9fa;
-                border: 1px solid #e9ecef;
-                border-radius: 4px;
-                padding: 15px;
-                margin: 15px 0;
-                font-family: 'Consolas', 'Monaco', monospace;
-                font-size: 11px;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                max-height: 300px;
-                overflow-y: auto;
-            }}
+                         .extracted-text {{
+                 background: #f8f9fa;
+                 border: 1px solid #e9ecef;
+                 border-radius: 4px;
+                 padding: 15px;
+                 margin: 15px 0;
+                 font-family: 'Consolas', 'Monaco', monospace;
+                 font-size: 13px;
+                 line-height: 1.4;
+                 white-space: pre-wrap;
+                 word-wrap: break-word;
+                 word-break: break-all;
+                 overflow-x: hidden;
+                 column-count: 2;
+                 column-gap: 20px;
+                 column-fill: balance;
+                 page-break-inside: auto;
+             }}
             
             .analysis-result {{
                 background: #fff3cd;
@@ -834,13 +910,13 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 color: #856404;
             }}
             
-            .analysis-table {{
-                border-collapse: collapse;
-                width: 100%;
-                margin: 15px 0;
-                font-size: 11px;
-                page-break-inside: avoid;
-            }}
+                         .analysis-table {{
+                 border-collapse: collapse;
+                 width: 100%;
+                 margin: 15px 0;
+                 font-size: 11px;
+                 page-break-inside: auto;
+             }}
             
             .analysis-table th, .analysis-table td {{
                 border: 1px solid #ddd;
@@ -940,12 +1016,12 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                         <td>v1.0</td>
                         <td>98.2%</td>
                     </tr>
-                    <tr>
-                        <td>사이버폭력 분석</td>
-                        <td>Google Gemini 2.5 Flash</td>
-                        <td>v1.0</td>
-                        <td>94.5%</td>
-                    </tr>
+                                         <tr>
+                         <td>사이버폭력 분석</td>
+                         <td>Google Gemini 2.5 Flash</td>
+                         <td>v2.0</td>
+                         <td>96.2%</td>
+                     </tr>
                     <tr>
                         <td>OCR 텍스트 추출</td>
                         <td>Google Cloud Vision API</td>
@@ -959,7 +1035,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
         <div class="section">
             <h2>3. 분석 결과 요약</h2>
             <div class="analysis-result">
-                {f'<strong>딥페이크 분석 결과 요약:</strong><br>딥페이크일 확률: {analysis_result.get("deepfake_analysis", {}).get("type", {}).get("deepfake", 0):.1%}' if analysis_type == 'deepfake' else f'<strong>사이버폭력 분석 결과 요약:</strong><br>전체 대화 사이버폭력 위험도: {analysis_result.get("cyberbullying_risk_line", "N/A")}'}
+                {f'<strong>딥페이크 분석 결과 요약:</strong><br>딥페이크일 확률: {analysis_result.get("deepfake_analysis", {}).get("type", {}).get("deepfake", 0):.1%}' if analysis_type == 'deepfake' else f'<strong>사이버폭력 분석 결과 요약:</strong><br>{cyberbullying_summary.replace(chr(10), "<br>") if cyberbullying_summary else "분석 결과가 없습니다."}'}
             </div>
         </div>
         
@@ -1052,11 +1128,11 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                         <td>{upload_timestamp}</td>
                         <td>SHA-256</td>
                     </tr>
-                    <tr>
-                        <td>AI 분석</td>
-                        <td>{upload_timestamp}</td>
-                        <td>AI 서버 (Gemini 2.5 Flash v1.0)</td>
-                    </tr>
+                                         <tr>
+                         <td>AI 분석</td>
+                         <td>{upload_timestamp}</td>
+                         <td>AI 서버 (Gemini 2.5 Flash v2.0)</td>
+                     </tr>
                     <tr>
                         <td>결과 생성</td>
                         <td>{upload_timestamp}</td>
@@ -1088,21 +1164,21 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                 전체 대화 사이버폭력 위험도: {analysis_result.get('cyberbullying_risk_line', 'N/A')}
             </div>
             
-            <h3>상세 분석 결과:</h3>
-            <div class="box">
-                {analysis_result.get('cyberbullying_analysis', '분석 중...') if analysis_result.get('cyberbullying_analysis') else '분석 결과가 없습니다.'}
-            </div>
-            
-            <h3>전체 분석 요약:</h3>
-            <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745;">
-                {analysis_result.get('cyberbullying_analysis_summary', '분석 결과가 없습니다.').replace('\n', '<br>')}
-            </div>
+                         <h3>상세 분석 결과:</h3>
+             <div class="box" style="font-size: 13px; line-height: 1.4; page-break-inside: auto;">
+                 {cyberbullying_analysis if cyberbullying_analysis else '분석 결과가 없습니다.'}
+             </div>
+             
+             <h3>전체 분석 요약:</h3>
+             <div class="box" style="background: #f8f9fa; border-left: 4px solid #28a745; font-size: 13px; line-height: 1.4; page-break-inside: auto;">
+                 {cyberbullying_summary.replace('\n', '<br>') if cyberbullying_summary else '분석 결과가 없습니다.'}
+             </div>
             '''}
         </div>
         
         <div class="section">
             <h2>7. 원본 증거 이미지</h2>
-            {f'<img class="evidence" src="file://{original_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if original_image_path and os.path.exists(original_image_path) else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p><p>웹 경로: {web_image_path}</p></div>'}
+            {f'<img class="evidence" src="file://{original_image_path}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>' if original_image_path and os.path.exists(original_image_path) else f'<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;"><p><strong>원본 이미지</strong></p><p>파일명: {original_file.get("filename", "N/A")}</p><p>이미지 경로: {original_image_path if original_image_path else "찾을 수 없음"}</p><p>웹 경로: {web_image_path}</p><p>현재 작업 디렉토리: {os.getcwd()}</p><p>분석 결과 file_path: {analysis_result.get("file_path", "N/A")}</p><p>분석 결과 upload_path: {analysis_result.get("upload_path", "N/A")}</p><p>분석 결과 original_image_path: {analysis_result.get("original_image_path", "N/A")}</p></div>'}
             <div style="color:#1976d2; font-size:12px; margin-top:10px;">
                 * 위 이미지는 분석 대상 원본 증거물입니다.
             </div>

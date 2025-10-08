@@ -271,6 +271,11 @@ def _handle_file_upload_and_analysis(analysis_type):
             analysis_result['file_size_bytes'] = file_stat.st_size
             analysis_result['file_size_mb'] = round(file_stat.st_size / (1024 * 1024), 2)
             
+            # 파일 경로 정보 추가 (PDF 생성용)
+            analysis_result['file_path'] = file_path
+            analysis_result['upload_path'] = static_file_path
+            analysis_result['original_image_path'] = static_file_path
+            
             # 이미지 크기 정보 추가
             if file_extension in {'jpg', 'jpeg', 'png'}:
                 try:
@@ -384,9 +389,14 @@ def download_pdf():
         # 원본 이미지 경로 추가
         analysis_result['original_image_path'] = session.get('original_image_path', '')
         
+        # tmp 디렉토리 생성
+        tmp_dir = os.path.join(current_app.root_path, '..', 'tmp')
+        if not os.path.exists(tmp_dir):
+            os.makedirs(tmp_dir)
+        
         # PDF 파일 경로 생성
         pdf_filename = f"evidence_{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-        pdf_path = os.path.join(current_app.root_path, '..', 'tmp', pdf_filename)
+        pdf_path = os.path.join(tmp_dir, pdf_filename)
         # PDF 생성
         generate_pdf_report(analysis_result, pdf_path, analysis_type) # analysis_type 전달
         print(f"Attempting to send file from: {pdf_path}")

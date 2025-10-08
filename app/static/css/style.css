@@ -109,7 +109,15 @@ body {
 .analysis-card .file-type-info {
     font-size: 0.95em;
     color: #7f8c8d;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
+}
+
+.analysis-card .service-description {
+    font-size: 0.95em;
+    color: #555;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    line-height: 1.5;
 }
 
 /* File Input Group */
