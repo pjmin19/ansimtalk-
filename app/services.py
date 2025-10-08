@@ -301,6 +301,12 @@ def analyze_text_with_gemini(text_content):
     from google.oauth2 import service_account
     
     try:
+        # 1) API Key 우선 사용 (Vertex 설정/결제 없이 동작 가능)
+        api_key = os.environ.get('GOOGLE_GEMINI_API_KEY') or current_app.config.get('GOOGLE_GEMINI_API_KEY')
+        if api_key:
+            client = genai.Client(api_key=api_key)
+            print("Gemini Client 초기화: API Key 모드")
+        else:
         # 환경 변수에서 서비스 계정 키 JSON 가져오기
         service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
         if service_account_info:
@@ -462,7 +468,10 @@ def analyze_text_with_gemini(text_content):
         import traceback
         print(f"상세 오류: {traceback.format_exc()}")
         # API 오류 시 대체 분석 제공
-        return _fallback_cyberbullying_analysis(text_content)
+        fb = _fallback_cyberbullying_analysis(text_content)
+        fb['fallback_used'] = True
+        fb['error'] = str(e)
+        return fb
 
 def _fallback_cyberbullying_analysis(text_content):
     """Gemini API 실패 시 대체 사이버폭력 분석"""
@@ -585,7 +594,7 @@ def _fallback_cyberbullying_analysis(text_content):
 잠재적 위험/주의사항: {warning}
 """
         
-        return {"table": html_table, "summary": summary}
+        return {"table": html_table, "summary": summary, "fallback_used": True}
         
     except Exception as e:
         print(f"대체 분석 오류: {e}")
