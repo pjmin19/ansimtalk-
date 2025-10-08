@@ -435,7 +435,6 @@ def analyze_text_with_gemini(text_content):
         summary_raw = "\n".join(summary_lines).strip()
         
         # 각 항목 앞에 빈 줄을 강제로 삽입
-        import re
         summary = re.sub(r'(전체 대화 사이버폭력 위험도:)', r'\n\1', summary_raw)
         summary = re.sub(r'(대화 전체 분위기 요약:)', r'\n\1', summary)
         summary = re.sub(r'(잠재적 위험/주의사항:)', r'\n\1', summary)
