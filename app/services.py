@@ -843,14 +843,32 @@ def generate_image_html(original_image_path, analysis_result, original_file):
     """이미지를 Base64로 인코딩하여 HTML에 임베드"""
     import base64
     
-    # 이미지 경로 찾기
-    if not original_image_path or not os.path.exists(original_image_path):
-        # 다양한 경로에서 이미지 찾기 시도
+    # 이미지 경로 찾기 - 우선순위 순서로 확인
+    print(f"🔍 이미지 경로 탐색 시작...")
+    print(f"   original_image_path 인자: {original_image_path}")
+    print(f"   uploaded_file_path: {analysis_result.get('uploaded_file_path', 'N/A')}")
+    print(f"   static_file_path: {analysis_result.get('static_file_path', 'N/A')}")
+    print(f"   file_path: {analysis_result.get('file_path', 'N/A')}")
+    
+    # 우선순위 1: uploaded_file_path (실제 저장된 경로)
+    uploaded_path = analysis_result.get('uploaded_file_path', '')
+    if uploaded_path and os.path.exists(uploaded_path):
+        original_image_path = uploaded_path
+        print(f"✅ uploaded_file_path에서 이미지 찾음: {original_image_path}")
+    # 우선순위 2: static_file_path
+    elif analysis_result.get('static_file_path', '') and os.path.exists(analysis_result.get('static_file_path', '')):
+        original_image_path = analysis_result.get('static_file_path', '')
+        print(f"✅ static_file_path에서 이미지 찾음: {original_image_path}")
+    # 우선순위 3: 기존 original_image_path
+    elif original_image_path and os.path.exists(original_image_path):
+        print(f"✅ 인자로 전달된 경로에서 이미지 찾음: {original_image_path}")
+    # 우선순위 4: 파일명으로 다양한 경로 탐색
+    else:
         filename = original_file.get('filename', '')
+        print(f"   파일명으로 탐색 시작: {filename}")
         possible_paths = [
             analysis_result.get('file_path', ''),
             analysis_result.get('upload_path', ''),
-            analysis_result.get('original_image_path', ''),
             f'/app/tmp/{filename}',
             f'/app/static/uploads/{filename}',
             f'/app/app/static/uploads/{filename}',
@@ -865,8 +883,10 @@ def generate_image_html(original_image_path, analysis_result, original_file):
         for path in possible_paths:
             if path and os.path.exists(path):
                 original_image_path = path
-                print(f"✅ 이미지 파일 찾음: {original_image_path}")
+                print(f"✅ 탐색 경로에서 이미지 찾음: {original_image_path}")
                 break
+        else:
+            print(f"❌ 모든 경로에서 이미지를 찾지 못함")
     
     # 이미지를 Base64로 인코딩
     if original_image_path and os.path.exists(original_image_path):

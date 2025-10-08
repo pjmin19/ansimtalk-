@@ -386,8 +386,10 @@ def download_pdf():
             flash('분석 결과가 없습니다.')
             return redirect(url_for('main.index'))
         
-        # 원본 이미지 경로 추가
+        # 원본 이미지 경로 추가 - 모든 가능한 경로 정보 전달
         analysis_result['original_image_path'] = session.get('original_image_path', '')
+        analysis_result['uploaded_file_path'] = session.get('uploaded_file_path', '')
+        analysis_result['static_file_path'] = session.get('static_file_path', '')
         
         # tmp 디렉토리 생성
         tmp_dir = os.path.join(current_app.root_path, '..', 'tmp')
