@@ -307,48 +307,48 @@ def analyze_text_with_gemini(text_content):
             client = genai.Client(api_key=api_key)
             print("Gemini Client 초기화: API Key 모드")
         else:
-        # 환경 변수에서 서비스 계정 키 JSON 가져오기
-        service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-        if service_account_info:
-            # JSON 문자열을 파싱하여 서비스 계정 정보 생성
-            service_account_dict = json.loads(service_account_info)
-            
-            # 명시적 범위 지정 - 이것이 핵심 해결책!
-            scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-            credentials = service_account.Credentials.from_service_account_info(
-                service_account_dict,
-                scopes=scopes
-            )
-            
-            client = genai.Client(
-                vertexai=True,
-                project="dazzling-howl-465316-m7",
-                location="global",
-                credentials=credentials
-            )
-            print("환경 변수에서 서비스 계정 정보를 사용합니다. (명시적 범위 적용됨)")
-        else:
-            # 기존 방식 (로컬 파일)
-            credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
-            if os.path.exists(credentials_path):
-                # 로컬 파일에서도 명시적 범위 지정
+            # 환경 변수에서 서비스 계정 키 JSON 가져오기
+            service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+            if service_account_info:
+                # JSON 문자열을 파싱하여 서비스 계정 정보 생성
+                service_account_dict = json.loads(service_account_info)
+                
+                # 명시적 범위 지정 - 이것이 핵심 해결책!
                 scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-                credentials = service_account.Credentials.from_service_account_file(
-                    credentials_path,
+                credentials = service_account.Credentials.from_service_account_info(
+                    service_account_dict,
                     scopes=scopes
                 )
+                
                 client = genai.Client(
                     vertexai=True,
                     project="dazzling-howl-465316-m7",
                     location="global",
                     credentials=credentials
                 )
-                print(f"로컬 파일에서 서비스 계정 정보를 사용합니다: {credentials_path} (명시적 범위 적용됨)")
+                print("환경 변수에서 서비스 계정 정보를 사용합니다. (명시적 범위 적용됨)")
             else:
-                print("Google Cloud 인증 정보가 설정되지 않았습니다")
-                print(f"환경 변수 GOOGLE_SERVICE_ACCOUNT_JSON: {'설정됨' if os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON') else '설정되지 않음'}")
-                print(f"로컬 파일 경로: {credentials_path}")
-                return {"table": '', "summary": 'Google Cloud 인증 정보가 설정되지 않았습니다. 관리자에게 문의하세요.'}
+                # 기존 방식 (로컬 파일)
+                credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
+                if os.path.exists(credentials_path):
+                    # 로컬 파일에서도 명시적 범위 지정
+                    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+                    credentials = service_account.Credentials.from_service_account_file(
+                        credentials_path,
+                        scopes=scopes
+                    )
+                    client = genai.Client(
+                        vertexai=True,
+                        project="dazzling-howl-465316-m7",
+                        location="global",
+                        credentials=credentials
+                    )
+                    print(f"로컬 파일에서 서비스 계정 정보를 사용합니다: {credentials_path} (명시적 범위 적용됨)")
+                else:
+                    print("Google Cloud 인증 정보가 설정되지 않았습니다")
+                    print(f"환경 변수 GOOGLE_SERVICE_ACCOUNT_JSON: {'설정됨' if os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON') else '설정되지 않음'}")
+                    print(f"로컬 파일 경로: {credentials_path}")
+                    return {"table": '', "summary": 'Google Cloud 인증 정보가 설정되지 않았습니다. 관리자에게 문의하세요.'}
     except Exception as e:
         print(f"Google Cloud 인증 설정 오류: {e}")
         return {"table": '', "summary": f'Google Cloud 인증 설정 오류: {e}'}
