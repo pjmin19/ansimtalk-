@@ -302,7 +302,12 @@ def analyze_text_with_gemini(text_content):
     
     try:
         # 1) API Key 우선 사용 (Vertex 설정/결제 없이 동작 가능)
-        api_key = os.environ.get('GOOGLE_GEMINI_API_KEY') or current_app.config.get('GOOGLE_GEMINI_API_KEY')
+        raw_key = os.environ.get('GOOGLE_GEMINI_API_KEY') or current_app.config.get('GOOGLE_GEMINI_API_KEY')
+        api_key = raw_key.strip() if isinstance(raw_key, str) else None
+        # 흔한 placeholder/무효 키 패턴 차단
+        if api_key and (api_key.lower().startswith('your-') or api_key.endswith('-lo') or len(api_key) < 25):
+            print("무효한 Gemini API Key 패턴 감지 → Vertex 경로 시도")
+            api_key = None
         if api_key:
             client = genai.Client(api_key=api_key)
             print("Gemini Client 초기화: API Key 모드")
@@ -320,13 +325,15 @@ def analyze_text_with_gemini(text_content):
                     scopes=scopes
                 )
                 
+                project_id = service_account_dict.get('project_id') or current_app.config.get('GCP_PROJECT') or 'us-central1'
+                location = os.environ.get('GEMINI_LOCATION', 'us-central1')
                 client = genai.Client(
                     vertexai=True,
-                    project="dazzling-howl-465316-m7",
-                    location="global",
+                    project=project_id,
+                    location=location,
                     credentials=credentials
                 )
-                print("환경 변수에서 서비스 계정 정보를 사용합니다. (명시적 범위 적용됨)")
+                print(f"Vertex 모드: project={project_id}, location={location} (서비스 계정/명시적 범위)")
             else:
                 # 기존 방식 (로컬 파일)
                 credentials_path = current_app.config['GOOGLE_APPLICATION_CREDENTIALS']
@@ -337,13 +344,23 @@ def analyze_text_with_gemini(text_content):
                         credentials_path,
                         scopes=scopes
                     )
+                    # 파일에서 project_id 유도
+                    try:
+                        with open(credentials_path, 'r', encoding='utf-8') as _f:
+                            _cred_json = json.load(_f)
+                            project_id = _cred_json.get('project_id')
+                    except Exception:
+                        project_id = current_app.config.get('GCP_PROJECT')
+                    if not project_id:
+                        project_id = 'dazzling-howl-465316-m7'
+                    location = os.environ.get('GEMINI_LOCATION', 'us-central1')
                     client = genai.Client(
                         vertexai=True,
-                        project="dazzling-howl-465316-m7",
-                        location="global",
+                        project=project_id,
+                        location=location,
                         credentials=credentials
                     )
-                    print(f"로컬 파일에서 서비스 계정 정보를 사용합니다: {credentials_path} (명시적 범위 적용됨)")
+                    print(f"Vertex 모드(로컬 키): project={project_id}, location={location}, key={os.path.basename(credentials_path)}")
                 else:
                     print("Google Cloud 인증 정보가 설정되지 않았습니다")
                     print(f"환경 변수 GOOGLE_SERVICE_ACCOUNT_JSON: {'설정됨' if os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON') else '설정되지 않음'}")
