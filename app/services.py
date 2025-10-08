@@ -434,13 +434,16 @@ def analyze_text_with_gemini(text_content):
 잠재적 위험/주의사항: 직접적인 위협과 사회적 배제는 피해자에게 심각한 정신적 고통을 줄 수 있습니다. 즉각적인 개입과 보호 조치가 필요한 상황입니다.
 """
     try:
-        print("Gemini AI API 호출 시작...")
+        print(f"========== Gemini API 호출 시작 ==========")
+        print(f"모델: {model}")
+        print(f"Client 타입: {type(client).__name__}")
+        print(f"프롬프트 길이: {len(prompt)} 문자")
         response = client.models.generate_content(
             model=model,
             contents=prompt
         )
         result_text = response.text.strip()
-        print("Gemini AI API 호출 성공!")
+        print(f"========== Gemini API 호출 성공! ==========")
         print(f"응답 길이: {len(result_text)} 문자")
         # 표와 표 아래 3줄 분리
         lines = result_text.splitlines()
@@ -481,15 +484,18 @@ def analyze_text_with_gemini(text_content):
         
         return {"table": html_table, "summary": summary}
     except Exception as e:
-        print(f"Gemini 분석 오류: {e}")
-        print("Fallback 분석으로 전환합니다...")
+        print(f"========== Gemini API 호출 실패 ==========")
         print(f"오류 타입: {type(e).__name__}")
+        print(f"오류 메시지: {e}")
         import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
+        error_detail = traceback.format_exc()
+        print(f"상세 오류:\n{error_detail}")
+        print("========== Fallback 분석으로 전환 ==========")
         # API 오류 시 대체 분석 제공
         fb = _fallback_cyberbullying_analysis(text_content)
         fb['fallback_used'] = True
-        fb['error'] = str(e)
+        fb['error'] = f"{type(e).__name__}: {str(e)}"
+        fb['error_detail'] = error_detail
         return fb
 
 def _fallback_cyberbullying_analysis(text_content):

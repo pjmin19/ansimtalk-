@@ -89,10 +89,13 @@
                 {% if result.cyberbullying_analysis %}
                     <h3>사이버폭력 분석 결과(Gemini):</h3>
                     {% if result.get('fallback_used') %}
-                        <p style="color:#e67e22;font-weight:bold;">AI 실시간 분석이 일시적으로 불가하여, 임시 키워드 기반 분석 결과를 제공합니다.</p>
-                        {% if result.get('error') %}
-                            <p class="error-message">오류: {{ result.get('error') }}</p>
-                        {% endif %}
+                        <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:1em;margin-bottom:1em;">
+                            <p style="color:#856404;font-weight:bold;margin:0 0 0.5em 0;">⚠️ AI 실시간 분석 실패</p>
+                            <p style="color:#856404;margin:0 0 0.5em 0;">Gemini 2.5 Flash API 호출이 실패하여 임시 키워드 기반 분석 결과를 제공합니다.</p>
+                            {% if result.get('error') %}
+                                <p style="color:#721c24;background:#f8d7da;padding:0.5em;border-radius:4px;margin:0;font-family:monospace;font-size:0.9em;">{{ result.get('error') }}</p>
+                            {% endif %}
+                        </div>
                     {% endif %}
                     <div class="analysis-container" style="white-space: pre-line; background: #f8f8f8; padding: 1em; border-radius: 8px; line-height: 1.6;">
                         {{ result.cyberbullying_analysis | safe }}
