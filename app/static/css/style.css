@@ -411,13 +411,24 @@ body {
 .analysis-table {
     margin-top: 20px;
     overflow-x: auto;
+    width: 100%;
+}
+
+.analysis-table table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
 }
 
 .analysis-table th, .analysis-table td {
-    padding: 12px 15px;
+    padding: 8px 10px;
     text-align: left;
     border-bottom: 1px solid #e9ecef;
-    font-size: 0.95em;
+    font-size: 0.85em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
 }
 
 .analysis-table th {
@@ -426,6 +437,30 @@ body {
     color: #2c3e50;
     position: sticky;
     top: 0;
+    font-size: 0.9em;
+}
+
+/* 각 컬럼별 최적 너비 지정 */
+.analysis-table th:nth-child(1), 
+.analysis-table td:nth-child(1) { width: 25%; } /* 문장 */
+.analysis-table th:nth-child(2), 
+.analysis-table td:nth-child(2) { width: 10%; } /* 유형 */
+.analysis-table th:nth-child(3), 
+.analysis-table td:nth-child(3) { width: 12%; } /* 피해자 */
+.analysis-table th:nth-child(4), 
+.analysis-table td:nth-child(4) { width: 12%; } /* 가해자 */
+.analysis-table th:nth-child(5), 
+.analysis-table td:nth-child(5) { width: 11%; } /* 위험도 */
+.analysis-table th:nth-child(6), 
+.analysis-table td:nth-child(6) { width: 30%; } /* 해설 */
+
+/* 마우스 호버 시 전체 내용 보기 */
+.analysis-table td:hover {
+    white-space: normal;
+    overflow: visible;
+    background-color: #fffbea;
+    position: relative;
+    z-index: 10;
 }
 
 .analysis-table tr:nth-child(even) {
