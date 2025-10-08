@@ -370,7 +370,9 @@ def analyze_text_with_gemini(text_content):
         print(f"Google Cloud 인증 설정 오류: {e}")
         return {"table": '', "summary": f'Google Cloud 인증 설정 오류: {e}'}
     
-    model = "gemini-1.5-flash-002"
+    # 모델: Gemini 2.5 Flash (공식 문서 기준 최신 플래시 계열)
+    # 참고: https://ai.google.dev/gemini-api/docs/models?hl=ko
+    model = "gemini-2.5-flash"
     # 발화자 이름에서 역할 힌트 추출
     speakers = set([ln.split(':',1)[0].strip() for ln in _preprocess_kakao_chat_text(text_content).split('\n') if ':' in ln])
     role_hints = []
@@ -1168,7 +1170,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                     </tr>
                                          <tr>
                          <td>사이버폭력 분석</td>
-                         <td>Google Gemini 1.5 Flash</td>
+                         <td>Google Gemini 2.5 Flash</td>
                          <td>v2.0</td>
                          <td>96.2%</td>
                      </tr>
@@ -1281,7 +1283,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                                          <tr>
                          <td>AI 분석</td>
                          <td>{upload_timestamp}</td>
-                         <td>AI 서버 (Gemini 1.5 Flash v2.0)</td>
+                         <td>AI 서버 (Gemini 2.5 Flash v1.0)</td>
                      </tr>
                     <tr>
                         <td>결과 생성</td>
