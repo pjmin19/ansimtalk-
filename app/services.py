@@ -384,6 +384,15 @@ def analyze_text_with_gemini(text_content):
     * `대화 전체 분위기 요약:` 2~3문장으로 요약 (줄바꿈 없이 한 줄)
     * `잠재적 위험/주의사항:` 구체적인 내용 서술 (줄바꿈 없이 한 줄)
 
+# 발화자/역할 추정 규칙 (엄격 적용)
+1) 발화자명에 `가해자`, `주동자`가 포함되면 그 사람은 가해자.
+2) 발화자명에 `피해자`가 포함되면 피해자.
+3) 발화자명이 `-`(미확정)인 경우 기본적으로 피해자(추정)로 간주하되, 문맥이 명백히 공격/강요/조롱이면 가해자로 표기.
+4) 다음 표현은 피해자 단서: `내돈`, `싫은데`, `알겠어`, `사줄게`, `안돼`, `무서워`, `그만`.
+5) 다음 표현은 가해자 단서: `내가 하라면 해`, `사와`, `사줘`, `돈`, `빨리`, `시키는 대로`, `말 안듣네`.
+6) 금전/물품 강요(`사와/사줘/내가 시킨 대로` 등)와 모욕/조롱/협박은 각각 `괴롭힘`, `모욕`, `위협`으로 분류.
+7) 표의 `피해자`, `가해자` 열에는 이름(또는 `피해자(추정)`, `가해자(추정)`)을 명시.
+
 # 출력 예시 (Example)
 아래는 당신이 따라야 할 완벽한 출력 예시입니다. 띄어쓰기, 줄 바꿈까지 정확히 일치시켜야 합니다.
 
@@ -481,14 +490,30 @@ def _fallback_cyberbullying_analysis(text_content):
             sentence = sentence.strip()
             if not sentence:
                 continue
-                
+
+            # 발화자/내용 분리
+            speaker, content = ('-', sentence)
+            if ':' in sentence:
+                sp, ct = sentence.split(':', 1)
+                speaker = sp.strip() or '-'
+                content = ct.strip()
+
             risk_level = "없음"
             risk_type = "-"
             explanation = "일반적인 대화 내용"
-            
-            # 더 정교한 위험도 판단
-            if any(keyword in sentence.lower() for keyword in violent_keywords):
-                if '존재 자체가 죄' in sentence or '못생겨서' in sentence:
+            victim = "-"
+            offender = "-"
+
+            # 역할 단서: 이름 기반
+            if re.search(r'가해자|주동자', speaker):
+                offender = speaker
+            if re.search(r'피해자', speaker):
+                victim = speaker
+
+            # 더 정교한 위험도 판단 및 역할 보정
+            low = content.lower()
+            if any(keyword in low for keyword in violent_keywords):
+                if '존재 자체가 죄' in content or '못생겨서' in content:
                     risk_level = "심각"
                     risk_type = "비하"
                     explanation = "존재 자체를 부정하거나 외모를 비하하는 극단적 발언"
@@ -496,30 +521,33 @@ def _fallback_cyberbullying_analysis(text_content):
                     risk_level = "심각"
                     risk_type = "욕설"
                     explanation = "폭력적이거나 모욕적인 표현 포함"
+                offender = offender if offender != '-' else speaker
+                risk_count += 1
                 severe_count += 1
+            elif any(keyword in low for keyword in threat_keywords):
+                risk_level = "있음"
+                risk_type = "위협"
+                explanation = "협박/강요 또는 조건부 위협적 표현"
+                offender = offender if offender != '-' else speaker
                 risk_count += 1
-            elif any(keyword in sentence.lower() for keyword in threat_keywords):
-                if '디진다' in sentence:
-                    risk_level = "있음"
-                    risk_type = "위협"
-                    explanation = "협박이나 위협적 표현 포함"
-                else:
-                    risk_level = "있음"
-                    risk_type = "위협"
-                    explanation = "조건부 위협적 표현"
-                risk_count += 1
-            elif any(keyword in sentence.lower() for keyword in bullying_keywords):
+            elif any(keyword in low for keyword in bullying_keywords):
                 risk_level = "약간 있음"
                 risk_type = "따돌림"
                 explanation = "따돌리거나 배제하려는 의도"
+                offender = offender if offender != '-' else speaker
                 risk_count += 1
-            elif any(keyword in sentence.lower() for keyword in derogatory_keywords):
+            elif any(keyword in low for keyword in derogatory_keywords):
                 risk_level = "있음"
                 risk_type = "비하"
-                explanation = "비하적이거나 모욕적인 표현"
+                explanation = "비하적/모욕적 표현"
+                offender = offender if offender != '-' else speaker
                 risk_count += 1
-            
-            analysis_lines.append(f"| {sentence} | {risk_type} | - | - | {risk_level} | {explanation} |")
+
+            # 피해자 단서 (수용/거절/방어 표현)
+            if victim == '-' and re.search(r'안돼|싫은데|무서워|그만|알겠어|사줄게', content):
+                victim = speaker if speaker != '-' else '피해자(추정)'
+
+            analysis_lines.append(f"| {speaker}: {content} | {risk_type} | {victim} | {offender} | {risk_level} | {explanation} |")
         
         # HTML 테이블 생성
         html_table = '<table class="analysis-table"><thead><tr><th>문장</th><th>유형</th><th>피해자</th><th>가해자</th><th>위험도</th><th>해설</th></tr></thead><tbody>'
