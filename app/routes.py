@@ -276,7 +276,7 @@ def _handle_file_upload_and_analysis(analysis_type):
             analysis_result['upload_path'] = static_file_path
             analysis_result['original_image_path'] = static_file_path
             
-            # 이미지 크기 정보 추가
+            # 이미지 크기 정보 추가 및 Base64 인코딩 저장
             if file_extension in {'jpg', 'jpeg', 'png'}:
                 try:
                     with Image.open(file_path) as img:
@@ -285,9 +285,19 @@ def _handle_file_upload_and_analysis(analysis_type):
                         analysis_result['image_resolution'] = f"{img.width}x{img.height}"
                         current_app.logger.info(f"이미지 크기: {img.width}x{img.height}")
                         print(f"이미지 크기: {img.width}x{img.height}")
+                    
+                    # PDF 생성을 위해 이미지를 Base64로 인코딩하여 세션에 저장
+                    import base64
+                    with open(file_path, 'rb') as img_file:
+                        img_data = img_file.read()
+                        base64_img = base64.b64encode(img_data).decode('utf-8')
+                        analysis_result['image_base64'] = base64_img
+                        analysis_result['image_mime_type'] = f"image/{file_extension if file_extension != 'jpg' else 'jpeg'}"
+                        print(f"✅ 이미지 Base64 인코딩 완료: {len(base64_img)} bytes")
+                        
                 except Exception as e:
-                    current_app.logger.error(f"이미지 크기 추출 오류: {e}")
-                    print(f"이미지 크기 추출 오류: {e}")
+                    current_app.logger.error(f"이미지 처리 오류: {e}")
+                    print(f"이미지 처리 오류: {e}")
                     analysis_result['image_width'] = 'N/A'
                     analysis_result['image_height'] = 'N/A'
                     analysis_result['image_resolution'] = 'N/A'

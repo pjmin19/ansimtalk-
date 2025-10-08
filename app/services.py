@@ -843,8 +843,17 @@ def generate_image_html(original_image_path, analysis_result, original_file):
     """이미지를 Base64로 인코딩하여 HTML에 임베드"""
     import base64
     
-    # 이미지 경로 찾기 - 우선순위 순서로 확인
-    print(f"🔍 이미지 경로 탐색 시작...")
+    print(f"🔍 이미지 HTML 생성 시작...")
+    
+    # 우선순위 0: 세션에 저장된 Base64 이미지 사용 (가장 확실한 방법)
+    if 'image_base64' in analysis_result and analysis_result['image_base64']:
+        base64_img = analysis_result['image_base64']
+        mime_type = analysis_result.get('image_mime_type', 'image/jpeg')
+        print(f"✅ 세션에 저장된 Base64 이미지 사용: {len(base64_img)} bytes, MIME: {mime_type}")
+        return f'<img class="evidence" src="data:{mime_type};base64,{base64_img}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>'
+    
+    # Base64 이미지가 없으면 파일 경로에서 찾기
+    print(f"   ⚠️ 세션에 Base64 이미지 없음, 파일 경로에서 탐색...")
     print(f"   original_image_path 인자: {original_image_path}")
     print(f"   uploaded_file_path: {analysis_result.get('uploaded_file_path', 'N/A')}")
     print(f"   static_file_path: {analysis_result.get('static_file_path', 'N/A')}")
@@ -911,7 +920,22 @@ def generate_image_html(original_image_path, analysis_result, original_file):
         except Exception as e:
             print(f"❌ 이미지 인코딩 실패: {e}")
     
-    # 이미지를 찾을 수 없을 때
+    # 이미지를 찾을 수 없을 때 - 디버깅 정보 상세 출력
+    print(f"❌❌❌ 최종: 이미지를 찾을 수 없음")
+    print(f"   파일명: {original_file.get('filename', 'N/A')}")
+    print(f"   시도한 경로: {original_image_path if original_image_path else '없음'}")
+    print(f"   현재 작업 디렉토리: {os.getcwd()}")
+    
+    # tmp 디렉토리 내용 확인
+    tmp_paths = ['/app/tmp', os.path.join(os.getcwd(), 'tmp')]
+    for tmp_path in tmp_paths:
+        if os.path.exists(tmp_path):
+            try:
+                files = os.listdir(tmp_path)
+                print(f"   📂 {tmp_path} 내용: {files[:10]}")  # 처음 10개만
+            except Exception as e:
+                print(f"   📂 {tmp_path} 읽기 실패: {e}")
+    
     return f'''<div style="background: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; color: #6c757d;">
         <p><strong>⚠️ 원본 이미지를 찾을 수 없습니다</strong></p>
         <p>파일명: {original_file.get("filename", "N/A")}</p>
