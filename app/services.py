@@ -845,48 +845,42 @@ def generate_image_html(original_image_path, analysis_result, original_file):
     
     print(f"🔍 이미지 HTML 생성 시작...")
     
-    # 우선순위 0: 세션에 저장된 Base64 이미지 사용 (가장 확실한 방법)
-    if 'image_base64' in analysis_result and analysis_result['image_base64']:
-        base64_img = analysis_result['image_base64']
-        mime_type = analysis_result.get('image_mime_type', 'image/jpeg')
-        print(f"✅ 세션에 저장된 Base64 이미지 사용: {len(base64_img)} bytes, MIME: {mime_type}")
-        return f'<img class="evidence" src="data:{mime_type};base64,{base64_img}" alt="원본 증거 이미지" style="max-width: 100%; height: auto;"/>'
-    
-    # Base64 이미지가 없으면 파일 경로에서 찾기
-    print(f"   ⚠️ 세션에 Base64 이미지 없음, 파일 경로에서 탐색...")
+    # 파일 경로에서 이미지 찾기
     print(f"   original_image_path 인자: {original_image_path}")
     print(f"   uploaded_file_path: {analysis_result.get('uploaded_file_path', 'N/A')}")
     print(f"   static_file_path: {analysis_result.get('static_file_path', 'N/A')}")
     print(f"   file_path: {analysis_result.get('file_path', 'N/A')}")
     
-    # 우선순위 1: uploaded_file_path (실제 저장된 경로)
-    uploaded_path = analysis_result.get('uploaded_file_path', '')
-    if uploaded_path and os.path.exists(uploaded_path):
-        original_image_path = uploaded_path
+    # 우선순위 1: file_path (분석에 사용된 원본 파일)
+    file_path = analysis_result.get('file_path', '')
+    if file_path and os.path.exists(file_path):
+        original_image_path = file_path
+        print(f"✅ file_path에서 이미지 찾음: {original_image_path}")
+    # 우선순위 2: uploaded_file_path (실제 저장된 경로)
+    elif analysis_result.get('uploaded_file_path', '') and os.path.exists(analysis_result.get('uploaded_file_path', '')):
+        original_image_path = analysis_result.get('uploaded_file_path', '')
         print(f"✅ uploaded_file_path에서 이미지 찾음: {original_image_path}")
-    # 우선순위 2: static_file_path
+    # 우선순위 3: static_file_path
     elif analysis_result.get('static_file_path', '') and os.path.exists(analysis_result.get('static_file_path', '')):
         original_image_path = analysis_result.get('static_file_path', '')
         print(f"✅ static_file_path에서 이미지 찾음: {original_image_path}")
-    # 우선순위 3: 기존 original_image_path
+    # 우선순위 4: 기존 original_image_path
     elif original_image_path and os.path.exists(original_image_path):
         print(f"✅ 인자로 전달된 경로에서 이미지 찾음: {original_image_path}")
-    # 우선순위 4: 파일명으로 다양한 경로 탐색
+    # 우선순위 5: 파일명으로 다양한 경로 탐색
     else:
         filename = original_file.get('filename', '')
         print(f"   파일명으로 탐색 시작: {filename}")
         possible_paths = [
-            analysis_result.get('file_path', ''),
-            analysis_result.get('upload_path', ''),
             f'/app/tmp/{filename}',
             f'/app/static/uploads/{filename}',
             f'/app/app/static/uploads/{filename}',
+            os.path.join(os.getcwd(), 'tmp', filename),
+            os.path.join('tmp', filename),
             os.path.join('app', 'static', 'uploads', filename),
             os.path.join('static', 'uploads', filename),
-            os.path.join('tmp', filename),
             os.path.join(os.getcwd(), 'app', 'static', 'uploads', filename),
             os.path.join(os.getcwd(), 'static', 'uploads', filename),
-            os.path.join(os.getcwd(), 'tmp', filename),
         ]
         
         for path in possible_paths:

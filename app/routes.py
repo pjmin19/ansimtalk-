@@ -286,14 +286,9 @@ def _handle_file_upload_and_analysis(analysis_type):
                         current_app.logger.info(f"이미지 크기: {img.width}x{img.height}")
                         print(f"이미지 크기: {img.width}x{img.height}")
                     
-                    # PDF 생성을 위해 이미지를 Base64로 인코딩하여 세션에 저장
-                    import base64
-                    with open(file_path, 'rb') as img_file:
-                        img_data = img_file.read()
-                        base64_img = base64.b64encode(img_data).decode('utf-8')
-                        analysis_result['image_base64'] = base64_img
-                        analysis_result['image_mime_type'] = f"image/{file_extension if file_extension != 'jpg' else 'jpeg'}"
-                        print(f"✅ 이미지 Base64 인코딩 완료: {len(base64_img)} bytes")
+                    # PDF 생성을 위해 이미지를 임시 파일로 복사 (세션 크기 제한 회피)
+                    # Base64는 세션 크기 제한으로 문제가 될 수 있으므로 파일 경로만 저장
+                    print(f"✅ 이미지 경로 저장 완료: {file_path}")
                         
                 except Exception as e:
                     current_app.logger.error(f"이미지 처리 오류: {e}")
