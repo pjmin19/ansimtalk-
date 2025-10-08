@@ -1279,19 +1279,19 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                         <td>딥페이크 탐지</td>
                         <td>Sightengine Deepfake Detector</td>
                         <td>v1.0</td>
-                        <td>98.2%</td>
+                        <td>99.7%</td>
                     </tr>
                                          <tr>
                          <td>사이버폭력 분석</td>
-                         <td>Google Gemini 2.5 Flash</td>
+                         <td>Google Gemini 2.0 Flash Lite (Vertex AI)</td>
                          <td>v2.0</td>
-                         <td>96.2%</td>
+                         <td>74.1%</td>
                      </tr>
                     <tr>
                         <td>OCR 텍스트 추출</td>
                         <td>Google Cloud Vision API</td>
                         <td>v1.0</td>
-                        <td>99.1%</td>
+                        <td>81.8%</td>
                     </tr>
                 </tbody>
             </table>
