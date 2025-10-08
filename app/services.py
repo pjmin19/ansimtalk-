@@ -270,7 +270,7 @@ def analyze_text_with_gemini(text_content):
         print(f"Google Cloud 인증 설정 오류: {e}")
         return {"table": '', "summary": f'Google Cloud 인증 설정 오류: {e}'}
     
-         model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash"
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
