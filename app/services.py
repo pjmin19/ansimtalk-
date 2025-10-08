@@ -284,13 +284,15 @@ def analyze_text_with_gemini(text_content):
 1.  **결과는 반드시 마크다운 표(Markdown Table)로 시작**해야 합니다.
 2.  표의 위나 아래에 제목, 코드 블록, 설명 등 **어떠한 다른 텍스트도 추가하지 마세요.**
 3.  표의 열(Column)은 `문장`, `유형`, `피해자`, `가해자`, `위험도`, `해설` 순서여야 하며, **절대 순서를 바꾸거나 합치지 마세요.**
-4.  `유형`은 `욕설`, `비하`, `모욕`, `따돌림`, `위협`, `괴롭힘` 중에서만 선택하고, 해당 없으면 `-`로 표기하세요.
-5.  `위험도`는 `없음`, `의심`, `약간 있음`, `있음`, `심각` 중에서만 선택하세요.
-6.  `해설`은 판단 근거를 한 줄로 간결하게 요약하여 작성하세요.
-7.  **표 바로 아래에는 다음 세 가지 항목을 순서대로, 정확한 문구로 작성**해야 합니다.
+4.  `문장`은 반드시 `발화자: 내용` 형식으로 작성하세요. 발화자 정보가 없으면 `-: 내용`으로 작성합니다. 카카오톡 대화처럼 발화자(이름/닉네임)과 메시지 내용을 `:`로 연결합니다. 전각 문자가 아닌 ASCII 콜론 `:`만 사용하세요.
+5.  모든 셀에는 **줄바꿈을 절대 포함하지 마세요**. 셀 내부 개행(`\n`), 파이프(`|`), 백틱, 코드블록 표시는 금지합니다. 줄바꿈이 필요한 경우 **공백 하나**로 대체합니다.
+6.  `유형`은 `욕설`, `비하`, `모욕`, `따돌림`, `위협`, `괴롭힘` 중에서만 선택하고, 해당 없으면 `-`로 표기하세요.
+7.  `위험도`는 `없음`, `의심`, `약간 있음`, `있음`, `심각` 중에서만 선택하세요.
+8.  `해설`은 판단 근거를 **한 줄로** 간결하게 요약하세요. 사례/근거를 쉼표로 나열하되 줄바꿈은 금지합니다.
+9.  **표 바로 아래에는 다음 세 가지 항목을 순서대로, 정확한 문구로 작성**해야 합니다. 각 항목 앞에는 줄바꿈 한 번만 허용합니다.
     * `전체 대화 사이버폭력 위험도:` [없음/의심/약간 있음/있음/심각] 중 하나로 결론
-    * `대화 전체 분위기 요약:` 2~3문장으로 요약
-    * `잠재적 위험/주의사항:` 구체적인 내용 서술
+    * `대화 전체 분위기 요약:` 2~3문장으로 요약 (줄바꿈 없이 한 줄)
+    * `잠재적 위험/주의사항:` 구체적인 내용 서술 (줄바꿈 없이 한 줄)
 
 # 출력 예시 (Example)
 아래는 당신이 따라야 할 완벽한 출력 예시입니다. 띄어쓰기, 줄 바꿈까지 정확히 일치시켜야 합니다.
@@ -323,18 +325,21 @@ def analyze_text_with_gemini(text_content):
         in_table = False
         
         for line in lines:
-            if line.strip().startswith("| ") or (line.strip().startswith("|:") and "|" in line):
+            s = line.strip()
+            # 표 시작 조건을 완화: 파이프(|)로 시작하면 표로 인식
+            if s.startswith("|"):
                 in_table = True
             if in_table:
-                if line.strip() == '' and table_lines:
+                if s == '' and table_lines:
                     in_table = False
-                elif line.strip().startswith("|"):
-                    table_lines.append(line)
+                elif s.startswith("|"):
+                    # 셀 내부 개행이 있었다면 공백 하나로 정규화하여 단일 행 유지
+                    table_lines.append(s.replace("\t", " "))
                 else:
                     in_table = False
             elif table_lines and not in_table:
-                if line.strip():
-                    summary_lines.append(line)
+                if s:
+                    summary_lines.append(s)
         
         table = "\n".join(table_lines)
         summary_raw = "\n".join(summary_lines).strip()
