@@ -305,13 +305,22 @@ def analyze_text_with_gemini(text_content):
         raw_key = os.environ.get('GOOGLE_GEMINI_API_KEY') or current_app.config.get('GOOGLE_GEMINI_API_KEY')
         api_key = raw_key.strip() if isinstance(raw_key, str) else None
         # 흔한 placeholder/무효 키 패턴 차단
-        if api_key and (api_key.lower().startswith('your-') or api_key.endswith('-lo') or len(api_key) < 25):
-            print("무효한 Gemini API Key 패턴 감지 → Vertex 경로 시도")
+        if api_key and (api_key.lower().startswith('your-') or api_key.lower().startswith('aizasy') or api_key.endswith('-lo') or len(api_key) < 25):
+            print(f"무효한 Gemini API Key 패턴 감지 (길이: {len(api_key)}, 시작: {api_key[:10]}...) → Vertex 경로 시도")
             api_key = None
+        
+        # API Key 모드 시도 (유효성 미리 검증 불가하므로 Vertex 경로도 준비)
+        client_initialized = False
         if api_key:
-            client = genai.Client(api_key=api_key)
-            print("Gemini Client 초기화: API Key 모드")
-        else:
+            try:
+                client = genai.Client(api_key=api_key)
+                print(f"Gemini Client 초기화: API Key 모드 (키 길이: {len(api_key)})")
+                client_initialized = True
+            except Exception as key_err:
+                print(f"API Key 모드 초기화 실패: {key_err} → Vertex 경로로 전환")
+                api_key = None
+        
+        if not client_initialized:
             # 환경 변수에서 서비스 계정 키 JSON 가져오기
             service_account_info = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
             if service_account_info:
