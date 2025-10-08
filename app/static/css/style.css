@@ -421,13 +421,13 @@ body {
 }
 
 .analysis-table th, .analysis-table td {
-    padding: 6px 8px;
+    padding: 8px 12px;
     text-align: left;
     border-bottom: 1px solid #e9ecef;
-    font-size: 0.7em;
+    font-size: 0.75em;
     white-space: normal;
     word-wrap: break-word;
-    line-height: 1.3;
+    line-height: 1.4;
 }
 
 .analysis-table th {
@@ -436,22 +436,22 @@ body {
     color: #2c3e50;
     position: sticky;
     top: 0;
-    font-size: 0.75em;
+    font-size: 0.8em;
 }
 
 /* 각 컬럼별 최적 너비 지정 */
 .analysis-table th:nth-child(1), 
-.analysis-table td:nth-child(1) { width: 28%; } /* 문장 */
+.analysis-table td:nth-child(1) { width: 24%; } /* 문장 */
 .analysis-table th:nth-child(2), 
-.analysis-table td:nth-child(2) { width: 8%; } /* 유형 */
+.analysis-table td:nth-child(2) { width: 11%; } /* 유형 */
 .analysis-table th:nth-child(3), 
-.analysis-table td:nth-child(3) { width: 10%; } /* 피해자 */
+.analysis-table td:nth-child(3) { width: 12%; } /* 피해자 */
 .analysis-table th:nth-child(4), 
-.analysis-table td:nth-child(4) { width: 10%; } /* 가해자 */
+.analysis-table td:nth-child(4) { width: 12%; } /* 가해자 */
 .analysis-table th:nth-child(5), 
-.analysis-table td:nth-child(5) { width: 8%; } /* 위험도 */
+.analysis-table td:nth-child(5) { width: 11%; } /* 위험도 */
 .analysis-table th:nth-child(6), 
-.analysis-table td:nth-child(6) { width: 36%; } /* 해설 */
+.analysis-table td:nth-child(6) { width: 30%; } /* 해설 */
 
 .analysis-table tr:nth-child(even) {
     background-color: #f8f9fa;
