@@ -270,7 +270,7 @@ def analyze_text_with_gemini(text_content):
         print(f"Google Cloud 인증 설정 오류: {e}")
         return {"table": '', "summary": f'Google Cloud 인증 설정 오류: {e}'}
     
-    model = "gemini-2.5-flash"
+    model = "gemini-1.5-flash-002"
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
@@ -311,9 +311,9 @@ def analyze_text_with_gemini(text_content):
         print("Gemini AI API 호출 시작...")
         response = client.models.generate_content(
             model=model,
-            contents=[prompt]
+            contents=prompt
         )
-        result_text = response.candidates[0].content.parts[0].text.strip()
+        result_text = response.text.strip()
         print("Gemini AI API 호출 성공!")
         print(f"응답 길이: {len(result_text)} 문자")
         # 표와 표 아래 3줄 분리
@@ -1018,7 +1018,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                     </tr>
                                          <tr>
                          <td>사이버폭력 분석</td>
-                         <td>Google Gemini 2.5 Flash</td>
+                         <td>Google Gemini 1.5 Flash</td>
                          <td>v2.0</td>
                          <td>96.2%</td>
                      </tr>
@@ -1131,7 +1131,7 @@ def generate_report_html(analysis_result, analysis_type=None, pdf_path=None):
                                          <tr>
                          <td>AI 분석</td>
                          <td>{upload_timestamp}</td>
-                         <td>AI 서버 (Gemini 2.5 Flash v2.0)</td>
+                         <td>AI 서버 (Gemini 1.5 Flash v2.0)</td>
                      </tr>
                     <tr>
                         <td>결과 생성</td>
