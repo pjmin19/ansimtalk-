@@ -125,6 +125,13 @@ def analyze_file(file_path, analysis_type, file_extension):
     elif analysis_type == 'cyberbullying':
         if file_extension in {'png', 'jpg', 'jpeg'}:
             extracted_text = extract_text_from_image(file_path)
+            # 카톡 OCR 전처리로 '발화자: 내용' 재구성
+            if extracted_text and not extracted_text.startswith('['):
+                extracted_text = _preprocess_kakao_chat_text(extracted_text)
+        if file_extension in {'png', 'jpg', 'jpeg'}:
+            extracted_text = extract_text_from_image(file_path)
+            if extracted_text and not extracted_text.startswith('['):
+                extracted_text = _preprocess_kakao_chat_text(extracted_text)
             if extracted_text.strip():
                 gemini_result = analyze_text_with_gemini(extracted_text)
                 result['extracted_text'] = extracted_text
@@ -217,6 +224,73 @@ def extract_text_from_image(image_path):
     except Exception as e:
         print(f"Google Cloud Vision API 오류: {e}")
         return f"[Google Cloud Vision API 오류: {e}]"
+
+def _preprocess_kakao_chat_text(raw_text: str) -> str:
+    """카카오톡 OCR 텍스트를 분석 친화적으로 정규화하여
+    각 발화를 '이름: 내용' 단일 행으로 재구성한다.
+
+    규칙:
+    - 시간/날짜/시스템 라인 제거
+    - 단독 이름 라인 + 다음 내용 라인을 병합하여 '이름: 내용'
+    - 이름을 알 수 없으면 '-: 내용'
+    - 셀 내부 개행을 최소화하기 위해 연속 공백을 1칸으로 정규화
+    """
+    if not raw_text:
+        return ""
+
+    # 패턴 정의
+    time_pattern = re.compile(r'^(?:오전|오후)\s?\d{1,2}:\d{2}$')
+    date_time_pattern = re.compile(r'^\d{4}[./-]\s?\d{1,2}[./-]\s?\d{1,2}(?:\s+(?:오전|오후)\s?\d{1,2}:\d{2})?$')
+    noise_exact = {"사진", "이모티콘", "가해자", "피해자", "주동자", "주둥자"}
+    possible_name_pattern = re.compile(r'^[가-힣A-Za-z0-9_]{1,16}$')
+
+    lines = [ln.strip() for ln in raw_text.splitlines()]
+    processed: list[str] = []
+    pending_speaker: str | None = None
+
+    for ln in lines:
+        if not ln:
+            continue
+        # 시간/날짜 라인 제거
+        if time_pattern.match(ln) or date_time_pattern.match(ln):
+            continue
+        # 명확한 잡음 라인 제거
+        if ln in noise_exact:
+            continue
+        # 너무 짧은 한 글자 잡음 제거
+        if len(ln) == 1 and ln in {"-", ".", ","}:
+            continue
+        # 이미 '이름: 내용' 형태면 그대로 반영
+        if ':' in ln and not ln.endswith(':'):
+            # 전각 콜론 등은 ASCII 콜론으로 통일
+            ln = ln.replace('：', ':')
+            # 다중 콜론은 첫 콜론만 분리하여 이름: 내용 보장
+            parts = ln.split(':', 1)
+            speaker = parts[0].strip()
+            content = parts[1].strip()
+            if not speaker:
+                speaker = '-'
+            if not content:
+                continue
+            processed.append(f"{speaker}: {re.sub(r'\s+', ' ', content)}")
+            pending_speaker = None
+            continue
+
+        # 이름 후보만 있는 라인 감지
+        if possible_name_pattern.match(ln):
+            pending_speaker = ln
+            continue
+
+        # 일반 내용 라인
+        content = re.sub(r'\s+', ' ', ln)
+        if pending_speaker:
+            processed.append(f"{pending_speaker}: {content}")
+            pending_speaker = None
+        else:
+            processed.append(f"-: {content}")
+
+    # 잔여 대기 이름 제거
+    return "\n".join(processed)
 
 def analyze_text_with_gemini(text_content):
     # Railway 환경에서 환경 변수로 설정된 서비스 계정 키 사용
@@ -381,7 +455,9 @@ def _fallback_cyberbullying_analysis(text_content):
         derogatory_keywords = ['비하', '모욕', '욕설', 'X아', 'X야']
         
         # 문장별 분석
-        sentences = text_content.split('\n')
+        # 전처리: 카톡 구조 정규화
+        normalized_text = _preprocess_kakao_chat_text(text_content)
+        sentences = normalized_text.split('\n')
         analysis_lines = []
         risk_count = 0
         severe_count = 0
