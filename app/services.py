@@ -153,8 +153,10 @@ def analyze_file(file_path, analysis_type, file_extension):
                 except UnicodeDecodeError:
                     with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                         text = f.read()
-            gemini_result = analyze_text_with_gemini(text)
-            result['extracted_text'] = text
+            # TXT도 카톡 포맷일 수 있으므로 동일 전처리 적용
+            normalized = _preprocess_kakao_chat_text(text)
+            gemini_result = analyze_text_with_gemini(normalized)
+            result['extracted_text'] = normalized
             result['cyberbullying_analysis'] = gemini_result.get('table', '')
             result['cyberbullying_analysis_summary'] = gemini_result.get('summary', '')
             result['cyberbullying_risk_line'] = extract_risk_line(gemini_result.get('summary', ''))
@@ -241,7 +243,8 @@ def _preprocess_kakao_chat_text(raw_text: str) -> str:
     # 패턴 정의
     time_pattern = re.compile(r'^(?:오전|오후)\s?\d{1,2}:\d{2}$')
     date_time_pattern = re.compile(r'^\d{4}[./-]\s?\d{1,2}[./-]\s?\d{1,2}(?:\s+(?:오전|오후)\s?\d{1,2}:\d{2})?$')
-    noise_exact = {"사진", "이모티콘", "가해자", "피해자", "주동자", "주둥자"}
+    # 명시적 잡음만 제거 (역할명은 제거하지 않음)
+    noise_exact = {"사진", "이모티콘"}
     possible_name_pattern = re.compile(r'^[가-힣A-Za-z0-9_]{1,16}$')
 
     lines = [ln.strip() for ln in raw_text.splitlines()]
@@ -345,12 +348,25 @@ def analyze_text_with_gemini(text_content):
         return {"table": '', "summary": f'Google Cloud 인증 설정 오류: {e}'}
     
     model = "gemini-1.5-flash-002"
+    # 발화자 이름에서 역할 힌트 추출
+    speakers = set([ln.split(':',1)[0].strip() for ln in _preprocess_kakao_chat_text(text_content).split('\n') if ':' in ln])
+    role_hints = []
+    for sp in speakers:
+        if re.search(r'가해자|주동자', sp):
+            role_hints.append(f"{sp} 는 가해자/주동자일 가능성이 큼")
+        if re.search(r'피해자', sp):
+            role_hints.append(f"{sp} 는 피해자일 가능성이 큼")
+    hints_text = "\n".join(role_hints) if role_hints else "(역할 힌트 없음)"
+
     prompt = f"""
 # 페르소나 (Persona)
 당신은 사이버폭력 분석을 전문으로 하는 AI 애널리스트입니다. 주어진 대화 내용을 문장 단위로 정밀하게 분석하여 폭력성, 유형, 가해자, 피해자, 위험도를 판별하는 임무를 수행합니다. 모든 답변은 요청된 형식에 따라 매우 엄격하게 작성해야 합니다.
 
 # 분석 대상 대화
 [ {text_content} ]
+
+# 역할 힌트 (참고용, 텍스트와 불일치시 텍스트 우선):
+{hints_text}
 
 # 출력 형식 (Output Format)
 아래 규칙을 반드시, 100% 준수하여 결과를 생성해야 합니다.
