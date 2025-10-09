@@ -447,12 +447,34 @@ def analyze_text_with_gemini(text_content):
         print(f"모델: {model}")
         print(f"Client 타입: {type(client).__name__}")
         print(f"프롬프트 길이: {len(prompt)} 문자")
-        response = client.models.generate_content(
-            model=model,
-            contents=prompt
-        )
+        
+        # 타임아웃과 함께 API 호출
+        from concurrent.futures import ThreadPoolExecutor, TimeoutError
+        import time
+        
+        start_time = time.time()
+        
+        def call_gemini_api():
+            return client.models.generate_content(
+                model=model,
+                contents=prompt
+            )
+        
+        # 120초 타임아웃 설정 (Railway의 300초보다 짧게)
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(call_gemini_api)
+            try:
+                response = future.result(timeout=120)
+                elapsed = time.time() - start_time
+                print(f"========== Gemini API 호출 성공! (소요시간: {elapsed:.1f}초) ==========")
+            except TimeoutError:
+                print(f"========== Gemini API 호출 타임아웃! (120초 초과) ==========")
+                return {
+                    "table": '<table class="analysis-table"><tbody><tr><td colspan="6">분석 시간이 초과되었습니다. 더 짧은 텍스트로 다시 시도해주세요.</td></tr></tbody></table>',
+                    "summary": "전체 대화 사이버폭력 위험도: 분석 실패\n\n대화 전체 분위기 요약: 분석 시간이 초과되어 결과를 생성할 수 없습니다.\n\n잠재적 위험/주의사항: 텍스트 길이를 줄이거나 다시 시도해주세요."
+                }
+        
         result_text = response.text.strip()
-        print(f"========== Gemini API 호출 성공! ==========")
         print(f"응답 길이: {len(result_text)} 문자")
         # 표와 표 아래 3줄 분리
         lines = result_text.splitlines()
