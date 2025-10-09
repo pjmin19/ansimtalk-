@@ -1,15 +1,29 @@
+# Git 관련
 .git
 .gitignore
+
+# 문서 파일 (불필요)
 README.md
 *.md
+
+# Python 캐시
 __pycache__
 *.pyc
 *.pyo
 *.pyd
 .Python
+
+# 가상환경 (용량 큼!)
 env
+venv
+ENV
+venv.bak
+env.bak
+
+# 로그 및 테스트
 pip-log.txt
 pip-delete-this-directory.txt
+*.log
 .tox
 .coverage
 .coverage.*
@@ -17,8 +31,35 @@ pip-delete-this-directory.txt
 nosetests.xml
 coverage.xml
 *.cover
-*.log
-.git
+
+# IDE
+.vscode
+.idea
+.DS_Store
+
+# 테스트 및 캐시
 .mypy_cache
 .pytest_cache
-.hypothesis 
+.hypothesis
+
+# 임시 파일 (절대 업로드 금지!)
+tmp
+tmp/
+tmp/**
+temp/
+temp/**
+test_*.py
+test_*.pdf
+
+# 테스트 디렉토리
+no/
+no/**
+scripts/
+
+# 빌드 파일
+build/
+dist/
+*.egg-info
+
+# Node modules (불필요)
+node_modules/ 

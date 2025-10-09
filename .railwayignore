@@ -1,0 +1,52 @@
+# Git 관련 (업로드 불필요)
+.git
+.gitignore
+
+# 문서 파일 (용량 큼)
+*.md
+README.md
+작품*.md
+완전*.md
+
+# Python 가상환경 (절대 업로드 금지!)
+venv/
+env/
+ENV/
+.venv/
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE 설정
+.vscode/
+.idea/
+.DS_Store
+
+# 테스트 파일
+test_*.py
+test_*.pdf
+
+# 임시 파일 (절대 업로드 금지!)
+tmp
+tmp/
+tmp/**
+temp/
+*.tmp
+*.log
+
+# 테스트 디렉토리
+no/
+no/**
+scripts/
+
+# 빌드 파일
+build/
+dist/
+*.egg-info
+
+# Node modules
+node_modules/
+
