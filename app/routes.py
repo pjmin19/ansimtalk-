@@ -506,13 +506,16 @@ def api_analyze_deepfake():
         analysis_result['sha256'] = sha256
         analysis_result['analysis_type'] = 'deepfake'
         
-        current_app.logger.info("=== API 딥페이크 분석 완료 ===")
+        # PDF 생성을 위해 파일 경로와 원본 파일명 저장
+        analysis_result['file_path'] = file_path
+        analysis_result['upload_path'] = file_path
+        analysis_result['original_image_path'] = file_path
+        analysis_result['original_filename'] = original_filename
         
-        # 임시 파일 삭제 (선택적)
-        try:
-            os.remove(file_path)
-        except:
-            pass
+        current_app.logger.info(f"=== API 딥페이크 분석 완료 (파일 유지: {file_path}) ===")
+        
+        # PDF 생성을 위해 파일 삭제하지 않음!
+        # 나중에 정리 작업으로 오래된 파일만 삭제
         
         return jsonify(analysis_result), 200
         
@@ -579,13 +582,16 @@ def api_analyze_cyberbullying():
         analysis_result['sha256'] = sha256
         analysis_result['analysis_type'] = 'cyberbullying'
         
-        current_app.logger.info("=== API 사이버폭력 분석 완료 ===")
+        # PDF 생성을 위해 파일 경로와 원본 파일명 저장
+        analysis_result['file_path'] = file_path
+        analysis_result['upload_path'] = file_path
+        analysis_result['original_image_path'] = file_path
+        analysis_result['original_filename'] = original_filename
         
-        # 임시 파일 삭제 (선택적)
-        try:
-            os.remove(file_path)
-        except:
-            pass
+        current_app.logger.info(f"=== API 사이버폭력 분석 완료 (파일 유지: {file_path}) ===")
+        
+        # PDF 생성을 위해 파일 삭제하지 않음!
+        # 나중에 정리 작업으로 오래된 파일만 삭제
         
         return jsonify(analysis_result), 200
         
