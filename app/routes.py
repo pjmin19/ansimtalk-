@@ -1,7 +1,7 @@
 import os
 import uuid
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, flash, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, flash, send_file, jsonify
 from werkzeug.utils import secure_filename
 from .services import analyze_file, generate_pdf_report
 import shutil
@@ -9,6 +9,7 @@ from PIL import Image, ExifTags
 import hashlib
 import re
 import unicodedata
+import json
 
 bp = Blueprint('main', __name__)
 
@@ -429,3 +430,212 @@ def reset():
     # 세션 클리어
     session.clear()
     return redirect(url_for('main.index'))
+
+# ============================================
+# API 엔드포인트 (모바일 앱용 - JSON 응답)
+# ============================================
+
+@bp.route('/api/health', methods=['GET'])
+def api_health():
+    """API 상태 확인 (JSON 응답)"""
+    try:
+        return jsonify({
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "service": "AnsimTalk AI Forensic Analysis",
+            "version": "1.0.0",
+            "environment": "production"
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+
+@bp.route('/api/analyze_deepfake', methods=['POST'])
+def api_analyze_deepfake():
+    """딥페이크 분석 API (JSON 응답)"""
+    try:
+        current_app.logger.info("=== API 딥페이크 분석 시작 ===")
+        
+        if 'file' not in request.files:
+            return jsonify({'error': '파일이 없습니다.'}), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'error': '파일을 선택해주세요.'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'error': '허용되지 않는 파일 형식입니다.'}), 400
+        
+        # 파일 크기 확인
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)
+        
+        if file_size > MAX_FILE_SIZE:
+            return jsonify({'error': '파일 크기가 5MB를 초과합니다.'}), 400
+
+        # 파일 저장
+        original_filename = secure_korean_filename(file.filename)
+        file_extension = original_filename.rsplit('.', 1)[1].lower()
+        unique_filename = f"{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file_extension}"
+        
+        upload_folder = os.path.join(os.getcwd(), 'tmp')
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+        
+        file_path = os.path.join(upload_folder, unique_filename)
+        file.save(file_path)
+        
+        current_app.logger.info(f"파일 저장 완료: {file_path}")
+
+        # 분석 수행
+        analysis_result = analyze_file(file_path, 'deepfake', file_extension)
+        
+        # 파일 정보 추가
+        file_stat = os.stat(file_path)
+        analysis_result['file_info'] = {
+            'filename': original_filename,
+            'type': file_extension,
+            'size_bytes': file_stat.st_size
+        }
+        analysis_result['analysis_timestamp'] = datetime.now().isoformat()
+        
+        # SHA-256 해시
+        with open(file_path, 'rb') as f:
+            sha256 = hashlib.sha256(f.read()).hexdigest()
+        analysis_result['sha256'] = sha256
+        analysis_result['analysis_type'] = 'deepfake'
+        
+        current_app.logger.info("=== API 딥페이크 분석 완료 ===")
+        
+        # 임시 파일 삭제 (선택적)
+        try:
+            os.remove(file_path)
+        except:
+            pass
+        
+        return jsonify(analysis_result), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"API 딥페이크 분석 오류: {e}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({'error': f'분석 중 오류 발생: {str(e)}'}), 500
+
+@bp.route('/api/analyze_cyberbullying', methods=['POST'])
+def api_analyze_cyberbullying():
+    """사이버폭력 분석 API (JSON 응답)"""
+    try:
+        current_app.logger.info("=== API 사이버폭력 분석 시작 ===")
+        
+        if 'file' not in request.files:
+            return jsonify({'error': '파일이 없습니다.'}), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'error': '파일을 선택해주세요.'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'error': '허용되지 않는 파일 형식입니다.'}), 400
+        
+        # 파일 크기 확인
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)
+        
+        if file_size > MAX_FILE_SIZE:
+            return jsonify({'error': '파일 크기가 5MB를 초과합니다.'}), 400
+
+        # 파일 저장
+        original_filename = secure_korean_filename(file.filename)
+        file_extension = original_filename.rsplit('.', 1)[1].lower()
+        unique_filename = f"{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file_extension}"
+        
+        upload_folder = os.path.join(os.getcwd(), 'tmp')
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+        
+        file_path = os.path.join(upload_folder, unique_filename)
+        file.save(file_path)
+        
+        current_app.logger.info(f"파일 저장 완료: {file_path}")
+
+        # 분석 수행
+        analysis_result = analyze_file(file_path, 'cyberbullying', file_extension)
+        
+        # 파일 정보 추가
+        file_stat = os.stat(file_path)
+        analysis_result['file_info'] = {
+            'filename': original_filename,
+            'type': file_extension,
+            'size_bytes': file_stat.st_size
+        }
+        analysis_result['analysis_timestamp'] = datetime.now().isoformat()
+        
+        # SHA-256 해시
+        with open(file_path, 'rb') as f:
+            sha256 = hashlib.sha256(f.read()).hexdigest()
+        analysis_result['sha256'] = sha256
+        analysis_result['analysis_type'] = 'cyberbullying'
+        
+        current_app.logger.info("=== API 사이버폭력 분석 완료 ===")
+        
+        # 임시 파일 삭제 (선택적)
+        try:
+            os.remove(file_path)
+        except:
+            pass
+        
+        return jsonify(analysis_result), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"API 사이버폭력 분석 오류: {e}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({'error': f'분석 중 오류 발생: {str(e)}'}), 500
+
+@bp.route('/api/download_pdf', methods=['POST'])
+def api_download_pdf():
+    """PDF 생성 및 다운로드 API"""
+    try:
+        current_app.logger.info("=== API PDF 다운로드 시작 ===")
+        
+        # JSON 데이터 받기
+        data = request.get_json()
+        if not data or 'analysis_result' not in data:
+            return jsonify({'error': '분석 결과가 없습니다.'}), 400
+        
+        analysis_result = data['analysis_result']
+        analysis_type = data.get('analysis_type', 'deepfake')
+        
+        # tmp 디렉토리 생성
+        tmp_dir = os.path.join(os.getcwd(), 'tmp')
+        if not os.path.exists(tmp_dir):
+            os.makedirs(tmp_dir)
+        
+        # PDF 파일 경로 생성
+        pdf_filename = f"evidence_{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+        pdf_path = os.path.join(tmp_dir, pdf_filename)
+        
+        # PDF 생성
+        generate_pdf_report(analysis_result, pdf_path, analysis_type)
+        
+        if not os.path.exists(pdf_path):
+            return jsonify({'error': 'PDF 파일 생성에 실패했습니다.'}), 500
+        
+        current_app.logger.info(f"PDF 생성 완료: {pdf_path}")
+        
+        # PDF 파일 전송
+        return send_file(
+            pdf_path,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=pdf_filename
+        )
+        
+    except Exception as e:
+        current_app.logger.error(f"API PDF 생성 오류: {e}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({'error': f'PDF 생성 중 오류 발생: {str(e)}'}), 500
