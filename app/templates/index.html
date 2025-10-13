@@ -64,6 +64,15 @@
         {% endwith %}
     </div>
 
+    <!-- 로딩 오버레이 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <h3 id="loading-message">AI 분석 중입니다...</h3>
+            <p id="loading-detail">잠시만 기다려주세요. 최대 1~2분 소요될 수 있습니다.</p>
+        </div>
+    </div>
+
     <script>
         // DOM이 완전히 로드된 후에 이벤트 리스너 등록
         document.addEventListener('DOMContentLoaded', function() {
@@ -84,6 +93,37 @@
                     document.getElementById('cyberbullying-file-name').textContent = fileName;
                 });
             }
+
+            // 폼 제출 시 로딩 표시
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const fileInput = form.querySelector('input[type="file"]');
+                    if (fileInput && fileInput.files.length > 0) {
+                        // 분석 타입 확인
+                        const isCyberbullying = form.action.includes('cyberbullying');
+                        const isDeepfake = form.action.includes('deepfake');
+                        
+                        // 로딩 메시지 설정
+                        const loadingMessage = document.getElementById('loading-message');
+                        const loadingDetail = document.getElementById('loading-detail');
+                        
+                        if (isCyberbullying) {
+                            loadingMessage.textContent = '🔍 사이버폭력 분석 중입니다...';
+                            loadingDetail.textContent = 'OCR 텍스트 추출 및 AI 분석을 진행하고 있습니다. 최대 1~2분 소요될 수 있습니다.';
+                        } else if (isDeepfake) {
+                            loadingMessage.textContent = '🔍 딥페이크 분석 중입니다...';
+                            loadingDetail.textContent = 'AI 이미지 분석을 진행하고 있습니다. 잠시만 기다려주세요.';
+                        }
+                        
+                        // 로딩 오버레이 표시
+                        document.getElementById('loading-overlay').style.display = 'flex';
+                    } else {
+                        e.preventDefault();
+                        alert('파일을 선택해주세요.');
+                    }
+                });
+            });
         });
     </script>
 </body>
