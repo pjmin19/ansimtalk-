@@ -118,10 +118,6 @@
 
         <div class="actions">
             <a href="{{ url_for('main.download_pdf') }}" class="btn primary-btn" id="pdf-download-btn">증거 보고서(PDF) 다운로드</a>
-            <div id="pdf-loading" style="display: none; text-align: center; padding: 1em;">
-                <div class="spinner"></div>
-                <p style="margin-top: 1em; color: #3498db; font-weight: bold;">PDF 생성 중... 잠시만 기다려주세요.</p>
-            </div>
             {% if result.analysis_type == 'deepfake' %}
                 <a href="{{ url_for('main.deepfake_help') }}" class="btn secondary-btn">상담/신고 안내</a>
             {% elif result.analysis_type == 'cyberbullying' %}
@@ -133,24 +129,31 @@
         </div>
     </div>
 
+    <!-- PDF 생성 로딩 모달 -->
+    <div class="pdf-loading-modal" id="pdf-loading-modal">
+        <div class="pdf-loading-content">
+            <div class="spinner"></div>
+            <h3>PDF 생성 중...</h3>
+            <p>잠시만 기다려주세요</p>
+        </div>
+    </div>
+
     <script>
-        // PDF 다운로드 버튼 클릭 시 로딩 표시
+        // PDF 다운로드 버튼 클릭 시 모달 표시
         document.addEventListener('DOMContentLoaded', function() {
             const pdfBtn = document.getElementById('pdf-download-btn');
-            const pdfLoading = document.getElementById('pdf-loading');
+            const pdfModal = document.getElementById('pdf-loading-modal');
             
-            if (pdfBtn) {
+            if (pdfBtn && pdfModal) {
                 pdfBtn.addEventListener('click', function(e) {
-                    // 버튼 숨기고 로딩 표시
-                    pdfBtn.style.display = 'none';
-                    pdfLoading.style.display = 'block';
+                    // 모달 표시
+                    pdfModal.classList.add('show');
                     
                     // PDF 다운로드가 완료되면 (페이지가 언로드되지 않으므로) 
-                    // 일정 시간 후 버튼 다시 표시
+                    // 일정 시간 후 모달 숨김
                     setTimeout(function() {
-                        pdfBtn.style.display = '';
-                        pdfLoading.style.display = 'none';
-                    }, 5000); // 5초 후 복구
+                        pdfModal.classList.remove('show');
+                    }, 5000); // 5초 후 모달 닫기
                 });
             }
         });
