@@ -24,5 +24,5 @@ COPY . .
 
 EXPOSE 8000
 
-# 간단한 시작 명령어
-CMD ["python", "run.py"] 
+# Gunicorn으로 프로덕션 서버 실행
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 300 --access-logfile - --error-logfile - run:app 
