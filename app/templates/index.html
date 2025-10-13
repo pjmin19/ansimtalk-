@@ -65,16 +65,25 @@
     </div>
 
     <script>
-        // 딥페이크 파일 선택
-        document.getElementById('deepfake-file').addEventListener('change', function(e) {
-            const fileName = e.target.files[0] ? e.target.files[0].name : '선택된 파일 없음';
-            document.getElementById('deepfake-file-name').textContent = fileName;
-        });
+        // DOM이 완전히 로드된 후에 이벤트 리스너 등록
+        document.addEventListener('DOMContentLoaded', function() {
+            // 딥페이크 파일 선택
+            const deepfakeFile = document.getElementById('deepfake-file');
+            if (deepfakeFile) {
+                deepfakeFile.addEventListener('change', function(e) {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : '선택된 파일 없음';
+                    document.getElementById('deepfake-file-name').textContent = fileName;
+                });
+            }
 
-        // 사이버폭력 파일 선택
-        document.getElementById('cyberbullying-file').addEventListener('change', function(e) {
-            const fileName = e.target.files[0] ? e.target.files[0].name : '선택된 파일 없음';
-            document.getElementById('cyberbullying-file-name').textContent = fileName;
+            // 사이버폭력 파일 선택
+            const cyberbullyingFile = document.getElementById('cyberbullying-file');
+            if (cyberbullyingFile) {
+                cyberbullyingFile.addEventListener('change', function(e) {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : '선택된 파일 없음';
+                    document.getElementById('cyberbullying-file-name').textContent = fileName;
+                });
+            }
         });
     </script>
 </body>

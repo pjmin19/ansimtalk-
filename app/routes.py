@@ -512,7 +512,13 @@ def api_analyze_deepfake():
         analysis_result['original_image_path'] = file_path
         analysis_result['original_filename'] = original_filename
         
+        # 세션에 파일 정보 저장 (PDF 생성 시 사용)
+        session['last_analysis_file_path'] = file_path
+        session['last_analysis_filename'] = original_filename
+        session['last_analysis_type'] = 'deepfake'
+        
         current_app.logger.info(f"=== API 딥페이크 분석 완료 (파일 유지: {file_path}) ===")
+        current_app.logger.info(f"세션에 파일 정보 저장: {file_path}")
         
         # PDF 생성을 위해 파일 삭제하지 않음!
         # 나중에 정리 작업으로 오래된 파일만 삭제
@@ -588,7 +594,13 @@ def api_analyze_cyberbullying():
         analysis_result['original_image_path'] = file_path
         analysis_result['original_filename'] = original_filename
         
+        # 세션에 파일 정보 저장 (PDF 생성 시 사용)
+        session['last_analysis_file_path'] = file_path
+        session['last_analysis_filename'] = original_filename
+        session['last_analysis_type'] = 'cyberbullying'
+        
         current_app.logger.info(f"=== API 사이버폭력 분석 완료 (파일 유지: {file_path}) ===")
+        current_app.logger.info(f"세션에 파일 정보 저장: {file_path}")
         
         # PDF 생성을 위해 파일 삭제하지 않음!
         # 나중에 정리 작업으로 오래된 파일만 삭제
@@ -614,6 +626,24 @@ def api_download_pdf():
         
         analysis_result = data['analysis_result']
         analysis_type = data.get('analysis_type', 'deepfake')
+        
+        # 세션에서 파일 정보 가져오기 (원본 이미지 표시용)
+        if 'last_analysis_file_path' in session:
+            file_path = session['last_analysis_file_path']
+            original_filename = session.get('last_analysis_filename', '')
+            
+            # 분석 결과에 파일 경로 정보 추가
+            analysis_result['file_path'] = file_path
+            analysis_result['upload_path'] = file_path
+            analysis_result['original_image_path'] = file_path
+            analysis_result['uploaded_file_path'] = file_path
+            
+            if original_filename and 'file_info' in analysis_result:
+                analysis_result['file_info']['filename'] = original_filename
+            
+            current_app.logger.info(f"세션에서 파일 정보 복원: {file_path}")
+        else:
+            current_app.logger.warning("세션에 파일 정보가 없습니다!")
         
         # tmp 디렉토리 생성
         tmp_dir = os.path.join(os.getcwd(), 'tmp')
