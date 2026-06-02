@@ -18,6 +18,7 @@ venv.bak/
 .env.test.local
 .env.production.local
 *.json
+!examples/evaluations/domain_eval_cases.json
 
 # Runtime uploads and generated artifacts
 uploads/

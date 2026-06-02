@@ -26,6 +26,10 @@ M2 contributor local-run hardening adds a synthetic fixture, sample report
 generator, contributor runbook, and CLI test so local JSON/PDF generation can be
 verified without live provider credentials.
 
+M3 domain evaluation hardening adds synthetic Korean text/OCR cases,
+provider-offline fallback evaluation, expected risk label checks, and
+human-review notice validation.
+
 ## Evidence
 
 Commands:
@@ -33,6 +37,7 @@ Commands:
 ```powershell
 python -m compileall -q .
 python -m pytest -q
+python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json
 python scripts/check_oss_readiness.py --repo-root . --json-out D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness.v1.json
 ```
 
@@ -77,6 +82,9 @@ Observed GitHub results:
 - M2 contributor local-run docs and command: `docs/CONTRIBUTOR_LOCAL_RUN.md`,
   `examples/fixtures/cyberbullying_sample.txt`, and
   `scripts/generate_sample_report.py`.
+- M3 domain evaluation docs, cases, runner, and test:
+  `docs/EVALUATION.md`, `examples/evaluations/domain_eval_cases.json`,
+  `scripts/run_domain_eval.py`, and `tests/test_domain_eval_runner.py`.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -110,16 +118,13 @@ JSON evidence:
 - M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, HTTP
   smoke checks, sample report command checks, and security regression checks
   pass without provider credentials.
-- M3 Maintainer Evidence: GitHub issues #2-#6 closed, milestone
-  `v0.1.0-oss-candidate` closed, release `v0.1.0-oss-candidate` created,
-  reference-pattern hardening recorded, and OpenAI form checklist prepared
-  locally.
-- M4 CI And Quality: GitHub Actions workflow runs successfully on GitHub; CodeQL
-  and Dependabot are configured for the next public maintenance cycle. Workflow
-  actions use current major tags checked through the GitHub API on 2026-06-02.
-- M5 Application Packet: three application answers verified under 500
-  characters.
-- M6 Final Audit: this Markdown audit and JSON readiness report exist.
+- M3 Domain Evaluation Harness: synthetic Korean text/OCR cases,
+  provider-offline evaluation, expected fallback labels, and human-review notice
+  checks are documented and tested.
+- M4 Maintainer Automation: not yet complete in the M3-M6 milestone spine.
+- M5 Educator And Human Review Boundary: not yet complete in the M3-M6
+  milestone spine.
+- M6 Official Submission Packet: not yet complete in the M3-M6 milestone spine.
 
 ## Character Counts
 

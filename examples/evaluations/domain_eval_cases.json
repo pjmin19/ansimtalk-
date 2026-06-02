@@ -1,0 +1,33 @@
+{
+  "schema": "ansimtalk_domain_eval_cases.v1",
+  "description": "Synthetic public-safe Korean text and OCR-like cases for offline fallback evaluation.",
+  "cases": [
+    {
+      "id": "ko_text_insult_exclusion",
+      "source_type": "korean_text",
+      "analysis_type": "cyberbullying",
+      "input_text": "민수: 너는 바보야. 오늘 단체방에서 지우는 빼.\n지우: 그 말 때문에 속상해.\n선생님: 전체 맥락을 확인하고 보호자가 함께 검토합니다.",
+      "expected_overall_risk": "present",
+      "expected_risk_terms": ["바보", "빼"],
+      "requires_human_review_notice": true
+    },
+    {
+      "id": "ko_ocr_threat",
+      "source_type": "ocr_text",
+      "analysis_type": "cyberbullying",
+      "input_text": "2026.06.02 PM 3:10\n민수: 죽어 라고 계속 말할 거야\nPM 3:11\n지우: 그만해\n선생님: 이 내용은 어른이 확인해야 합니다.",
+      "expected_overall_risk": "severe",
+      "expected_risk_terms": ["죽어"],
+      "requires_human_review_notice": true
+    },
+    {
+      "id": "ko_text_none",
+      "source_type": "korean_text",
+      "analysis_type": "cyberbullying",
+      "input_text": "민수: 오늘 과제 같이 하자.\n지우: 좋아. 끝나고 확인하자.",
+      "expected_overall_risk": "none",
+      "expected_risk_terms": [],
+      "requires_human_review_notice": true
+    }
+  ]
+}

@@ -251,9 +251,37 @@ def _fallback_cyberbullying_analysis(text_content):
     risk_count = 0
     severe_count = 0
 
-    severe_keywords = {"kill", "die", "destroy", "threat"}
-    insult_keywords = {"stupid", "idiot", "ugly", "hate", "trash"}
-    exclusion_keywords = {"ignore", "exclude", "leave out"}
+    severe_keywords = {
+        "kill",
+        "die",
+        "destroy",
+        "threat",
+        "\uc8fd\uc5b4",
+        "\uc8fd\uc778\ub2e4",
+        "\ud611\ubc15",
+        "\ub54c\ub9b0\ub2e4",
+    }
+    insult_keywords = {
+        "stupid",
+        "idiot",
+        "ugly",
+        "hate",
+        "trash",
+        "\ubc14\ubcf4",
+        "\uba4d\uccad",
+        "\ubabb\uc0dd\uacbc",
+        "\uc2eb\uc5b4",
+        "\uaebc\uc838",
+    }
+    exclusion_keywords = {
+        "ignore",
+        "exclude",
+        "leave out",
+        "\ub530\ub3cc",
+        "\ube7c",
+        "\ub07c\uc9c0\ub9c8",
+        "\ubb34\uc2dc",
+    }
 
     for line in normalized.splitlines():
         if not line.strip():

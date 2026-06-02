@@ -90,6 +90,22 @@ under `tmp/sample_report`.
 See `docs/CONTRIBUTOR_LOCAL_RUN.md` for setup, expected outputs, and validation
 commands.
 
+## Domain Evaluation
+
+AnsimTalk includes a credential-free domain evaluation harness for synthetic
+Korean text and OCR-like cyberbullying cases:
+
+```powershell
+python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json
+```
+
+The command reads `examples/evaluations/domain_eval_cases.json`, runs the
+provider-offline fallback workflow, checks expected coarse risk labels, and
+verifies that every case keeps the human-review notice visible.
+
+See `docs/EVALUATION.md` for the fixture schema, expected output, and limits.
+The harness is a deterministic safety smoke, not a model benchmark.
+
 ## Architecture
 
 The project keeps a small, inspectable Flask architecture:
@@ -98,6 +114,8 @@ The project keeps a small, inspectable Flask architecture:
   PDF download boundaries.
 - `app/services.py` handles file analysis, optional provider calls, fallback
   behavior, report HTML, and PDF rendering.
+- `scripts/run_domain_eval.py` runs synthetic domain evaluation cases in
+  offline fallback mode.
 - `scripts/check_oss_readiness.py` validates the public OSS surface before
   release or application work.
 
@@ -129,6 +147,7 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `docs/PRIVACY_BOUNDARIES.md` for student data, provider, and human-review
   boundaries.
 - `docs/CONTRIBUTOR_LOCAL_RUN.md` for the credential-free sample report path.
+- `docs/EVALUATION.md` for synthetic provider-offline domain evaluation.
 - `docs/MAINTAINER_GITHUB_CHECKLIST.md` for Issues, Milestones, and Releases.
 - `docs/READINESS_AUDIT.md` for the latest local M0-M6 audit.
 - `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md` for a criteria-to-evidence map.
@@ -138,6 +157,8 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `.github/dependabot.yml` for dependency update monitoring.
 - `.github/ISSUE_TEMPLATE/config.yml` for issue routing.
 - `docs/openai-codex-for-oss-application.md` for application copy.
+- `examples/evaluations/domain_eval_cases.json` for synthetic evaluation cases.
+- `scripts/run_domain_eval.py` for the offline domain eval runner.
 
 ## Status
 
@@ -155,3 +176,5 @@ Maintainer evidence already created:
 - Architecture and privacy boundaries documented for M1 public OSS shape.
 - Contributor local run documented with a synthetic fixture and sample report
   command for M2.
+- Domain evaluation documented with synthetic Korean text/OCR cases and an
+  offline fallback runner for M3.

@@ -31,32 +31,36 @@ Green condition: compile, pytest, fallback-mode smoke tests, sample report
 command tests, PDF path rejection, and deploy secret checks pass without live
 provider credentials.
 
-## M3 Maintainer Evidence
+## M3 Domain Evaluation Harness
 
-Red condition: there is no clear public maintainer trail.
+Red condition: the AI-assisted report path is only a demo and has no synthetic
+domain cases, expected labels, or human-review notice checks.
 
-Green condition: issue, milestone, and release checklist items are prepared for
-GitHub execution.
+Green condition: synthetic Korean text/OCR cases, provider-offline fallback
+evaluation, expected coarse labels, and `docs/EVALUATION.md` are present and
+tested.
 
-## M4 CI And Quality
+## M4 Maintainer Automation
 
-Red condition: checks exist only on one local machine.
+Red condition: Codex/API credit usage is described only as an intention.
 
-Green condition: GitHub Actions can run compile, pytest, and OSS readiness
-validation.
+Green condition: issue triage, PR security/privacy review, release-note draft,
+and maintainer report automation are backed by repo-local commands or
+templates.
 
-## M5 OpenAI Application Packet
+## M5 Educator And Human Review Boundary
 
-Red condition: application text is generic or above field limits.
+Red condition: the repo can be misread as a legal, forensic, emergency, or
+guaranteed safety authority.
 
-Green condition: the three application answers are public-safe, specific, and
-verified at 500 characters or fewer each.
+Green condition: educator-facing docs and sample output clearly require human
+review and describe what the project is not.
 
-## M6 Final Audit
+## M6 Official Submission Packet
 
-Red condition: the maintainer cannot tell what passed, what was not performed,
-and what still requires live execution.
+Red condition: application text is generic, above field limits, or not tied to
+current PR/CI/CodeQL/evaluation evidence.
 
-Green condition: readiness evidence names status, blockers, commands, and
-source paths. The maximum claim is `PASS: Auto-Verified` until a human executes
-the public GitHub and OpenAI steps.
+Green condition: `docs/openai-codex-for-oss-application.md` is refreshed from
+current evidence, all 500-character limits are verified, and official form
+submission happens only after all exit criteria pass.
