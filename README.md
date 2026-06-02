@@ -19,6 +19,8 @@ For OpenAI Codex for Open Source review, start with:
 - `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md` for the final owner-review packet.
 - `docs/openai-codex-for-oss-application.md` for copy-paste form answers.
 - `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md` for the criteria-to-evidence map.
+- `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PLAN.md` for the whole-picture
+  milestone plan and DTT/TDD execution spine.
 
 Current review status: `PASS: Auto-Review-Ready` and
 `READY_FOR_OWNER_SUBMISSION`.
@@ -217,6 +219,10 @@ The public maintainer story should be kept in small, reviewable artifacts:
   evidence.
 - `docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md` for automated-review readiness
   evidence.
+- `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PLAN.md` for whole-picture milestones,
+  DTT/TDD execution, and the current M8-M12 path.
+- `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PROMPT_KO.md` for the verified
+  under-4000-character follow-up prompt.
 - `docs/PRIVACY_BOUNDARIES.md` for student data, provider, and human-review
   boundaries.
 - `docs/CONTRIBUTOR_LOCAL_RUN.md` for the credential-free sample report path.

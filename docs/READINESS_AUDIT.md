@@ -47,6 +47,11 @@ surface, strengthens the application wording around clear workflow importance,
 and adds a deterministic checker for the official criteria evidence map while
 keeping early-adoption risk disclosed.
 
+M8 claim-boundary hardening removes app-template legal-evidence wording,
+adds public-surface overclaim regression tests, and records the whole-picture
+DTT/TDD goal-propulsion plan plus a verified under-4000-character follow-up
+prompt.
+
 ## Evidence
 
 Commands:
@@ -164,6 +169,9 @@ JSON evidence:
 - M7 Automated Review Readiness: official criteria evidence is summarized in a
   public review surface and checked by
   `scripts/check_codex_for_oss_application.py`.
+- M8 Claim Boundary And Goal Propulsion: app/template public wording is bounded
+  as review material only, and the whole-picture milestone plan plus Korean
+  follow-up prompt are documented and tested.
 
 ## Character Counts
 

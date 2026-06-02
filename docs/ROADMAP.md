@@ -58,7 +58,7 @@ Current M4 target artifacts:
 ## M5 Educator And Human Review Boundary
 
 Red condition: the repo can be misread as a legal, forensic, emergency, or
-guaranteed safety authority.
+guaranteed-safety authority.
 
 Green condition: educator-facing docs and sample output clearly require human
 review and describe what the project is not.
@@ -84,3 +84,23 @@ Current M6 target artifacts:
 - `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`
 - `docs/openai-codex-for-oss-application.md`
 - `tests/test_application_packet.py`
+
+## M8 Claim Boundary Hardening
+
+Red condition: app UI, generated reports, docs, or examples describe AnsimTalk
+as legal evidence, legal verification, guaranteed-safety, or an authority that
+can decide discipline or emergency response.
+
+Green condition: all public surfaces describe outputs as review material only,
+and `tests/test_public_claim_boundary.py` plus
+`scripts/check_oss_readiness.py` reject unsafe claim language.
+
+Current M8 target artifacts:
+
+- `app/templates/index.html`
+- `app/templates/evidence.html`
+- `app/templates/evidence_report.html`
+- `app/templates/cyberbullying_help.html`
+- `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PLAN.md`
+- `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PROMPT_KO.md`
+- `tests/test_public_claim_boundary.py`

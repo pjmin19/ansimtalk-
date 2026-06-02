@@ -32,6 +32,8 @@ REQUIRED_PATHS = [
     "docs/MAINTAINER_AUTOMATION.md",
     "docs/ARCHITECTURE.md",
     "docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md",
+    "docs/CODEX_FOR_OSS_GOAL_PROPULSION_PLAN.md",
+    "docs/CODEX_FOR_OSS_GOAL_PROPULSION_PROMPT_KO.md",
     "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
@@ -54,6 +56,8 @@ REQUIRED_PATHS = [
     "tests/test_app_smoke.py",
     "tests/test_application_packet.py",
     "tests/test_codex_for_oss_automated_review.py",
+    "tests/test_goal_propulsion_prompt.py",
+    "tests/test_public_claim_boundary.py",
     "tests/test_domain_eval_runner.py",
     "tests/test_human_review_boundary_docs.py",
     "tests/test_maintainer_report_command.py",
@@ -84,6 +88,8 @@ README_REQUIRED_TERMS = [
 README_REQUIRED_REFERENCES = [
     "docs/ARCHITECTURE.md",
     "docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md",
+    "docs/CODEX_FOR_OSS_GOAL_PROPULSION_PLAN.md",
+    "docs/CODEX_FOR_OSS_GOAL_PROPULSION_PROMPT_KO.md",
     "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
@@ -158,6 +164,12 @@ AFFIRMATIVE_AUTHORITY_PATTERNS = [
     ("legal_determination", re.compile(r"\blegal determination\b", re.IGNORECASE)),
     ("forensic_conclusion", re.compile(r"\bforensic conclusion\b", re.IGNORECASE)),
     ("emergency_response_authority", re.compile(r"\bemergency response authority\b", re.IGNORECASE)),
+    ("legal_evidence_ko", re.compile(r"법적\s*증거|법적증거")),
+    ("legal_verification_ko", re.compile(r"법적\s*검증")),
+    ("legal_effect_ko", re.compile(r"법적\s*효력")),
+    ("court_submission_ko", re.compile(r"법원\s*제출")),
+    ("legal_punishment_ko", re.compile(r"법적\s*처벌")),
+    ("certain_evidence_ko", re.compile(r"확실한\s*증거")),
 ]
 
 NEGATIVE_BOUNDARY_MARKERS = (
@@ -170,7 +182,30 @@ NEGATIVE_BOUNDARY_MARKERS = (
     "without",
     "no ",
     "never",
+    "red condition",
+    "reject",
+    "remove",
+    "unsafe",
+    "아님",
+    "아닙",
+    "아니",
+    "않",
+    "금지",
+    "제거",
+    "회귀",
+    "감점",
+    "하지 말",
+    "하면 안",
+    "말아야",
+    "없음",
 )
+
+PUBLIC_CLAIM_BOUNDARY_PATHS = [
+    "README.md",
+    "docs",
+    "examples",
+    "app/templates",
+]
 
 SKIP_DIRS = {".git", ".pytest_cache", "__pycache__", ".venv", "venv", "env", "tmp", "logs"}
 SKIP_SUFFIXES = {
@@ -257,6 +292,36 @@ def check_human_review_boundary(repo_root: Path, issues: list[str]) -> None:
                     issues.append(f"human_review_overclaim:{name}:{relative}:{line_number}")
 
 
+def iter_public_claim_files(repo_root: Path) -> Iterable[Path]:
+    for relative in PUBLIC_CLAIM_BOUNDARY_PATHS:
+        root = repo_root / relative
+        if root.is_file():
+            yield root
+            continue
+        if not root.exists():
+            continue
+        for path in root.rglob("*"):
+            if path.is_file() and path.suffix.lower() not in SKIP_SUFFIXES:
+                yield path
+
+
+def check_public_claim_boundaries(repo_root: Path, issues: list[str]) -> int:
+    scanned = 0
+    for path in iter_public_claim_files(repo_root):
+        text = read_text(path)
+        if text is None:
+            continue
+        scanned += 1
+        relative = path.relative_to(repo_root).as_posix()
+        for line_number, line in enumerate(text.splitlines(), start=1):
+            if is_negative_boundary_line(line):
+                continue
+            for name, pattern in AFFIRMATIVE_AUTHORITY_PATTERNS:
+                if pattern.search(line):
+                    issues.append(f"public_claim_overclaim:{name}:{relative}:{line_number}")
+    return scanned
+
+
 def check_secret_like_strings(repo_root: Path, issues: list[str]) -> int:
     scanned = 0
     for path in iter_text_files(repo_root):
@@ -333,6 +398,7 @@ def run_checks(repo_root: Path, run_compile: bool = True) -> CheckResult:
     check_required_paths(repo_root, issues)
     check_readme(repo_root, issues)
     check_human_review_boundary(repo_root, issues)
+    public_claim_files = check_public_claim_boundaries(repo_root, issues)
     scanned_files = check_secret_like_strings(repo_root, issues)
     answer_counts = check_application_packet(repo_root, issues)
     compile_ok = check_compile(repo_root, issues) if run_compile else None
@@ -345,6 +411,7 @@ def run_checks(repo_root: Path, run_compile: bool = True) -> CheckResult:
         evidence={
             "repo_root": str(repo_root),
             "scanned_text_files": scanned_files,
+            "public_claim_boundary_files": public_claim_files,
             "application_answer_counts": answer_counts,
             "compileall": compile_ok,
             "live_actions": {
