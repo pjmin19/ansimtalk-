@@ -4,47 +4,47 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
 
-# 환경설정/민감정보
-# config.py  # Railway 배포를 위해 주석 처리
-*.json
+# Environment and credentials
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+*.json
 
-# 임시/업로드 파일
+# Runtime uploads and generated artifacts
 uploads/
 tmp/
 temp/
 *.tmp
 *.temp
+test_output.pdf
 
-# IDE/에디터
+# IDE and OS files
 .vscode/
-.venv/
 .idea/
 .DS_Store
 *.swp
 *.swo
 *~
 
-# 로그 파일
+# Logs
 *.log
 logs/
 
-# 데이터베이스
+# Databases
 *.db
 *.sqlite
 *.sqlite3
 
-# 기타
+# Archives
 *.zip
 *.tar.gz
-*.rar 
+*.rar
