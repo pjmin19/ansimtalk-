@@ -26,15 +26,17 @@ The copy-paste answers are in `docs/openai-codex-for-oss-application.md`.
 
 Current verified character counts:
 
-- `repo_qualification`: `366`
-- `api_credits_usage`: `336`
-- `anything_else`: `285`
+- `repo_qualification`: `385`
+- `api_credits_usage`: `362`
+- `anything_else`: `296`
 
 All three are below the 500-character field limit.
 
 ## Evidence Checklist
 
 - M0 evidence freeze: `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md`, `docs/READINESS_AUDIT.md`
+- Automated review readiness: `docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md`,
+  `scripts/check_codex_for_oss_application.py`
 - M1 product shape: `docs/ARCHITECTURE.md`, `docs/PRIVACY_BOUNDARIES.md`
 - M2 contributor run: `docs/CONTRIBUTOR_LOCAL_RUN.md`, `scripts/generate_sample_report.py`
 - M3 domain evaluation: `docs/EVALUATION.md`, `scripts/run_domain_eval.py`

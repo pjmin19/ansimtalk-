@@ -31,6 +31,7 @@ REQUIRED_PATHS = [
     "docs/MAINTAINER_GITHUB_CHECKLIST.md",
     "docs/MAINTAINER_AUTOMATION.md",
     "docs/ARCHITECTURE.md",
+    "docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md",
     "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
@@ -46,11 +47,13 @@ REQUIRED_PATHS = [
     "examples/evaluations/domain_eval_cases.json",
     "examples/reports/human_review_sample.md",
     "scripts/check_oss_readiness.py",
+    "scripts/check_codex_for_oss_application.py",
     "scripts/generate_sample_report.py",
     "scripts/generate_maintainer_report.py",
     "scripts/run_domain_eval.py",
     "tests/test_app_smoke.py",
     "tests/test_application_packet.py",
+    "tests/test_codex_for_oss_automated_review.py",
     "tests/test_domain_eval_runner.py",
     "tests/test_human_review_boundary_docs.py",
     "tests/test_maintainer_report_command.py",
@@ -65,6 +68,7 @@ README_REQUIRED_TERMS = [
     "Quick Start",
     "Configuration",
     "Codex For OSS Submission Packet",
+    "Codex For OSS Automated Review",
     "Tests",
     "Contributor Local Run",
     "Domain Evaluation",
@@ -79,6 +83,7 @@ README_REQUIRED_TERMS = [
 
 README_REQUIRED_REFERENCES = [
     "docs/ARCHITECTURE.md",
+    "docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md",
     "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
@@ -91,6 +96,7 @@ README_REQUIRED_REFERENCES = [
     "examples/reports/human_review_sample.md",
     "scripts/generate_sample_report.py",
     "scripts/generate_maintainer_report.py",
+    "scripts/check_codex_for_oss_application.py",
     "scripts/run_domain_eval.py",
 ]
 
@@ -126,6 +132,7 @@ APPLICATION_REQUIRED_TERMS = [
 
 APPLICATION_REQUIRED_REFERENCES = [
     "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
+    "docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md",
     "docs/EDUCATOR_GUIDE.md",
     "docs/HUMAN_REVIEW_WORKFLOW.md",
     "docs/MAINTAINER_AUTOMATION.md",
