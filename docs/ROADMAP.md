@@ -15,10 +15,11 @@ runs require a stable secret, and readiness validation passes.
 ## M1 OSS Surface
 
 Red condition: the README makes broad claims without reproducible setup,
-license, contribution, conduct, or security guidance.
+license, contribution, conduct, architecture, privacy, or security guidance.
 
 Green condition: the repository has a concise README, MIT license, security
-policy, contribution guide, code of conduct, and issue templates.
+policy, contribution guide, code of conduct, issue templates, architecture
+documentation, and privacy boundary documentation.
 
 ## M2 Reproducible Execution
 

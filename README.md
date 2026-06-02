@@ -1,9 +1,10 @@
 # AnsimTalk
 
-AnsimTalk is a Flask prototype for turning uploaded images or text into a
-digital safety evidence report. It was built for education and youth safety
+AnsimTalk is a small Flask OSS toolkit for turning uploaded images or text into
+a digital safety evidence report. It was built for education and youth safety
 workflows where a maintainer needs a repeatable way to collect metadata, run
-basic AI-assisted analysis, and generate a PDF report.
+basic AI-assisted analysis, generate a PDF report, and keep human review in the
+loop.
 
 This repository is being prepared as a public open-source project. The current
 priority is reproducibility, safe configuration, and clear maintainer evidence,
@@ -73,17 +74,44 @@ The OSS readiness validator checks required project files, public application
 answer character counts, compile status, security regression tests, and
 secret-like strings.
 
+## Architecture
+
+The project keeps a small, inspectable Flask architecture:
+
+- `app/routes.py` handles web/API routes, upload validation, session state, and
+  PDF download boundaries.
+- `app/services.py` handles file analysis, optional provider calls, fallback
+  behavior, report HTML, and PDF rendering.
+- `scripts/check_oss_readiness.py` validates the public OSS surface before
+  release or application work.
+
+See `docs/ARCHITECTURE.md` for the full data flow and component map.
+
 ## Security
 
 If real credentials were ever committed to public history, revoke and rotate
 them before using any deployment. See `SECURITY.md` for the rotation checklist
 and secret-scanning procedure.
 
+## Privacy Boundaries
+
+Do not commit real student data, private chat exports, uploaded evidence,
+generated PDFs, provider keys, service-account JSON, or `.env` files.
+
+Provider calls are optional and controlled by environment variables. Missing
+credentials should keep the local workflow testable through fallback behavior.
+
+See `docs/PRIVACY_BOUNDARIES.md` for public repository, runtime data, provider,
+and human-review boundaries.
+
 ## Maintainer Evidence
 
 The public maintainer story should be kept in small, reviewable artifacts:
 
 - `docs/ROADMAP.md` for DTT milestones.
+- `docs/ARCHITECTURE.md` for the project component map and runtime flow.
+- `docs/PRIVACY_BOUNDARIES.md` for student data, provider, and human-review
+  boundaries.
 - `docs/MAINTAINER_GITHUB_CHECKLIST.md` for Issues, Milestones, and Releases.
 - `docs/READINESS_AUDIT.md` for the latest local M0-M6 audit.
 - `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md` for a criteria-to-evidence map.
@@ -107,3 +135,4 @@ Maintainer evidence already created:
 - Milestone `v0.1.0-oss-candidate` closed.
 - Release `v0.1.0-oss-candidate` published.
 - Issue routing, Dependabot, and CodeQL configuration prepared.
+- Architecture and privacy boundaries documented for M1 public OSS shape.

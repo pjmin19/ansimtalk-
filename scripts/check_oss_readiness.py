@@ -28,8 +28,10 @@ REQUIRED_PATHS = [
     ".github/dependabot.yml",
     "docs/ROADMAP.md",
     "docs/MAINTAINER_GITHUB_CHECKLIST.md",
+    "docs/ARCHITECTURE.md",
     "docs/GITHUB_REFERENCE_PATTERNS.md",
     "docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md",
+    "docs/PRIVACY_BOUNDARIES.md",
     "docs/RELEASE_NOTES_DRAFT.md",
     "docs/READINESS_AUDIT.md",
     "docs/openai-codex-for-oss-application.md",
@@ -46,7 +48,14 @@ README_REQUIRED_TERMS = [
     "Configuration",
     "Tests",
     "Security",
+    "Architecture",
+    "Privacy Boundaries",
     "Maintainer Evidence",
+]
+
+README_REQUIRED_REFERENCES = [
+    "docs/ARCHITECTURE.md",
+    "docs/PRIVACY_BOUNDARIES.md",
 ]
 
 SECRET_PATTERNS = [
@@ -126,6 +135,9 @@ def check_readme(repo_root: Path, issues: list[str]) -> None:
     for term in README_REQUIRED_TERMS:
         if term not in readme:
             issues.append(f"readme_missing_term:{term}")
+    for reference in README_REQUIRED_REFERENCES:
+        if reference not in readme:
+            issues.append(f"readme_missing_reference:{reference}")
     banned_claims = ["95%", "guarantee", "production-ready", "Human-Verified"]
     for claim in banned_claims:
         if claim in readme:

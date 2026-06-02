@@ -15,7 +15,7 @@ application criteria visible on the official OpenAI form.
 
 | OpenAI signal | Repository evidence |
 | --- | --- |
-| Public open-source project | Public GitHub repository with `README.md`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`. |
+| Public open-source project | Public GitHub repository with `README.md`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, architecture docs, and privacy-boundary docs. |
 | Active maintenance | PR #8 merged, issues #2-#6 closed, milestone `v0.1.0-oss-candidate` closed, and release `v0.1.0-oss-candidate` published. |
 | PR review and issue triage | Issue templates, PR template, disabled blank issues, maintainer checklist, and closed milestone evidence. |
 | Release management | Release notes draft, published release tag, readiness audit, and post-release evidence docs. |
@@ -37,6 +37,8 @@ becomes more reusable.
 - Application copy: `docs/openai-codex-for-oss-application.md`
 - Readiness audit: `docs/READINESS_AUDIT.md`
 - Maintainer checklist: `docs/MAINTAINER_GITHUB_CHECKLIST.md`
+- Architecture: `docs/ARCHITECTURE.md`
+- Privacy boundaries: `docs/PRIVACY_BOUNDARIES.md`
 - Reference patterns: `docs/GITHUB_REFERENCE_PATTERNS.md`
 - Test workflow: `.github/workflows/test.yml`
 - CodeQL workflow: `.github/workflows/codeql.yml`
