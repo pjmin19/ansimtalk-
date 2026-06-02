@@ -10,10 +10,10 @@ Local path: `D:\Codex\oss_research\external_repos\pjmin19_ansimtalk-`
 
 Status: `PASS: Auto-Verified`
 
-Decision: applyable candidate after maintainer performs public GitHub and
-official OpenAI form steps.
+Decision: applyable candidate after PR #1 is reviewed/merged and the official
+OpenAI form is submitted.
 
-This is not a human-submitted or customer-ready state.
+This is not an OpenAI-submitted, human-reviewed, or customer-ready state.
 
 ## Evidence
 
@@ -46,7 +46,8 @@ JSON evidence:
 - M2 Reproducible Execution: compile and pytest pass without provider
   credentials.
 - M3 Maintainer Evidence: GitHub issue, milestone, release, and OpenAI form
-  checklist prepared locally.
+  checklist prepared locally. Issues #2-#6 and milestone
+  `v0.1.0-oss-candidate` were created on GitHub.
 - M4 CI And Quality: GitHub Actions workflow prepared locally.
 - M5 Application Packet: three application answers verified under 500
   characters.
@@ -60,8 +61,10 @@ JSON evidence:
 
 ## Live Actions
 
-- GitHub push: `NOT_PERFORMED`
-- GitHub issue creation: `NOT_PERFORMED`
+- GitHub branch push: `PERFORMED`
+- GitHub PR creation: `PERFORMED` at https://github.com/pjmin19/ansimtalk-/pull/1
+- GitHub issue creation: `PERFORMED` for #2-#6
+- GitHub milestone creation: `PERFORMED` for `v0.1.0-oss-candidate`
 - GitHub release creation: `NOT_PERFORMED`
 - OpenAI form submit: `NOT_PERFORMED`
 - Provider change: `NOT_PERFORMED`
