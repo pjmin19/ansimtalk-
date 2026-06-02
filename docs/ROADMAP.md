@@ -23,11 +23,13 @@ documentation, and privacy boundary documentation.
 
 ## M2 Reproducible Execution
 
-Red condition: local tests require live provider credentials or miss the Codex
-review regression cases.
+Red condition: local tests require live provider credentials, there is no
+synthetic sample fixture, or contributors cannot generate a sample JSON/PDF
+report from the command line.
 
-Green condition: compile, pytest, fallback-mode smoke tests, PDF path rejection,
-and deploy secret checks pass without network credentials.
+Green condition: compile, pytest, fallback-mode smoke tests, sample report
+command tests, PDF path rejection, and deploy secret checks pass without live
+provider credentials.
 
 ## M3 Maintainer Evidence
 

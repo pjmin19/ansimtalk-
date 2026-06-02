@@ -74,6 +74,22 @@ The OSS readiness validator checks required project files, public application
 answer character counts, compile status, security regression tests, and
 secret-like strings.
 
+## Contributor Local Run
+
+Contributors can generate a local sample report without external provider
+accounts:
+
+```powershell
+python scripts/generate_sample_report.py --output-dir tmp/sample_report
+```
+
+The command reads `examples/fixtures/cyberbullying_sample.txt`, runs the
+cyberbullying workflow in offline fallback mode, and writes JSON/PDF outputs
+under `tmp/sample_report`.
+
+See `docs/CONTRIBUTOR_LOCAL_RUN.md` for setup, expected outputs, and validation
+commands.
+
 ## Architecture
 
 The project keeps a small, inspectable Flask architecture:
@@ -112,6 +128,7 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `docs/ARCHITECTURE.md` for the project component map and runtime flow.
 - `docs/PRIVACY_BOUNDARIES.md` for student data, provider, and human-review
   boundaries.
+- `docs/CONTRIBUTOR_LOCAL_RUN.md` for the credential-free sample report path.
 - `docs/MAINTAINER_GITHUB_CHECKLIST.md` for Issues, Milestones, and Releases.
 - `docs/READINESS_AUDIT.md` for the latest local M0-M6 audit.
 - `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md` for a criteria-to-evidence map.
@@ -136,3 +153,5 @@ Maintainer evidence already created:
 - Release `v0.1.0-oss-candidate` published.
 - Issue routing, Dependabot, and CodeQL configuration prepared.
 - Architecture and privacy boundaries documented for M1 public OSS shape.
+- Contributor local run documented with a synthetic fixture and sample report
+  command for M2.
