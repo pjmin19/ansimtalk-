@@ -62,6 +62,8 @@ Observed GitHub results:
 - Reference-pattern docs: `docs/GITHUB_REFERENCE_PATTERNS.md`
 - OpenAI criteria evidence map: `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md`
 - GitHub automation added: issue routing, Dependabot, and CodeQL.
+- Coupled dependency maintenance: the WeasyPrint 68.1 and pydyf <0.13 update
+  is bundled because the independent Dependabot PRs failed when tested apart.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -119,6 +121,8 @@ JSON evidence:
 - GitHub PR merge: `PERFORMED`
 - GitHub security hardening PR creation: `PERFORMED` at https://github.com/pjmin19/ansimtalk-/pull/8
 - GitHub security hardening PR merge: `PERFORMED`
+- GitHub reference-pattern PR creation/merge: `PERFORMED` at https://github.com/pjmin19/ansimtalk-/pull/9
+- GitHub workflow-major PR creation/merge: `PERFORMED` at https://github.com/pjmin19/ansimtalk-/pull/15
 - GitHub issue creation: `PERFORMED` for #2-#6
 - GitHub milestone creation: `PERFORMED` for `v0.1.0-oss-candidate`
 - GitHub milestone closure: `PERFORMED`
