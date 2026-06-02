@@ -100,7 +100,8 @@ JSON evidence:
   reference-pattern hardening recorded, and OpenAI form checklist prepared
   locally.
 - M4 CI And Quality: GitHub Actions workflow runs successfully on GitHub; CodeQL
-  and Dependabot are configured for the next public maintenance cycle.
+  and Dependabot are configured for the next public maintenance cycle. Workflow
+  actions use current major tags checked through the GitHub API on 2026-06-02.
 - M5 Application Packet: three application answers verified under 500
   characters.
 - M6 Final Audit: this Markdown audit and JSON readiness report exist.
