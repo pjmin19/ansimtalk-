@@ -14,6 +14,10 @@ Decision: applyable candidate for official OpenAI form submission.
 
 This is not an OpenAI-submitted, human-reviewed, or customer-ready state.
 
+Latest reference-pattern hardening adds GitHub issue routing, Dependabot,
+CodeQL, and an OpenAI criteria-to-evidence map. It strengthens public
+maintainer evidence without changing the application readiness boundary.
+
 ## Evidence
 
 Commands:
@@ -55,6 +59,9 @@ Observed GitHub results:
 - Release `v0.1.0-oss-candidate`: created
 - Release URL:
   `https://github.com/pjmin19/ansimtalk-/releases/tag/v0.1.0-oss-candidate`
+- Reference-pattern docs: `docs/GITHUB_REFERENCE_PATTERNS.md`
+- OpenAI criteria evidence map: `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md`
+- GitHub automation added: issue routing, Dependabot, and CodeQL.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -83,23 +90,26 @@ JSON evidence:
   scan pass, SECURITY.md rotation checklist present, client-supplied PDF paths
   rejected, deploy-mode stable secret required.
 - M1 OSS Surface: README, LICENSE, SECURITY, CONTRIBUTING, CODE_OF_CONDUCT,
-  issue templates, release notes draft, and roadmap present.
+  issue templates, issue routing config, reference-pattern docs, release notes
+  draft, and roadmap present.
 - M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, HTTP
   smoke checks, and security regression checks pass without provider
   credentials.
 - M3 Maintainer Evidence: GitHub issues #2-#6 closed, milestone
-  `v0.1.0-oss-candidate` closed, release `v0.1.0-oss-candidate` created, and
-  OpenAI form checklist prepared locally.
-- M4 CI And Quality: GitHub Actions workflow runs successfully on GitHub.
+  `v0.1.0-oss-candidate` closed, release `v0.1.0-oss-candidate` created,
+  reference-pattern hardening recorded, and OpenAI form checklist prepared
+  locally.
+- M4 CI And Quality: GitHub Actions workflow runs successfully on GitHub; CodeQL
+  and Dependabot are configured for the next public maintenance cycle.
 - M5 Application Packet: three application answers verified under 500
   characters.
 - M6 Final Audit: this Markdown audit and JSON readiness report exist.
 
 ## Character Counts
 
-- `repo_qualification`: 303
-- `api_credits_usage`: 275
-- `anything_else`: 264
+- `repo_qualification`: 341
+- `api_credits_usage`: 328
+- `anything_else`: 293
 
 ## Live Actions
 

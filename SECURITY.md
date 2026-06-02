@@ -44,6 +44,11 @@ risks:
 - `create_app()` fails fast when `ANSIMTALK_REQUIRE_STABLE_SECRET=1` is set and
   `SECRET_KEY` is missing.
 
+GitHub maintenance automation is also configured:
+
+- CodeQL runs on pushes, pull requests, and a weekly schedule.
+- Dependabot checks Python dependencies and GitHub Actions weekly.
+
 ## Secret Scanning Procedure
 
 Use the local readiness validator first:

@@ -6,21 +6,21 @@ Status: local draft. Official form submission is `NOT_PERFORMED`.
 
 ## Repo Qualification
 
-<!-- chars:repo_qualification=303 -->
+<!-- chars:repo_qualification=341 -->
 <!-- answer:repo_qualification -->
-AnsimTalk is a public Flask OSS project for AI-assisted digital safety evidence reports. I maintain the repo, am cleaning it for safe public use, and am adding reproducible tests, CI, security policy, issue templates, and a roadmap so educators and developers can inspect, run, and improve the workflow.
+AnsimTalk is a public Flask OSS project for AI-assisted digital safety evidence-report workflows. I am the primary maintainer. The repo now shows active maintenance through merged PRs, closed issues/milestone, a v0.1.0 OSS candidate release, CI, CodeQL/Dependabot config, security policy, regression tests, and reproducible readiness audits.
 <!-- /answer:repo_qualification -->
 
 ## API Credits Usage
 
-<!-- chars:api_credits_usage=275 -->
+<!-- chars:api_credits_usage=328 -->
 <!-- answer:api_credits_usage -->
-I would use API credits to build tested provider adapters, fixture-based evaluations, safer fallback behavior when credentials are absent, and documentation examples that help contributors reproduce report generation without exposing private student data or live credentials.
+I would use API credits to improve maintainer automation: provider adapter tests, fixture-based evals for Korean text/OCR cases, safer fallback behavior without credentials, security-review checks, release-note drafting, and documentation examples that help contributors reproduce report generation without private student data.
 <!-- /answer:api_credits_usage -->
 
 ## Anything Else
 
-<!-- chars:anything_else=264 -->
+<!-- chars:anything_else=293 -->
 <!-- answer:anything_else -->
-The repo is small, but the maintainer goal is clear: turn a student-safety prototype into a transparent OSS workflow with security cleanup, public CI, reproducible smoke tests, and responsible human-review boundaries. Codex would help me maintain that quality bar.
+The repo is small, but it is intentionally scoped: a responsible, inspectable workflow for AI-assisted student-safety reports. Codex would reduce review load as I turn it from prototype into a reusable OSS toolkit with tests, security evidence, release discipline, and human-review boundaries.
 <!-- /answer:anything_else -->

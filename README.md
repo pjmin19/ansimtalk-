@@ -86,7 +86,12 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `docs/ROADMAP.md` for DTT milestones.
 - `docs/MAINTAINER_GITHUB_CHECKLIST.md` for Issues, Milestones, and Releases.
 - `docs/READINESS_AUDIT.md` for the latest local M0-M6 audit.
+- `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md` for a criteria-to-evidence map.
+- `docs/GITHUB_REFERENCE_PATTERNS.md` for clean-room public GitHub patterns.
 - `.github/workflows/test.yml` for reproducible checks.
+- `.github/workflows/codeql.yml` for CodeQL security analysis.
+- `.github/dependabot.yml` for dependency update monitoring.
+- `.github/ISSUE_TEMPLATE/config.yml` for issue routing.
 - `docs/openai-codex-for-oss-application.md` for application copy.
 
 ## Status
@@ -101,3 +106,4 @@ Maintainer evidence already created:
 - Issues #2-#6 closed.
 - Milestone `v0.1.0-oss-candidate` closed.
 - Release `v0.1.0-oss-candidate` published.
+- Issue routing, Dependabot, and CodeQL configuration prepared.
