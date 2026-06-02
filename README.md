@@ -106,6 +106,23 @@ verifies that every case keeps the human-review notice visible.
 See `docs/EVALUATION.md` for the fixture schema, expected output, and limits.
 The harness is a deterministic safety smoke, not a model benchmark.
 
+## Maintainer Automation
+
+Maintainers can generate a local automation report from public repo templates
+and docs:
+
+```powershell
+python scripts/generate_maintainer_report.py --output-dir tmp/maintainer_report
+```
+
+The command reads issue templates, the PR security/privacy checklist, release
+draft notes, and validation commands. It writes a JSON/Markdown report that
+shows how Codex/API credits would support issue triage, PR review, release
+notes, and maintainer status reporting.
+
+See `docs/MAINTAINER_AUTOMATION.md` for inputs, expected outputs, and live
+provider boundaries.
+
 ## Architecture
 
 The project keeps a small, inspectable Flask architecture:
@@ -116,6 +133,8 @@ The project keeps a small, inspectable Flask architecture:
   behavior, report HTML, and PDF rendering.
 - `scripts/run_domain_eval.py` runs synthetic domain evaluation cases in
   offline fallback mode.
+- `scripts/generate_maintainer_report.py` generates public-safe maintainer
+  automation reports from repo templates and docs.
 - `scripts/check_oss_readiness.py` validates the public OSS surface before
   release or application work.
 
@@ -148,6 +167,8 @@ The public maintainer story should be kept in small, reviewable artifacts:
   boundaries.
 - `docs/CONTRIBUTOR_LOCAL_RUN.md` for the credential-free sample report path.
 - `docs/EVALUATION.md` for synthetic provider-offline domain evaluation.
+- `docs/MAINTAINER_AUTOMATION.md` for issue triage, PR review, release-note,
+  and maintainer report automation.
 - `docs/MAINTAINER_GITHUB_CHECKLIST.md` for Issues, Milestones, and Releases.
 - `docs/READINESS_AUDIT.md` for the latest local M0-M6 audit.
 - `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md` for a criteria-to-evidence map.
@@ -158,6 +179,8 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `.github/ISSUE_TEMPLATE/config.yml` for issue routing.
 - `docs/openai-codex-for-oss-application.md` for application copy.
 - `examples/evaluations/domain_eval_cases.json` for synthetic evaluation cases.
+- `scripts/generate_maintainer_report.py` for local maintainer automation
+  reporting.
 - `scripts/run_domain_eval.py` for the offline domain eval runner.
 
 ## Status
@@ -178,3 +201,5 @@ Maintainer evidence already created:
   command for M2.
 - Domain evaluation documented with synthetic Korean text/OCR cases and an
   offline fallback runner for M3.
+- Maintainer automation documented with an issue triage template, PR
+  security/privacy checklist, and local report generator for M4.

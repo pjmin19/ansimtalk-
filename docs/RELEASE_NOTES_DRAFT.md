@@ -35,3 +35,21 @@ This release candidate prepares AnsimTalk for public open-source maintenance.
 - `.env.example` contains placeholders only.
 - `/api/download_pdf` rejects client-supplied local path fields before PDF
   generation.
+
+## Next Maintenance Draft
+
+Status: `DRAFT`
+
+### Added
+
+- M3 domain evaluation harness with synthetic Korean text/OCR cases.
+- M4 maintainer automation report generator for issue triage, PR
+  security/privacy review, release-note inputs, and Codex/API credit planning.
+
+### Validation
+
+- `python -m compileall -q .`
+- `python -m pytest -q`
+- `python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json`
+- `python scripts/generate_maintainer_report.py --output-dir tmp/maintainer_report`
+- `python scripts/check_oss_readiness.py --repo-root .`

@@ -33,6 +33,8 @@ Browser or API client
   application field character counts, compile status, and secret-like strings.
 - `scripts/run_domain_eval.py` checks synthetic Korean text and OCR-like
   fixtures against the provider-offline fallback workflow.
+- `scripts/generate_maintainer_report.py` reads public GitHub templates and
+  docs to generate a local maintainer automation report.
 - `.github/workflows/` runs CI and CodeQL on GitHub.
 
 ## Analysis Flow
@@ -52,6 +54,14 @@ Browser or API client
 cases. `scripts/run_domain_eval.py` clears provider credentials by default,
 runs each case through the same text-analysis fallback path, and writes a JSON
 result with expected risk labels and human-review notice checks.
+
+## Maintainer Automation Flow
+
+`.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`, release notes,
+and maintainer docs provide the public source files. The report generator reads
+those files locally and writes JSON/Markdown under `tmp/maintainer_report/` so
+maintainers can review issue triage, PR privacy/security checks, release-note
+inputs, and Codex/API credit use cases without live API calls.
 
 ## Provider Boundary
 

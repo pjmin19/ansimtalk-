@@ -30,6 +30,10 @@ M3 domain evaluation hardening adds synthetic Korean text/OCR cases,
 provider-offline fallback evaluation, expected risk label checks, and
 human-review notice validation.
 
+M4 maintainer automation adds a maintenance issue template, expanded PR
+security/privacy checklist, release-note draft inputs, local maintainer report
+generator, and command test for the report output.
+
 ## Evidence
 
 Commands:
@@ -38,6 +42,7 @@ Commands:
 python -m compileall -q .
 python -m pytest -q
 python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json
+python scripts/generate_maintainer_report.py --output-dir tmp/maintainer_report
 python scripts/check_oss_readiness.py --repo-root . --json-out D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness.v1.json
 ```
 
@@ -85,6 +90,11 @@ Observed GitHub results:
 - M3 domain evaluation docs, cases, runner, and test:
   `docs/EVALUATION.md`, `examples/evaluations/domain_eval_cases.json`,
   `scripts/run_domain_eval.py`, and `tests/test_domain_eval_runner.py`.
+- M4 maintainer automation docs, template, runner, and test:
+  `docs/MAINTAINER_AUTOMATION.md`,
+  `.github/ISSUE_TEMPLATE/maintenance_task.md`,
+  `scripts/generate_maintainer_report.py`, and
+  `tests/test_maintainer_report_command.py`.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -121,7 +131,9 @@ JSON evidence:
 - M3 Domain Evaluation Harness: synthetic Korean text/OCR cases,
   provider-offline evaluation, expected fallback labels, and human-review notice
   checks are documented and tested.
-- M4 Maintainer Automation: not yet complete in the M3-M6 milestone spine.
+- M4 Maintainer Automation: issue triage, PR security/privacy checklist,
+  release-note draft, and local maintainer report command are documented and
+  tested.
 - M5 Educator And Human Review Boundary: not yet complete in the M3-M6
   milestone spine.
 - M6 Official Submission Packet: not yet complete in the M3-M6 milestone spine.
