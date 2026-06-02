@@ -8,10 +8,9 @@ Local path: `D:\Codex\oss_research\external_repos\pjmin19_ansimtalk-`
 
 ## Judgment
 
-Status: `PASS: Auto-Verified`
+Status: `PASS: Remote-CI + Fresh-Clone + HTTP-Smoke Verified`
 
-Decision: applyable candidate after PR #1 is reviewed/merged and the official
-OpenAI form is submitted.
+Decision: applyable candidate after official OpenAI form submission.
 
 This is not an OpenAI-submitted, human-reviewed, or customer-ready state.
 
@@ -33,6 +32,28 @@ Observed local results:
 - `issue_count`: 0
 - `scanned_text_files`: 42
 
+Observed GitHub results:
+
+- PR #1: merged on 2026-06-02
+- Merge commit: `3d1a13a674f43ba6c8c2bfb25d7b27000bc470bf`
+- PR latest checks: success
+- Main branch check: success
+
+Observed fresh-clone results:
+
+- Fresh clone commit: `3d1a13a674f43ba6c8c2bfb25d7b27000bc470bf`
+- `python -m compileall -q .`: pass
+- `python -m pytest -q`: 5 passed
+- `python scripts/check_oss_readiness.py --repo-root .`: `PASS: Auto-Verified`
+- secret-like direct scan: no matches
+
+Observed HTTP smoke results from fresh clone:
+
+- `GET /health`: 200
+- `GET /api/health`: 200
+- `POST /api/analyze_cyberbullying` with a local text fixture: 200
+- `POST /api/download_pdf`: 200, `application/pdf`, 11906 bytes
+
 JSON evidence:
 
 `D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness.v1.json`
@@ -43,12 +64,12 @@ JSON evidence:
   scan pass, SECURITY.md rotation checklist present.
 - M1 OSS Surface: README, LICENSE, SECURITY, CONTRIBUTING, CODE_OF_CONDUCT,
   issue templates, release notes draft, and roadmap present.
-- M2 Reproducible Execution: compile and pytest pass without provider
-  credentials.
+- M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, and HTTP
+  smoke checks pass without provider credentials.
 - M3 Maintainer Evidence: GitHub issue, milestone, release, and OpenAI form
   checklist prepared locally. Issues #2-#6 and milestone
   `v0.1.0-oss-candidate` were created on GitHub.
-- M4 CI And Quality: GitHub Actions workflow prepared locally.
+- M4 CI And Quality: GitHub Actions workflow runs successfully on GitHub.
 - M5 Application Packet: three application answers verified under 500
   characters.
 - M6 Final Audit: this Markdown audit and JSON readiness report exist.
@@ -63,9 +84,12 @@ JSON evidence:
 
 - GitHub branch push: `PERFORMED`
 - GitHub PR creation: `PERFORMED` at https://github.com/pjmin19/ansimtalk-/pull/1
+- GitHub PR merge: `PERFORMED`
 - GitHub issue creation: `PERFORMED` for #2-#6
 - GitHub milestone creation: `PERFORMED` for `v0.1.0-oss-candidate`
 - GitHub release creation: `NOT_PERFORMED`
+- Fresh clone verification: `PERFORMED`
+- HTTP smoke verification: `PERFORMED`
 - OpenAI form submit: `NOT_PERFORMED`
 - Provider change: `NOT_PERFORMED`
 - Training/model-weight change: `NOT_PERFORMED`
