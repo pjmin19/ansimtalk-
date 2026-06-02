@@ -16,8 +16,11 @@ then create a public issue only after sensitive details are removed.
 - No real API keys, service-account JSON, Flask secrets, OAuth tokens, or `.env`
   files may be committed.
 - Runtime credentials must come from environment variables.
+- Deployed or multi-worker runs must set `SECRET_KEY` and enable
+  `ANSIMTALK_REQUIRE_STABLE_SECRET=1`.
 - `.env.example` may contain placeholders only.
 - Uploaded user files and generated reports must stay out of git.
+- Public API callers must not provide local file path fields for PDF generation.
 
 ## Revoke And Rotate Checklist
 
@@ -30,6 +33,16 @@ If a real credential appears in public history:
 5. Run GitHub secret scanning or an equivalent local scanner before release.
 6. Document the incident as a sanitized maintainer note without exposing the
    original value.
+
+## Security Regression Checks
+
+The test suite includes regression coverage for the current public OSS review
+risks:
+
+- `/api/download_pdf` rejects client-supplied `file_path`, `upload_path`,
+  `uploaded_file_path`, `static_file_path`, and `original_image_path` values.
+- `create_app()` fails fast when `ANSIMTALK_REQUIRE_STABLE_SECRET=1` is set and
+  `SECRET_KEY` is missing.
 
 ## Secret Scanning Procedure
 

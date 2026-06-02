@@ -31,6 +31,7 @@ REQUIRED_PATHS = [
     "scripts/check_oss_readiness.py",
     "tests/test_app_smoke.py",
     "tests/test_oss_readiness.py",
+    "tests/test_security_review_regressions.py",
 ]
 
 README_REQUIRED_TERMS = [
