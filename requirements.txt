@@ -7,6 +7,6 @@ openai
 requests
 google-generativeai
 weasyprint==62.2
-pydyf<0.11
+pydyf<0.13
 fpdf2
 google-cloud-aiplatform
