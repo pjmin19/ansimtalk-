@@ -48,6 +48,13 @@ Green condition: issue triage, PR security/privacy review, release-note draft,
 and maintainer report automation are backed by repo-local commands or
 templates.
 
+Current M4 target artifacts:
+
+- `.github/ISSUE_TEMPLATE/maintenance_task.md`
+- `docs/MAINTAINER_AUTOMATION.md`
+- `scripts/generate_maintainer_report.py`
+- `tests/test_maintainer_report_command.py`
+
 ## M5 Educator And Human Review Boundary
 
 Red condition: the repo can be misread as a legal, forensic, emergency, or
