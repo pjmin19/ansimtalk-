@@ -5,9 +5,11 @@ for Open Source form.
 
 Official form: `https://openai.com/form/codex-for-oss/`
 
-Submission status: `READY_FOR_OWNER_SUBMISSION`
+M10 submission status: `READY_FOR_OWNER_SUBMISSION`
 
 Official OpenAI form submission: `NOT_PERFORMED`
+
+OpenAI acceptance: `NOT_CLAIMED`
 
 OpenAI Organization ID: `OWNER_INPUT_REQUIRED`
 
@@ -17,8 +19,12 @@ OpenAI Organization ID: `OWNER_INPUT_REQUIRED`
 - Repository URL: `https://github.com/pjmin19/ansimtalk-`
 - Maintainer role: `primary maintainer`
 - Public status: `PASS: Auto-Verified`
-- Latest verified main before M6: `d409d8275abde183b523054f9059452c2c56ada9`
+- M8 claim-boundary PR: `https://github.com/pjmin19/ansimtalk-/pull/24`
+- Latest verified M8 main: `a6f909b351d9085787b68bffb4ef3ddea9f36f45`
+- GitHub Actions `test`: `success` (`26824757948`)
+- GitHub Actions `codeql`: `success` (`26824757970`)
 - Official form submission: `NOT_PERFORMED`
+- OpenAI acceptance: `NOT_CLAIMED`
 
 ## Application Answers
 
@@ -42,6 +48,19 @@ All three are below the 500-character field limit.
 - M3 domain evaluation: `docs/EVALUATION.md`, `scripts/run_domain_eval.py`
 - M4 maintainer automation: `docs/MAINTAINER_AUTOMATION.md`, `scripts/generate_maintainer_report.py`
 - M5 human review boundary: `docs/EDUCATOR_GUIDE.md`, `docs/HUMAN_REVIEW_WORKFLOW.md`, `examples/reports/human_review_sample.md`
+- M8 claim-boundary hardening: `tests/test_public_claim_boundary.py`,
+  `scripts/check_oss_readiness.py`, PR #24, and main `test`/`codeql` success.
+- M9 public evidence sync: README, evidence map, readiness audit, and this
+  packet name the same PR #24, M8 main commit, CI runs, risk boundary, and
+  prompt path.
+- M10 submission packet freeze: the three owner-review form answers are stored
+  in machine-readable blocks, declared counts match, and each answer is below
+  500 characters.
+- M11 external review bundle: 20 public-safe Deep Research upload files plus
+  prompt are refreshed under
+  `D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\chatgpt_deep_research_application_review_20260602`.
+- M12 owner submission gate: only owner-specific form fields remain,
+  especially the OpenAI Organization ID.
 
 ## Submission Steps
 
@@ -54,6 +73,7 @@ All three are below the 500-character field limit.
 
 ## Boundary
 
-This packet is not a submission receipt and not an acceptance notice. It is not
-Human-Verified and not customer-ready. It records that the public repository is
-Auto-Verified for owner review and official form entry.
+This packet is not a submission receipt and not an acceptance notice. It is
+not Human-Verified and not customer-ready. It records that the public
+repository is Auto-Verified and Auto-Review-Ready for owner review and
+official form entry.

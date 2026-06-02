@@ -9,6 +9,10 @@ application criteria visible on the official OpenAI form.
 - Repository: `https://github.com/pjmin19/ansimtalk-`
 - Maintainer role: primary maintainer
 - Current public status: `PASS: Auto-Verified` after local and GitHub checks
+- M8 claim-boundary PR: `https://github.com/pjmin19/ansimtalk-/pull/24`
+- Latest verified M8 main: `a6f909b351d9085787b68bffb4ef3ddea9f36f45`
+- GitHub Actions `test`: `success` (`26824757948`)
+- GitHub Actions `codeql`: `success` (`26824757970`)
 - Official OpenAI form submission: `NOT_PERFORMED`
 
 ## Criteria Map
@@ -24,6 +28,23 @@ application criteria visible on the official OpenAI form.
 | Codex/API-credit fit | Application answers and maintainer automation docs map credits to issue triage, PR security/privacy review, release-note generation, provider-adapter tests, Korean text/OCR evaluation expansion, fallback-safety checks, and public-safe examples. |
 | Submission packet | `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md` and `docs/openai-codex-for-oss-application.md` hold final owner-review copy with 500-character validation. |
 | Ecosystem importance claim | Small but focused OSS candidate for AI-assisted student digital-safety report workflows with educator-facing human-review boundaries. |
+
+## M8-M12 Evidence Sync
+
+- M8 claim-boundary hardening is merged in
+  `https://github.com/pjmin19/ansimtalk-/pull/24`.
+- The latest verified M8 main commit is
+  `a6f909b351d9085787b68bffb4ef3ddea9f36f45`.
+- Main GitHub Actions `test` passed in run `26824757948`.
+- Main GitHub Actions `codeql` passed in run `26824757970`.
+- M9 public evidence sync keeps README, this evidence map, readiness audit, and
+  submission packet aligned to those same proof points.
+- M10 freezes the three under-500-character owner-review form answers.
+- M11 refreshes the 20-file Deep Research bundle under
+  `D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\chatgpt_deep_research_application_review_20260602`.
+- M12 keeps official form submission as owner-gated:
+  OpenAI Organization ID is `OWNER_INPUT_REQUIRED`, official submission is
+  `NOT_PERFORMED`, and acceptance is `NOT_CLAIMED`.
 
 ## Automated review risk
 

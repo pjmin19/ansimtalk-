@@ -59,6 +59,7 @@ REQUIRED_PATHS = [
     "tests/test_goal_propulsion_prompt.py",
     "tests/test_public_claim_boundary.py",
     "tests/test_domain_eval_runner.py",
+    "tests/test_goal_propulsion_evidence_sync.py",
     "tests/test_human_review_boundary_docs.py",
     "tests/test_maintainer_report_command.py",
     "tests/test_oss_readiness.py",
@@ -130,7 +131,7 @@ SECRET_PATTERNS = [
 ]
 
 APPLICATION_REQUIRED_TERMS = [
-    "M6 submission status: `READY_FOR_OWNER_SUBMISSION`",
+    "M10 submission status: `READY_FOR_OWNER_SUBMISSION`",
     "Official OpenAI form submission: `NOT_PERFORMED`",
     "OpenAI Organization ID: `OWNER_INPUT_REQUIRED`",
     "Repository URL: `https://github.com/pjmin19/ansimtalk-`",
