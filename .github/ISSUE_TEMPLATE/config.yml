@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security or Credential Report
+    about: Report private credentials, student data exposure, or a security concern through the security policy first.
+    url: https://github.com/pjmin19/ansimtalk-/security/policy
+  - name: Contribution Setup Question
+    about: Read the contribution guide before opening setup or workflow questions.
+    url: https://github.com/pjmin19/ansimtalk-/blob/main/CONTRIBUTING.md
+  - name: OpenAI Codex for OSS Evidence
+    about: Review the public maintainer evidence map before suggesting application-readiness changes.
+    url: https://github.com/pjmin19/ansimtalk-/blob/main/docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md

@@ -39,6 +39,25 @@ URL: https://github.com/pjmin19/ansimtalk-/releases/tag/v0.1.0-oss-candidate
 Created after PR #8 security review hardening was merged and local/GitHub checks
 passed.
 
+## Reference Pattern Hardening
+
+Status: `PERFORMED`
+
+Public GitHub maintainer patterns reviewed and adapted:
+
+- Flask-style release/security maintenance evidence.
+- FastAPI-style issue routing with blank issues disabled and contact links.
+- PyPA sampleproject-style README as a code-hosting overview surface.
+- GitHub-native CodeQL and Dependabot maintenance automation.
+
+Applied files:
+
+- `docs/GITHUB_REFERENCE_PATTERNS.md`
+- `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md`
+- `.github/ISSUE_TEMPLATE/config.yml`
+- `.github/dependabot.yml`
+- `.github/workflows/codeql.yml`
+
 ## OpenAI Form
 
 Status: `NOT_PERFORMED`
