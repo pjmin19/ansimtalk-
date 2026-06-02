@@ -31,6 +31,7 @@ REQUIRED_PATHS = [
     "docs/MAINTAINER_GITHUB_CHECKLIST.md",
     "docs/MAINTAINER_AUTOMATION.md",
     "docs/ARCHITECTURE.md",
+    "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
     "docs/EDUCATOR_GUIDE.md",
@@ -49,6 +50,7 @@ REQUIRED_PATHS = [
     "scripts/generate_maintainer_report.py",
     "scripts/run_domain_eval.py",
     "tests/test_app_smoke.py",
+    "tests/test_application_packet.py",
     "tests/test_domain_eval_runner.py",
     "tests/test_human_review_boundary_docs.py",
     "tests/test_maintainer_report_command.py",
@@ -62,6 +64,7 @@ README_REQUIRED_TERMS = [
     "Limitations",
     "Quick Start",
     "Configuration",
+    "Codex For OSS Submission Packet",
     "Tests",
     "Contributor Local Run",
     "Domain Evaluation",
@@ -76,6 +79,7 @@ README_REQUIRED_TERMS = [
 
 README_REQUIRED_REFERENCES = [
     "docs/ARCHITECTURE.md",
+    "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
     "docs/EDUCATOR_GUIDE.md",
@@ -111,6 +115,21 @@ SECRET_PATTERNS = [
             r"[^\"']{12,}[\"']"
         ),
     ),
+]
+
+APPLICATION_REQUIRED_TERMS = [
+    "M6 submission status: `READY_FOR_OWNER_SUBMISSION`",
+    "Official OpenAI form submission: `NOT_PERFORMED`",
+    "OpenAI Organization ID: `OWNER_INPUT_REQUIRED`",
+    "Repository URL: `https://github.com/pjmin19/ansimtalk-`",
+]
+
+APPLICATION_REQUIRED_REFERENCES = [
+    "docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md",
+    "docs/EDUCATOR_GUIDE.md",
+    "docs/HUMAN_REVIEW_WORKFLOW.md",
+    "docs/MAINTAINER_AUTOMATION.md",
+    "docs/EVALUATION.md",
 ]
 
 HUMAN_REVIEW_BOUNDARY_PATHS = [
@@ -267,6 +286,12 @@ def parse_declared_counts(application_text: str) -> dict[str, int]:
 def check_application_packet(repo_root: Path, issues: list[str]) -> dict[str, int]:
     path = repo_root / "docs" / "openai-codex-for-oss-application.md"
     text = read_text(path) or ""
+    for term in APPLICATION_REQUIRED_TERMS:
+        if term not in text:
+            issues.append(f"application_missing_term:{term}")
+    for reference in APPLICATION_REQUIRED_REFERENCES:
+        if reference not in text:
+            issues.append(f"application_missing_reference:{reference}")
     blocks = parse_answer_blocks(text)
     declared = parse_declared_counts(text)
     required = {"repo_qualification", "api_credits_usage", "anything_else"}

@@ -21,6 +21,7 @@ application criteria visible on the official OpenAI form.
 | Release management | Release notes draft, published release tag, readiness audit, and post-release evidence docs. |
 | Security and quality | `SECURITY.md`, security regression tests, secret-like string scanning, CodeQL workflow, Dependabot config, and CI. |
 | Reproducible maintainer workflow | `python -m compileall -q .`, `python -m pytest -q`, `python scripts/generate_sample_report.py --output-dir tmp/sample_report`, `python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json`, `python scripts/generate_maintainer_report.py --output-dir tmp/maintainer_report`, and `python scripts/check_oss_readiness.py --repo-root .`. |
+| Submission packet | `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md` and `docs/openai-codex-for-oss-application.md` hold final owner-review copy with 500-character validation. |
 | Ecosystem importance claim | Small but focused OSS candidate for AI-assisted student digital-safety report workflows with educator-facing human-review boundaries. |
 
 ## Small-Repo Honesty
@@ -35,6 +36,7 @@ becomes more reusable.
 ## Maintainer Evidence Links
 
 - Application copy: `docs/openai-codex-for-oss-application.md`
+- Submission packet: `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`
 - Readiness audit: `docs/READINESS_AUDIT.md`
 - Maintainer checklist: `docs/MAINTAINER_GITHUB_CHECKLIST.md`
 - Architecture: `docs/ARCHITECTURE.md`

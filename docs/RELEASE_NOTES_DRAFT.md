@@ -46,6 +46,7 @@ Status: `DRAFT`
 - M4 maintainer automation report generator for issue triage, PR
   security/privacy review, release-note inputs, and Codex/API credit planning.
 - M5 educator guide, human review workflow, and safe sample output boundary.
+- M6 Codex for OSS submission packet with under-500-character field validation.
 
 ### Validation
 

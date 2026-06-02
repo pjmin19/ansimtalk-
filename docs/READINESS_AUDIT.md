@@ -38,6 +38,10 @@ M5 educator/human-review boundary hardening adds educator-facing interpretation
 guidance, a human review workflow, safe sample output, and regression checks for
 affirmative authority-style claims.
 
+M6 submission-packet hardening refreshes the official form answer blocks from
+M0-M5 evidence, validates all 500-character field limits, and separates
+`READY_FOR_OWNER_SUBMISSION` from actual form submission.
+
 ## Evidence
 
 Commands:
@@ -103,6 +107,10 @@ Observed GitHub results:
   `docs/EDUCATOR_GUIDE.md`, `docs/HUMAN_REVIEW_WORKFLOW.md`,
   `examples/reports/human_review_sample.md`, and
   `tests/test_human_review_boundary_docs.py`.
+- M6 submission packet and application test:
+  `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`,
+  `docs/openai-codex-for-oss-application.md`, and
+  `tests/test_application_packet.py`.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -145,13 +153,14 @@ JSON evidence:
 - M5 Educator And Human Review Boundary: educator guide, human review workflow,
   safe sample output, and affirmative authority-claim regression checks are
   documented and tested.
-- M6 Official Submission Packet: not yet complete in the M3-M6 milestone spine.
+- M6 Official Submission Packet: final owner-review submission packet and
+  under-500-character application answers are documented and tested.
 
 ## Character Counts
 
-- `repo_qualification`: 341
-- `api_credits_usage`: 328
-- `anything_else`: 293
+- `repo_qualification`: 366
+- `api_credits_usage`: 336
+- `anything_else`: 285
 
 ## Live Actions
 

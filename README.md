@@ -140,6 +140,17 @@ safeguarding or counseling procedures apply.
 See `examples/reports/human_review_sample.md` for a synthetic sample output
 that keeps the review boundary visible.
 
+## Codex For OSS Submission Packet
+
+The final owner-review packet is in `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`.
+The copy-paste form answers are in
+`docs/openai-codex-for-oss-application.md` and are validated under 500
+characters each.
+
+Official OpenAI form submission is still `NOT_PERFORMED` until the owner enters
+account-specific fields such as the OpenAI Organization ID and submits through
+the official form.
+
 ## Architecture
 
 The project keeps a small, inspectable Flask architecture:
@@ -180,6 +191,8 @@ The public maintainer story should be kept in small, reviewable artifacts:
 
 - `docs/ROADMAP.md` for DTT milestones.
 - `docs/ARCHITECTURE.md` for the project component map and runtime flow.
+- `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md` for final owner-review submission
+  evidence.
 - `docs/PRIVACY_BOUNDARIES.md` for student data, provider, and human-review
   boundaries.
 - `docs/CONTRIBUTOR_LOCAL_RUN.md` for the credential-free sample report path.
@@ -226,3 +239,5 @@ Maintainer evidence already created:
   security/privacy checklist, and local report generator for M4.
 - Educator guide, human review workflow, and safe sample output documented for
   M5.
+- Codex for OSS submission packet and 500-character answer validation prepared
+  for M6.

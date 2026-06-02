@@ -78,3 +78,9 @@ current PR/CI/CodeQL/evaluation evidence.
 Green condition: `docs/openai-codex-for-oss-application.md` is refreshed from
 current evidence, all 500-character limits are verified, and official form
 submission happens only after all exit criteria pass.
+
+Current M6 target artifacts:
+
+- `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`
+- `docs/openai-codex-for-oss-application.md`
+- `tests/test_application_packet.py`
