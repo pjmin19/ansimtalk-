@@ -45,6 +45,16 @@ sample command in a temporary output directory and verifies:
 - provider mode is `offline_fallback`
 - the payload records `human_review_required`
 
+## Run The Domain Evaluation Smoke
+
+```powershell
+python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json
+```
+
+This command reads `examples/evaluations/domain_eval_cases.json`, keeps provider
+calls disabled by default, and verifies the expected fallback risk labels plus
+the human-review notice. See `docs/EVALUATION.md` for the evaluation boundary.
+
 ## Privacy Boundary
 
 The fixture is synthetic and public-safe. Runtime outputs are generated under

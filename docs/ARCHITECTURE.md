@@ -31,6 +31,8 @@ Browser or API client
 - `tests/` covers smoke behavior and security regressions.
 - `scripts/check_oss_readiness.py` checks public OSS readiness, required files,
   application field character counts, compile status, and secret-like strings.
+- `scripts/run_domain_eval.py` checks synthetic Korean text and OCR-like
+  fixtures against the provider-offline fallback workflow.
 - `.github/workflows/` runs CI and CodeQL on GitHub.
 
 ## Analysis Flow
@@ -43,6 +45,13 @@ Browser or API client
 5. Cyberbullying analysis uses text files or OCR output, then optional Gemini
    credentials or a deterministic fallback.
 6. Results are rendered for review and can be converted into a PDF report.
+
+## Evaluation Flow
+
+`examples/evaluations/domain_eval_cases.json` stores synthetic public-safe
+cases. `scripts/run_domain_eval.py` clears provider credentials by default,
+runs each case through the same text-analysis fallback path, and writes a JSON
+result with expected risk labels and human-review notice checks.
 
 ## Provider Boundary
 

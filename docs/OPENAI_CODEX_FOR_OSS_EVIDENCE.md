@@ -20,7 +20,7 @@ application criteria visible on the official OpenAI form.
 | PR review and issue triage | Issue templates, PR template, disabled blank issues, maintainer checklist, and closed milestone evidence. |
 | Release management | Release notes draft, published release tag, readiness audit, and post-release evidence docs. |
 | Security and quality | `SECURITY.md`, security regression tests, secret-like string scanning, CodeQL workflow, Dependabot config, and CI. |
-| Reproducible maintainer workflow | `python -m compileall -q .`, `python -m pytest -q`, `python scripts/generate_sample_report.py --output-dir tmp/sample_report`, and `python scripts/check_oss_readiness.py --repo-root .`. |
+| Reproducible maintainer workflow | `python -m compileall -q .`, `python -m pytest -q`, `python scripts/generate_sample_report.py --output-dir tmp/sample_report`, `python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json`, and `python scripts/check_oss_readiness.py --repo-root .`. |
 | Ecosystem importance claim | Small but focused OSS candidate for AI-assisted student digital-safety report workflows with human-review boundaries. |
 
 ## Small-Repo Honesty
@@ -40,6 +40,9 @@ becomes more reusable.
 - Architecture: `docs/ARCHITECTURE.md`
 - Privacy boundaries: `docs/PRIVACY_BOUNDARIES.md`
 - Contributor local run: `docs/CONTRIBUTOR_LOCAL_RUN.md`
+- Domain evaluation: `docs/EVALUATION.md`
+- Domain eval cases: `examples/evaluations/domain_eval_cases.json`
+- Domain eval runner: `scripts/run_domain_eval.py`
 - Reference patterns: `docs/GITHUB_REFERENCE_PATTERNS.md`
 - Test workflow: `.github/workflows/test.yml`
 - CodeQL workflow: `.github/workflows/codeql.yml`
