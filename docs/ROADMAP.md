@@ -4,11 +4,13 @@ This roadmap uses DTT milestones and TDD-style acceptance checks.
 
 ## M0 Security Blocker
 
-Red condition: secret-like values, hardcoded credential fallbacks, or real API
-keys appear in public files.
+Red condition: secret-like values, hardcoded credential fallbacks, real API keys,
+client-supplied PDF file paths, or deploy-mode missing `SECRET_KEY` appear in
+public behavior.
 
 Green condition: config is env-only, `.env.example` has placeholders, secret
-rotation is documented, and readiness validation passes.
+rotation is documented, client path fields are rejected, deployed multi-worker
+runs require a stable secret, and readiness validation passes.
 
 ## M1 OSS Surface
 
@@ -20,10 +22,11 @@ policy, contribution guide, code of conduct, and issue templates.
 
 ## M2 Reproducible Execution
 
-Red condition: local tests require live provider credentials.
+Red condition: local tests require live provider credentials or miss the Codex
+review regression cases.
 
-Green condition: compile, pytest, and fallback-mode smoke tests pass without
-network credentials.
+Green condition: compile, pytest, fallback-mode smoke tests, PDF path rejection,
+and deploy secret checks pass without network credentials.
 
 ## M3 Maintainer Evidence
 

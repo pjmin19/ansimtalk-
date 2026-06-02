@@ -8,9 +8,10 @@ Local path: `D:\Codex\oss_research\external_repos\pjmin19_ansimtalk-`
 
 ## Judgment
 
-Status: `PASS: Remote-CI + Fresh-Clone + HTTP-Smoke Verified`
+Status: `PASS: Local Security-Hardening Auto-Verified`
 
-Decision: applyable candidate after official OpenAI form submission.
+Decision: applyable candidate after the security hardening PR is merged, a small
+release is created, and the official OpenAI form is submitted manually.
 
 This is not an OpenAI-submitted, human-reviewed, or customer-ready state.
 
@@ -24,13 +25,23 @@ python -m pytest -q
 python scripts/check_oss_readiness.py --repo-root . --json-out D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness.v1.json
 ```
 
-Observed local results:
+Observed local results before the security hardening branch:
 
 - `compileall`: pass
 - `pytest`: 5 passed
 - `oss_readiness`: `PASS: Auto-Verified`
 - `issue_count`: 0
 - `scanned_text_files`: 42
+
+Observed local results after the security hardening branch:
+
+- `compileall`: pass
+- `pytest`: 8 passed
+- `oss_readiness`: `PASS: Auto-Verified`
+- `issue_count`: 0
+- `scanned_text_files`: 43
+- `tests/test_security_review_regressions.py`: client path rejection and stable
+  deploy secret checks covered.
 
 Observed GitHub results:
 
@@ -61,11 +72,13 @@ JSON evidence:
 ## M0-M6
 
 - M0 Security Blocker: env-only config, placeholder `.env.example`, secret-like
-  scan pass, SECURITY.md rotation checklist present.
+  scan pass, SECURITY.md rotation checklist present, client-supplied PDF paths
+  rejected, deploy-mode stable secret required.
 - M1 OSS Surface: README, LICENSE, SECURITY, CONTRIBUTING, CODE_OF_CONDUCT,
   issue templates, release notes draft, and roadmap present.
-- M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, and HTTP
-  smoke checks pass without provider credentials.
+- M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, HTTP
+  smoke checks, and security regression checks pass without provider
+  credentials.
 - M3 Maintainer Evidence: GitHub issue, milestone, release, and OpenAI form
   checklist prepared locally. Issues #2-#6 and milestone
   `v0.1.0-oss-candidate` were created on GitHub.
@@ -90,6 +103,7 @@ JSON evidence:
 - GitHub release creation: `NOT_PERFORMED`
 - Fresh clone verification: `PERFORMED`
 - HTTP smoke verification: `PERFORMED`
+- Security hardening branch push/PR/merge: `NOT_PERFORMED`
 - OpenAI form submit: `NOT_PERFORMED`
 - Provider change: `NOT_PERFORMED`
 - Training/model-weight change: `NOT_PERFORMED`

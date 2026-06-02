@@ -16,6 +16,13 @@ bp = Blueprint("main", __name__)
 
 ALLOWED_EXTENSIONS = {"txt", "png", "jpg", "jpeg"}
 MAX_FILE_SIZE = 5 * 1024 * 1024
+CLIENT_PATH_FIELD_NAMES = {
+    "file_path",
+    "uploaded_file_path",
+    "static_file_path",
+    "upload_path",
+    "original_image_path",
+}
 
 
 def secure_korean_filename(filename):
@@ -237,6 +244,8 @@ def api_download_pdf():
     analysis_result = payload.get("analysis_result")
     if not analysis_result:
         return jsonify({"error": "No analysis result was provided."}), 400
+    if any(field in analysis_result for field in CLIENT_PATH_FIELD_NAMES):
+        return jsonify({"error": "Client-supplied file paths are not allowed."}), 400
 
     analysis_type = payload.get("analysis_type", analysis_result.get("analysis_type", "unknown"))
     pdf_path = str(Path(os.getcwd()) / "tmp" / f"evidence_{uuid.uuid4().hex}.pdf")

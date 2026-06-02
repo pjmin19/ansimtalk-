@@ -10,8 +10,13 @@ def create_app():
     app = Flask(__name__)
     app.logger.setLevel(os.environ.get("LOG_LEVEL", "INFO"))
 
-    # Never ship a hardcoded Flask secret. Local runs get an ephemeral key.
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+    secret_key = os.environ.get("SECRET_KEY")
+    require_stable_secret = os.environ.get("ANSIMTALK_REQUIRE_STABLE_SECRET", "").lower()
+    if not secret_key and require_stable_secret in {"1", "true", "yes"}:
+        raise RuntimeError("SECRET_KEY is required when ANSIMTALK_REQUIRE_STABLE_SECRET is enabled.")
+
+    # Never ship a hardcoded Flask secret. Local-only runs get an ephemeral key.
+    app.config["SECRET_KEY"] = secret_key or secrets.token_hex(32)
 
     # API credentials must come from the runtime environment.
     app.config["SIGHTENGINE_API_USER"] = os.environ.get("SIGHTENGINE_API_USER", "")

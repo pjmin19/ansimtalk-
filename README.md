@@ -21,6 +21,8 @@ not production claims.
 
 - External AI providers are optional and require local environment variables.
 - Missing provider credentials should produce safe fallback behavior in tests.
+- Deployed or multi-worker runs must set a stable `SECRET_KEY`.
+- API PDF generation rejects client-supplied local file paths.
 - The project is not a legal, forensic, medical, or safety authority.
 - Model output must be reviewed by a human before real-world action.
 - The current public readiness state is `PASS: Auto-Verified` only after the
@@ -68,7 +70,8 @@ python scripts/check_oss_readiness.py --repo-root .
 ```
 
 The OSS readiness validator checks required project files, public application
-answer character counts, compile status, and secret-like strings.
+answer character counts, compile status, security regression tests, and
+secret-like strings.
 
 ## Security
 
@@ -90,5 +93,5 @@ The public maintainer story should be kept in small, reviewable artifacts:
 
 This repository is a public OSS candidate, not a finished product. Before an
 OpenAI Codex for Open Source application is submitted, the maintainer should
-push the security cleanup branch, create the public GitHub issues/milestone,
+push the security hardening branch, create the public GitHub issues/milestone,
 publish a small release, and submit the official form manually.

@@ -21,6 +21,7 @@ Acceptance:
 
 - M0-M6 local readiness validator passes.
 - Public README and SECURITY.md contain no real credentials.
+- Codex review security regressions are covered by tests.
 - GitHub secret scanning or equivalent local scanner is run before release.
 
 ## Release Draft
@@ -31,7 +32,7 @@ Title: `AnsimTalk v0.1.0 OSS Candidate`
 
 Status: `NOT_PERFORMED`
 
-Release creation should wait until PR #1 is merged.
+Release creation should wait until the security review hardening PR is merged.
 
 ## OpenAI Form
 
