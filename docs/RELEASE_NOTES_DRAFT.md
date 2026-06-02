@@ -2,7 +2,10 @@
 
 ## v0.1.0-oss-candidate
 
-Status: `NOT_PERFORMED`
+Status: `PERFORMED`
+
+Release URL:
+https://github.com/pjmin19/ansimtalk-/releases/tag/v0.1.0-oss-candidate
 
 This release candidate prepares AnsimTalk for public open-source maintenance.
 

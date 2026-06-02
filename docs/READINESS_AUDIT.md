@@ -8,10 +8,9 @@ Local path: `D:\Codex\oss_research\external_repos\pjmin19_ansimtalk-`
 
 ## Judgment
 
-Status: `PASS: Local Security-Hardening Auto-Verified`
+Status: `PASS: Remote-CI + Security-Hardening + Release Evidence Auto-Verified`
 
-Decision: applyable candidate after the security hardening PR is merged, a small
-release is created, and the official OpenAI form is submitted manually.
+Decision: applyable candidate for official OpenAI form submission.
 
 This is not an OpenAI-submitted, human-reviewed, or customer-ready state.
 
@@ -47,18 +46,25 @@ Observed GitHub results:
 
 - PR #1: merged on 2026-06-02
 - Merge commit: `3d1a13a674f43ba6c8c2bfb25d7b27000bc470bf`
+- PR #8: merged on 2026-06-02
+- Merge commit: `339ebaa`
 - PR latest checks: success
 - Main branch check: success
+- Issues #2-#6: closed
+- Milestone `v0.1.0-oss-candidate`: closed
+- Release `v0.1.0-oss-candidate`: created
+- Release URL:
+  `https://github.com/pjmin19/ansimtalk-/releases/tag/v0.1.0-oss-candidate`
 
-Observed fresh-clone results:
+Observed fresh-clone results after PR #8 merge:
 
-- Fresh clone commit: `3d1a13a674f43ba6c8c2bfb25d7b27000bc470bf`
+- Fresh clone commit: `339ebaa682ab9481539df9e0c068fd65054b1baa`
 - `python -m compileall -q .`: pass
-- `python -m pytest -q`: 5 passed
+- `python -m pytest -q`: 8 passed
 - `python scripts/check_oss_readiness.py --repo-root .`: `PASS: Auto-Verified`
 - secret-like direct scan: no matches
 
-Observed HTTP smoke results from fresh clone:
+Observed HTTP smoke results from the earlier fresh clone:
 
 - `GET /health`: 200
 - `GET /api/health`: 200
@@ -67,7 +73,9 @@ Observed HTTP smoke results from fresh clone:
 
 JSON evidence:
 
-`D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness.v1.json`
+- `D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness_post_pr8_merge.v1.json`
+- `D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness_fresh_clone_post_pr8.v1.json`
+- `D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness_release_docs_fixed.v1.json`
 
 ## M0-M6
 
@@ -79,9 +87,9 @@ JSON evidence:
 - M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, HTTP
   smoke checks, and security regression checks pass without provider
   credentials.
-- M3 Maintainer Evidence: GitHub issue, milestone, release, and OpenAI form
-  checklist prepared locally. Issues #2-#6 and milestone
-  `v0.1.0-oss-candidate` were created on GitHub.
+- M3 Maintainer Evidence: GitHub issues #2-#6 closed, milestone
+  `v0.1.0-oss-candidate` closed, release `v0.1.0-oss-candidate` created, and
+  OpenAI form checklist prepared locally.
 - M4 CI And Quality: GitHub Actions workflow runs successfully on GitHub.
 - M5 Application Packet: three application answers verified under 500
   characters.
@@ -98,12 +106,15 @@ JSON evidence:
 - GitHub branch push: `PERFORMED`
 - GitHub PR creation: `PERFORMED` at https://github.com/pjmin19/ansimtalk-/pull/1
 - GitHub PR merge: `PERFORMED`
+- GitHub security hardening PR creation: `PERFORMED` at https://github.com/pjmin19/ansimtalk-/pull/8
+- GitHub security hardening PR merge: `PERFORMED`
 - GitHub issue creation: `PERFORMED` for #2-#6
 - GitHub milestone creation: `PERFORMED` for `v0.1.0-oss-candidate`
-- GitHub release creation: `NOT_PERFORMED`
+- GitHub milestone closure: `PERFORMED`
+- GitHub release creation: `PERFORMED`
 - Fresh clone verification: `PERFORMED`
 - HTTP smoke verification: `PERFORMED`
-- Security hardening branch push/PR/merge: `NOT_PERFORMED`
+- Security hardening branch push/PR/merge: `PERFORMED`
 - OpenAI form submit: `NOT_PERFORMED`
 - Provider change: `NOT_PERFORMED`
 - Training/model-weight change: `NOT_PERFORMED`

@@ -15,7 +15,9 @@ GitHub on 2026-06-02.
 
 `v0.1.0-oss-candidate`
 
-Status: `PERFORMED`
+Status: `PERFORMED_AND_CLOSED`
+
+URL: https://github.com/pjmin19/ansimtalk-/milestone/1
 
 Acceptance:
 
@@ -30,9 +32,12 @@ Tag: `v0.1.0-oss-candidate`
 
 Title: `AnsimTalk v0.1.0 OSS Candidate`
 
-Status: `NOT_PERFORMED`
+Status: `PERFORMED`
 
-Release creation should wait until the security review hardening PR is merged.
+URL: https://github.com/pjmin19/ansimtalk-/releases/tag/v0.1.0-oss-candidate
+
+Created after PR #8 security review hardening was merged and local/GitHub checks
+passed.
 
 ## OpenAI Form
 

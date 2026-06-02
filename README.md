@@ -93,5 +93,11 @@ The public maintainer story should be kept in small, reviewable artifacts:
 
 This repository is a public OSS candidate, not a finished product. Before an
 OpenAI Codex for Open Source application is submitted, the maintainer should
-push the security hardening branch, create the public GitHub issues/milestone,
-publish a small release, and submit the official form manually.
+review the application packet and submit the official OpenAI form manually.
+
+Maintainer evidence already created:
+
+- PR #8 security review hardening merged.
+- Issues #2-#6 closed.
+- Milestone `v0.1.0-oss-candidate` closed.
+- Release `v0.1.0-oss-candidate` published.
