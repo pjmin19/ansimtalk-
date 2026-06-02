@@ -1,18 +1,19 @@
-import os
+﻿import os
+import secrets
 
-# Flask 기본 설정
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
 
-# Sightengine API (환경 변수에서 가져옴)
-SIGHTENGINE_API_USER = os.environ.get('SIGHTENGINE_API_USER', '')
-SIGHTENGINE_API_SECRET = os.environ.get('SIGHTENGINE_API_SECRET', '')
+SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
-# Google Cloud Vision/Gemini
-GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'dazzling-howl-465316-m7-6605bfd84de1.json')
-GOOGLE_GEMINI_API_KEY = os.environ.get('GOOGLE_GEMINI_API_KEY', '')
+SIGHTENGINE_API_USER = os.environ.get("SIGHTENGINE_API_USER", "")
+SIGHTENGINE_API_SECRET = os.environ.get("SIGHTENGINE_API_SECRET", "")
 
-# 실제 배포 시에는 환경변수로 민감정보를 관리하세요.
+GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+GOOGLE_GEMINI_API_KEY = os.environ.get("GOOGLE_GEMINI_API_KEY", "")
+GOOGLE_CLOUD_VISION_API_KEY = os.environ.get("GOOGLE_CLOUD_VISION_API_KEY", "")
+GCP_PROJECT = os.environ.get("GCP_PROJECT", "")
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'tmp')
-ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg'} 
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "tmp")
+ALLOWED_EXTENSIONS = {"txt", "png", "jpg", "jpeg"}
+
+

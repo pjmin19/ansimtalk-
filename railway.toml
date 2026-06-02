@@ -5,4 +5,4 @@ builder = "dockerfile"
 healthcheckPath = "/health"
 healthcheckTimeout = 600
 restartPolicyType = "on_failure"
-requestTimeout = 300 
+requestTimeout = 300
