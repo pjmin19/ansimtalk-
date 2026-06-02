@@ -18,6 +18,10 @@ Latest reference-pattern hardening adds GitHub issue routing, Dependabot,
 CodeQL, and an OpenAI criteria-to-evidence map. It strengthens public
 maintainer evidence without changing the application readiness boundary.
 
+M1 public OSS product-shape hardening adds architecture and privacy-boundary
+documentation so first-time contributors can inspect the runtime flow and data
+handling limits before running the app.
+
 ## Evidence
 
 Commands:
@@ -64,6 +68,8 @@ Observed GitHub results:
 - GitHub automation added: issue routing, Dependabot, and CodeQL.
 - Coupled dependency maintenance: the WeasyPrint 68.1 and pydyf <0.13 update
   is bundled because the independent Dependabot PRs failed when tested apart.
+- M1 product-shape docs: `docs/ARCHITECTURE.md` and
+  `docs/PRIVACY_BOUNDARIES.md`.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -92,8 +98,8 @@ JSON evidence:
   scan pass, SECURITY.md rotation checklist present, client-supplied PDF paths
   rejected, deploy-mode stable secret required.
 - M1 OSS Surface: README, LICENSE, SECURITY, CONTRIBUTING, CODE_OF_CONDUCT,
-  issue templates, issue routing config, reference-pattern docs, release notes
-  draft, and roadmap present.
+  issue templates, issue routing config, architecture docs, privacy-boundary
+  docs, reference-pattern docs, release notes draft, and roadmap present.
 - M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, HTTP
   smoke checks, and security regression checks pass without provider
   credentials.
