@@ -25,6 +25,15 @@ For OpenAI Codex for Open Source review, start with:
 Current review status: `PASS: Auto-Review-Ready` and
 `READY_FOR_OWNER_SUBMISSION`.
 
+M8 evidence sync:
+
+- M8 claim-boundary PR: `https://github.com/pjmin19/ansimtalk-/pull/24`
+- Latest verified M8 main: `a6f909b351d9085787b68bffb4ef3ddea9f36f45`
+- GitHub Actions `test`: `success` (`26824757948`)
+- GitHub Actions `codeql`: `success` (`26824757970`)
+- Goal-propulsion prompt:
+  `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PROMPT_KO.md`
+
 Maintainer role: `primary maintainer`.
 
 Main disclosed risk: early adoption risk. The application case is based on
@@ -273,3 +282,9 @@ Maintainer evidence already created:
   M5.
 - Codex for OSS submission packet and 500-character answer validation prepared
   for M6.
+- Codex for OSS automated-review readiness prepared for M7.
+- Claim-boundary hardening and whole-picture DTT/TDD goal-propulsion prompt
+  merged in PR #24 for M8.
+- Public evidence sync, submission-packet freeze, external-review bundle, and
+  owner submission gate are now tracked as M9-M12 without claiming official
+  submission or acceptance.

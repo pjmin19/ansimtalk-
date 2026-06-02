@@ -52,6 +52,11 @@ adds public-surface overclaim regression tests, and records the whole-picture
 DTT/TDD goal-propulsion plan plus a verified under-4000-character follow-up
 prompt.
 
+M9-M12 evidence sync freezes the owner-review submission surface after M8 main
+CI: README, evidence map, readiness audit, and submission packet now name the
+same PR #24, M8 main commit, GitHub Actions runs, risk boundary, external
+review bundle path, and owner-only submission gate.
+
 ## Evidence
 
 Commands:
@@ -122,6 +127,16 @@ Observed GitHub results:
   `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`,
   `docs/openai-codex-for-oss-application.md`, and
   `tests/test_application_packet.py`.
+- M8 claim-boundary PR:
+  `https://github.com/pjmin19/ansimtalk-/pull/24`
+- M8 merge commit:
+  `a6f909b351d9085787b68bffb4ef3ddea9f36f45`
+- M8 main GitHub Actions `test`: success, run `26824757948`
+- M8 main GitHub Actions `codeql`: success, run `26824757970`
+- M9-M12 evidence sync test:
+  `tests/test_goal_propulsion_evidence_sync.py`
+- M11 external review bundle:
+  `D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\chatgpt_deep_research_application_review_20260602`
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -172,6 +187,17 @@ JSON evidence:
 - M8 Claim Boundary And Goal Propulsion: app/template public wording is bounded
   as review material only, and the whole-picture milestone plan plus Korean
   follow-up prompt are documented and tested.
+- M9 Public Evidence Sync: README, evidence map, readiness audit, and
+  submission packet point to PR #24, the same verified M8 main commit, the same
+  main `test`/`codeql` run IDs, and the same M11 bundle path.
+- M10 Submission Packet Freeze: the official form answer blocks remain under
+  500 characters, declared counts match, and the packet is ready for owner
+  review without claiming submission.
+- M11 External Review Bundle: the public-safe Deep Research prompt and 20-file
+  upload set are refreshed from current repo evidence.
+- M12 Owner Submission Gate: official OpenAI form submission remains
+  `NOT_PERFORMED`, OpenAI acceptance remains `NOT_CLAIMED`, and
+  OpenAI Organization ID remains `OWNER_INPUT_REQUIRED`.
 
 ## Character Counts
 

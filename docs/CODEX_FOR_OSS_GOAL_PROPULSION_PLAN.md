@@ -43,10 +43,16 @@ CI.
 
 ## Current Slice
 
-This PR implements M8. The highest-risk contradiction was that submission docs
+PR #24 implemented M8. The highest-risk contradiction was that submission docs
 said "not legal/forensic/safety authority" while app templates still used legal
-evidence wording. That is the first slice because it can directly hurt an
-automated or human safety review.
+evidence wording. That slice is now merged and verified on main at
+`a6f909b351d9085787b68bffb4ef3ddea9f36f45` with GitHub Actions `test`
+success run `26824757948` and `codeql` success run `26824757970`.
+
+The current continuation slice is M9-M12 evidence sync: freeze the public
+evidence packet after M8, keep the submission answers under 500 characters,
+refresh the 20-file external review bundle, and leave the owner-only official
+form gate as `NOT_PERFORMED`/`NOT_CLAIMED`.
 
 Exit criteria:
 
