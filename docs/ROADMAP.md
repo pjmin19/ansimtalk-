@@ -63,6 +63,13 @@ guaranteed safety authority.
 Green condition: educator-facing docs and sample output clearly require human
 review and describe what the project is not.
 
+Current M5 target artifacts:
+
+- `docs/EDUCATOR_GUIDE.md`
+- `docs/HUMAN_REVIEW_WORKFLOW.md`
+- `examples/reports/human_review_sample.md`
+- `tests/test_human_review_boundary_docs.py`
+
 ## M6 Official Submission Packet
 
 Red condition: application text is generic, above field limits, or not tied to

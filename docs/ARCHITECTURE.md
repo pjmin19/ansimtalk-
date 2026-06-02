@@ -55,6 +55,14 @@ cases. `scripts/run_domain_eval.py` clears provider credentials by default,
 runs each case through the same text-analysis fallback path, and writes a JSON
 result with expected risk labels and human-review notice checks.
 
+## Human Review Flow
+
+`docs/EDUCATOR_GUIDE.md`, `docs/HUMAN_REVIEW_WORKFLOW.md`, and
+`examples/reports/human_review_sample.md` define the educator-facing boundary.
+The output remains a review aid. A human reviewer must check the original
+material, record uncertainty, and choose an existing school policy route before
+any real-world action.
+
 ## Maintainer Automation Flow
 
 `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`, release notes,

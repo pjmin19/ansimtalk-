@@ -33,7 +33,9 @@ REQUIRED_PATHS = [
     "docs/ARCHITECTURE.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
+    "docs/EDUCATOR_GUIDE.md",
     "docs/GITHUB_REFERENCE_PATTERNS.md",
+    "docs/HUMAN_REVIEW_WORKFLOW.md",
     "docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md",
     "docs/PRIVACY_BOUNDARIES.md",
     "docs/RELEASE_NOTES_DRAFT.md",
@@ -41,12 +43,14 @@ REQUIRED_PATHS = [
     "docs/openai-codex-for-oss-application.md",
     "examples/fixtures/cyberbullying_sample.txt",
     "examples/evaluations/domain_eval_cases.json",
+    "examples/reports/human_review_sample.md",
     "scripts/check_oss_readiness.py",
     "scripts/generate_sample_report.py",
     "scripts/generate_maintainer_report.py",
     "scripts/run_domain_eval.py",
     "tests/test_app_smoke.py",
     "tests/test_domain_eval_runner.py",
+    "tests/test_human_review_boundary_docs.py",
     "tests/test_maintainer_report_command.py",
     "tests/test_oss_readiness.py",
     "tests/test_sample_report_command.py",
@@ -61,6 +65,8 @@ README_REQUIRED_TERMS = [
     "Tests",
     "Contributor Local Run",
     "Domain Evaluation",
+    "Educator Guide",
+    "Human Review Workflow",
     "Maintainer Automation",
     "Security",
     "Architecture",
@@ -72,10 +78,13 @@ README_REQUIRED_REFERENCES = [
     "docs/ARCHITECTURE.md",
     "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/EVALUATION.md",
+    "docs/EDUCATOR_GUIDE.md",
+    "docs/HUMAN_REVIEW_WORKFLOW.md",
     "docs/MAINTAINER_AUTOMATION.md",
     "docs/PRIVACY_BOUNDARIES.md",
     "examples/evaluations/domain_eval_cases.json",
     "examples/fixtures/cyberbullying_sample.txt",
+    "examples/reports/human_review_sample.md",
     "scripts/generate_sample_report.py",
     "scripts/generate_maintainer_report.py",
     "scripts/run_domain_eval.py",
@@ -103,6 +112,39 @@ SECRET_PATTERNS = [
         ),
     ),
 ]
+
+HUMAN_REVIEW_BOUNDARY_PATHS = [
+    "docs/EDUCATOR_GUIDE.md",
+    "docs/HUMAN_REVIEW_WORKFLOW.md",
+    "examples/reports/human_review_sample.md",
+]
+
+HUMAN_REVIEW_REQUIRED_TERMS = [
+    "Human review is required",
+    "not a legal",
+    "not a forensic",
+    "not an emergency",
+]
+
+AFFIRMATIVE_AUTHORITY_PATTERNS = [
+    ("guaranteed_safety", re.compile(r"\bguaranteed safety\b", re.IGNORECASE)),
+    ("automated_action", re.compile(r"\bautomated action\b", re.IGNORECASE)),
+    ("legal_determination", re.compile(r"\blegal determination\b", re.IGNORECASE)),
+    ("forensic_conclusion", re.compile(r"\bforensic conclusion\b", re.IGNORECASE)),
+    ("emergency_response_authority", re.compile(r"\bemergency response authority\b", re.IGNORECASE)),
+]
+
+NEGATIVE_BOUNDARY_MARKERS = (
+    "not ",
+    "not a ",
+    "not an ",
+    "does not",
+    "do not",
+    "must not",
+    "without",
+    "no ",
+    "never",
+)
 
 SKIP_DIRS = {".git", ".pytest_cache", "__pycache__", ".venv", "venv", "env", "tmp", "logs"}
 SKIP_SUFFIXES = {
@@ -165,6 +207,28 @@ def check_readme(repo_root: Path, issues: list[str]) -> None:
     for claim in banned_claims:
         if claim in readme:
             issues.append(f"readme_overclaim:{claim}")
+
+
+def is_negative_boundary_line(line: str) -> bool:
+    lowered = line.lower()
+    return any(marker in lowered for marker in NEGATIVE_BOUNDARY_MARKERS)
+
+
+def check_human_review_boundary(repo_root: Path, issues: list[str]) -> None:
+    for relative in HUMAN_REVIEW_BOUNDARY_PATHS:
+        path = repo_root / relative
+        if not path.exists():
+            continue
+        text = read_text(path) or ""
+        for term in HUMAN_REVIEW_REQUIRED_TERMS:
+            if term not in text:
+                issues.append(f"human_review_missing_term:{relative}:{term}")
+        for line_number, line in enumerate(text.splitlines(), start=1):
+            if is_negative_boundary_line(line):
+                continue
+            for name, pattern in AFFIRMATIVE_AUTHORITY_PATTERNS:
+                if pattern.search(line):
+                    issues.append(f"human_review_overclaim:{name}:{relative}:{line_number}")
 
 
 def check_secret_like_strings(repo_root: Path, issues: list[str]) -> int:
@@ -236,6 +300,7 @@ def run_checks(repo_root: Path, run_compile: bool = True) -> CheckResult:
 
     check_required_paths(repo_root, issues)
     check_readme(repo_root, issues)
+    check_human_review_boundary(repo_root, issues)
     scanned_files = check_secret_like_strings(repo_root, issues)
     answer_counts = check_application_packet(repo_root, issues)
     compile_ok = check_compile(repo_root, issues) if run_compile else None

@@ -45,6 +45,7 @@ Status: `DRAFT`
 - M3 domain evaluation harness with synthetic Korean text/OCR cases.
 - M4 maintainer automation report generator for issue triage, PR
   security/privacy review, release-note inputs, and Codex/API credit planning.
+- M5 educator guide, human review workflow, and safe sample output boundary.
 
 ### Validation
 

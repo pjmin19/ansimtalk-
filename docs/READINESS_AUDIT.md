@@ -34,6 +34,10 @@ M4 maintainer automation adds a maintenance issue template, expanded PR
 security/privacy checklist, release-note draft inputs, local maintainer report
 generator, and command test for the report output.
 
+M5 educator/human-review boundary hardening adds educator-facing interpretation
+guidance, a human review workflow, safe sample output, and regression checks for
+affirmative authority-style claims.
+
 ## Evidence
 
 Commands:
@@ -95,6 +99,10 @@ Observed GitHub results:
   `.github/ISSUE_TEMPLATE/maintenance_task.md`,
   `scripts/generate_maintainer_report.py`, and
   `tests/test_maintainer_report_command.py`.
+- M5 educator/human-review docs, sample, and test:
+  `docs/EDUCATOR_GUIDE.md`, `docs/HUMAN_REVIEW_WORKFLOW.md`,
+  `examples/reports/human_review_sample.md`, and
+  `tests/test_human_review_boundary_docs.py`.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -134,8 +142,9 @@ JSON evidence:
 - M4 Maintainer Automation: issue triage, PR security/privacy checklist,
   release-note draft, and local maintainer report command are documented and
   tested.
-- M5 Educator And Human Review Boundary: not yet complete in the M3-M6
-  milestone spine.
+- M5 Educator And Human Review Boundary: educator guide, human review workflow,
+  safe sample output, and affirmative authority-claim regression checks are
+  documented and tested.
 - M6 Official Submission Packet: not yet complete in the M3-M6 milestone spine.
 
 ## Character Counts

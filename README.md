@@ -123,6 +123,23 @@ notes, and maintainer status reporting.
 See `docs/MAINTAINER_AUTOMATION.md` for inputs, expected outputs, and live
 provider boundaries.
 
+## Educator Guide
+
+Educators should read AnsimTalk output as a review packet, not as a final
+decision. The public-safe guide is in `docs/EDUCATOR_GUIDE.md`.
+
+Human review is required before any real-world action. The project is not a
+legal, forensic, emergency, or safety authority.
+
+## Human Review Workflow
+
+The human review workflow in `docs/HUMAN_REVIEW_WORKFLOW.md` describes how to
+check source material, record uncertainty, and decide whether existing school
+safeguarding or counseling procedures apply.
+
+See `examples/reports/human_review_sample.md` for a synthetic sample output
+that keeps the review boundary visible.
+
 ## Architecture
 
 The project keeps a small, inspectable Flask architecture:
@@ -167,6 +184,9 @@ The public maintainer story should be kept in small, reviewable artifacts:
   boundaries.
 - `docs/CONTRIBUTOR_LOCAL_RUN.md` for the credential-free sample report path.
 - `docs/EVALUATION.md` for synthetic provider-offline domain evaluation.
+- `docs/EDUCATOR_GUIDE.md` for responsible educator-facing interpretation.
+- `docs/HUMAN_REVIEW_WORKFLOW.md` for human decision records and escalation
+  boundaries.
 - `docs/MAINTAINER_AUTOMATION.md` for issue triage, PR review, release-note,
   and maintainer report automation.
 - `docs/MAINTAINER_GITHUB_CHECKLIST.md` for Issues, Milestones, and Releases.
@@ -179,6 +199,7 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `.github/ISSUE_TEMPLATE/config.yml` for issue routing.
 - `docs/openai-codex-for-oss-application.md` for application copy.
 - `examples/evaluations/domain_eval_cases.json` for synthetic evaluation cases.
+- `examples/reports/human_review_sample.md` for safe sample output phrasing.
 - `scripts/generate_maintainer_report.py` for local maintainer automation
   reporting.
 - `scripts/run_domain_eval.py` for the offline domain eval runner.
@@ -203,3 +224,5 @@ Maintainer evidence already created:
   offline fallback runner for M3.
 - Maintainer automation documented with an issue triage template, PR
   security/privacy checklist, and local report generator for M4.
+- Educator guide, human review workflow, and safe sample output documented for
+  M5.
