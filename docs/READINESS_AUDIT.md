@@ -42,6 +42,11 @@ M6 submission-packet hardening refreshes the official form answer blocks from
 M0-M5 evidence, validates all 500-character field limits, and separates
 `READY_FOR_OWNER_SUBMISSION` from actual form submission.
 
+M7 automated-review hardening adds an explicit Codex for OSS automated reviewer
+surface, strengthens the application wording around clear workflow importance,
+and adds a deterministic checker for the official criteria evidence map while
+keeping early-adoption risk disclosed.
+
 ## Evidence
 
 Commands:
@@ -52,6 +57,7 @@ python -m pytest -q
 python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json
 python scripts/generate_maintainer_report.py --output-dir tmp/maintainer_report
 python scripts/check_oss_readiness.py --repo-root . --json-out D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_oss_readiness.v1.json
+python scripts/check_codex_for_oss_application.py --repo-root . --json-out D:\Codex\reports\codex_for_oss_ansimtalk_readiness\LATEST\ansimtalk_codex_for_oss_application_review.v1.json
 ```
 
 Observed local results before the security hardening branch:
@@ -155,12 +161,15 @@ JSON evidence:
   documented and tested.
 - M6 Official Submission Packet: final owner-review submission packet and
   under-500-character application answers are documented and tested.
+- M7 Automated Review Readiness: official criteria evidence is summarized in a
+  public review surface and checked by
+  `scripts/check_codex_for_oss_application.py`.
 
 ## Character Counts
 
-- `repo_qualification`: 366
-- `api_credits_usage`: 336
-- `anything_else`: 285
+- `repo_qualification`: 385
+- `api_credits_usage`: 362
+- `anything_else`: 296
 
 ## Live Actions
 

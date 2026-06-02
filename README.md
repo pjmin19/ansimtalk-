@@ -10,6 +10,28 @@ This repository is being prepared as a public open-source project. The current
 priority is reproducibility, safe configuration, and clear maintainer evidence,
 not production claims.
 
+## Codex For OSS Automated Review
+
+For OpenAI Codex for Open Source review, start with:
+
+- `docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md` for the automated-review readiness
+  map.
+- `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md` for the final owner-review packet.
+- `docs/openai-codex-for-oss-application.md` for copy-paste form answers.
+- `docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md` for the criteria-to-evidence map.
+
+Current review status: `PASS: Auto-Review-Ready` and
+`READY_FOR_OWNER_SUBMISSION`.
+
+Maintainer role: `primary maintainer`.
+
+Main disclosed risk: early adoption risk. The application case is based on
+clear workflow importance, responsible safety boundaries, active maintainer
+evidence, and Codex/API-credit fit, not broad usage metrics.
+
+Official OpenAI form submission remains `NOT_PERFORMED` until owner-specific
+account fields are entered in the official form.
+
 ## What It Does
 
 - Accepts image or text uploads through a Flask web interface.
@@ -193,6 +215,8 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `docs/ARCHITECTURE.md` for the project component map and runtime flow.
 - `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md` for final owner-review submission
   evidence.
+- `docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md` for automated-review readiness
+  evidence.
 - `docs/PRIVACY_BOUNDARIES.md` for student data, provider, and human-review
   boundaries.
 - `docs/CONTRIBUTOR_LOCAL_RUN.md` for the credential-free sample report path.
@@ -213,6 +237,8 @@ The public maintainer story should be kept in small, reviewable artifacts:
 - `docs/openai-codex-for-oss-application.md` for application copy.
 - `examples/evaluations/domain_eval_cases.json` for synthetic evaluation cases.
 - `examples/reports/human_review_sample.md` for safe sample output phrasing.
+- `scripts/check_codex_for_oss_application.py` for deterministic
+  automated-review readiness checks.
 - `scripts/generate_maintainer_report.py` for local maintainer automation
   reporting.
 - `scripts/run_domain_eval.py` for the offline domain eval runner.

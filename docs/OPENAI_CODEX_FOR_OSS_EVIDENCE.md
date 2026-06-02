@@ -21,8 +21,20 @@ application criteria visible on the official OpenAI form.
 | Release management | Release notes draft, published release tag, readiness audit, and post-release evidence docs. |
 | Security and quality | `SECURITY.md`, security regression tests, secret-like string scanning, CodeQL workflow, Dependabot config, and CI. |
 | Reproducible maintainer workflow | `python -m compileall -q .`, `python -m pytest -q`, `python scripts/generate_sample_report.py --output-dir tmp/sample_report`, `python scripts/run_domain_eval.py --output-json tmp/domain_eval/domain_eval_result.json`, `python scripts/generate_maintainer_report.py --output-dir tmp/maintainer_report`, and `python scripts/check_oss_readiness.py --repo-root .`. |
+| Codex/API-credit fit | Application answers and maintainer automation docs map credits to issue triage, PR security/privacy review, release-note generation, provider-adapter tests, Korean text/OCR evaluation expansion, fallback-safety checks, and public-safe examples. |
 | Submission packet | `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md` and `docs/openai-codex-for-oss-application.md` hold final owner-review copy with 500-character validation. |
 | Ecosystem importance claim | Small but focused OSS candidate for AI-assisted student digital-safety report workflows with educator-facing human-review boundaries. |
+
+## Automated review risk
+
+An automated reviewer may penalize the repo for low public popularity signals:
+stars, downloads, and external contributor base are not the strength of this
+application.
+
+The intended pass case is therefore clear ecosystem importance plus responsible
+maintenance evidence: the repo addresses an education/youth-safety evidence
+workflow, keeps privacy and human-review boundaries visible, and shows how Codex
+and API credits would reduce concrete maintainer work.
 
 ## Small-Repo Honesty
 
@@ -37,6 +49,7 @@ becomes more reusable.
 
 - Application copy: `docs/openai-codex-for-oss-application.md`
 - Submission packet: `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`
+- Automated review packet: `docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md`
 - Readiness audit: `docs/READINESS_AUDIT.md`
 - Maintainer checklist: `docs/MAINTAINER_GITHUB_CHECKLIST.md`
 - Architecture: `docs/ARCHITECTURE.md`

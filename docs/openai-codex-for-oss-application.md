@@ -20,28 +20,29 @@ Final packet: `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`
 
 ## Repo Qualification
 
-<!-- chars:repo_qualification=366 -->
+<!-- chars:repo_qualification=385 -->
 <!-- answer:repo_qualification -->
-I maintain AnsimTalk, a public Flask OSS toolkit for privacy-aware AI-assisted digital-safety evidence reports in education workflows. The repo now has CI, CodeQL, Dependabot, security tests, release evidence, domain evals, maintainer automation, and educator human-review boundaries. It is small but actively maintained and reproducible without private credentials.
+I maintain AnsimTalk, a public Flask OSS toolkit for AI-assisted digital-safety evidence reports in education workflows. It has reproducible CI, CodeQL, Dependabot, security tests, release evidence, issue/PR workflows, domain evals, maintainer automation, and educator human-review boundaries. It targets an important safety workflow where Codex can reduce review and maintenance load.
 <!-- /answer:repo_qualification -->
 
 ## API Credits Usage
 
-<!-- chars:api_credits_usage=336 -->
+<!-- chars:api_credits_usage=362 -->
 <!-- answer:api_credits_usage -->
-I would use API credits for maintainer leverage: issue triage, PR security/privacy review, provider-adapter tests, Korean text/OCR eval expansion, safer fallback checks, release-note drafting, and public-safe examples. The repo already includes local commands and fixtures that show how credits would reduce review and maintenance load.
+I would use API credits for core maintainer work: PR security/privacy review, issue triage, release-note generation, provider-adapter tests, Korean text/OCR eval expansion, fallback-safety checks, and public-safe example reports. The repo includes local fixtures and commands so credits improve documented maintenance workflows, not private user-data processing.
 <!-- /answer:api_credits_usage -->
 
 ## Anything Else
 
-<!-- chars:anything_else=285 -->
+<!-- chars:anything_else=296 -->
 <!-- answer:anything_else -->
-This is not a popularity case. It is a focused OSS safety workflow with explicit privacy limits and human-review boundaries. Codex support would help me turn a prototype into a reusable toolkit while keeping claims modest: no legal, forensic, emergency, or guaranteed-safety authority.
+Adoption is early, so the case rests on ecosystem importance and responsible maintainer evidence rather than popularity. The repo is public, reproducible without credentials, has a release/checklist trail, and keeps clear boundaries: no legal, forensic, emergency, or guaranteed-safety authority.
 <!-- /answer:anything_else -->
 
 ## Evidence Links
 
 - Product shape: `docs/ARCHITECTURE.md`, `docs/PRIVACY_BOUNDARIES.md`
+- Automated review: `docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md`
 - Contributor run: `docs/CONTRIBUTOR_LOCAL_RUN.md`
 - Domain evaluation: `docs/EVALUATION.md`
 - Maintainer automation: `docs/MAINTAINER_AUTOMATION.md`
