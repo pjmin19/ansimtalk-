@@ -50,6 +50,8 @@ becomes more reusable.
 - Application copy: `docs/openai-codex-for-oss-application.md`
 - Submission packet: `docs/CODEX_FOR_OSS_SUBMISSION_PACKET.md`
 - Automated review packet: `docs/CODEX_FOR_OSS_AUTOMATED_REVIEW.md`
+- Whole-picture plan: `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PLAN.md`
+- Goal propulsion prompt: `docs/CODEX_FOR_OSS_GOAL_PROPULSION_PROMPT_KO.md`
 - Readiness audit: `docs/READINESS_AUDIT.md`
 - Maintainer checklist: `docs/MAINTAINER_GITHUB_CHECKLIST.md`
 - Architecture: `docs/ARCHITECTURE.md`
