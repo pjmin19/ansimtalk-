@@ -22,6 +22,10 @@ M1 public OSS product-shape hardening adds architecture and privacy-boundary
 documentation so first-time contributors can inspect the runtime flow and data
 handling limits before running the app.
 
+M2 contributor local-run hardening adds a synthetic fixture, sample report
+generator, contributor runbook, and CLI test so local JSON/PDF generation can be
+verified without live provider credentials.
+
 ## Evidence
 
 Commands:
@@ -70,6 +74,9 @@ Observed GitHub results:
   is bundled because the independent Dependabot PRs failed when tested apart.
 - M1 product-shape docs: `docs/ARCHITECTURE.md` and
   `docs/PRIVACY_BOUNDARIES.md`.
+- M2 contributor local-run docs and command: `docs/CONTRIBUTOR_LOCAL_RUN.md`,
+  `examples/fixtures/cyberbullying_sample.txt`, and
+  `scripts/generate_sample_report.py`.
 
 Observed fresh-clone results after PR #8 merge:
 
@@ -101,8 +108,8 @@ JSON evidence:
   issue templates, issue routing config, architecture docs, privacy-boundary
   docs, reference-pattern docs, release notes draft, and roadmap present.
 - M2 Reproducible Execution: compile, pytest, readiness, fresh-clone, HTTP
-  smoke checks, and security regression checks pass without provider
-  credentials.
+  smoke checks, sample report command checks, and security regression checks
+  pass without provider credentials.
 - M3 Maintainer Evidence: GitHub issues #2-#6 closed, milestone
   `v0.1.0-oss-candidate` closed, release `v0.1.0-oss-candidate` created,
   reference-pattern hardening recorded, and OpenAI form checklist prepared

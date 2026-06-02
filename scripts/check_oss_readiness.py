@@ -29,15 +29,19 @@ REQUIRED_PATHS = [
     "docs/ROADMAP.md",
     "docs/MAINTAINER_GITHUB_CHECKLIST.md",
     "docs/ARCHITECTURE.md",
+    "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/GITHUB_REFERENCE_PATTERNS.md",
     "docs/OPENAI_CODEX_FOR_OSS_EVIDENCE.md",
     "docs/PRIVACY_BOUNDARIES.md",
     "docs/RELEASE_NOTES_DRAFT.md",
     "docs/READINESS_AUDIT.md",
     "docs/openai-codex-for-oss-application.md",
+    "examples/fixtures/cyberbullying_sample.txt",
     "scripts/check_oss_readiness.py",
+    "scripts/generate_sample_report.py",
     "tests/test_app_smoke.py",
     "tests/test_oss_readiness.py",
+    "tests/test_sample_report_command.py",
     "tests/test_security_review_regressions.py",
 ]
 
@@ -47,6 +51,7 @@ README_REQUIRED_TERMS = [
     "Quick Start",
     "Configuration",
     "Tests",
+    "Contributor Local Run",
     "Security",
     "Architecture",
     "Privacy Boundaries",
@@ -55,7 +60,10 @@ README_REQUIRED_TERMS = [
 
 README_REQUIRED_REFERENCES = [
     "docs/ARCHITECTURE.md",
+    "docs/CONTRIBUTOR_LOCAL_RUN.md",
     "docs/PRIVACY_BOUNDARIES.md",
+    "examples/fixtures/cyberbullying_sample.txt",
+    "scripts/generate_sample_report.py",
 ]
 
 SECRET_PATTERNS = [
